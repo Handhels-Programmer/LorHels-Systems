@@ -57,28 +57,29 @@
         const db = getFirestore(firebaseApp);
         const currentAppId = "lorhels-systems-a1ad4";
 
-        // --- Global Constants ---
+        // --- Constantes Globales ---
         const CURRENCIES = {
             'DOP': { symbol: 'RD$', label: 'Peso Dom. (DOP)' },
             'USD': { symbol: 'US$', label: 'Dólar (USD)' }
         };
 
         const CLIENT_TYPES = {
-            'fiscal': { label: 'Valor Fiscal', color: 'bg-indigo-50 text-indigo-700 border border-indigo-100' },
-            'final': { label: 'Consumidor Final', color: 'bg-slate-50 text-slate-600 border border-slate-100' },
-            'government': { label: 'Gubernamental', color: 'bg-amber-50 text-amber-700 border border-amber-100' },
-            'special': { label: 'Régimen Tributario', color: 'bg-purple-50 text-purple-700 border border-purple-100' }
+            'fiscal': { label: 'Valor Fiscal', color: 'bg-indigo-50 text-indigo-700' },
+            'final': { label: 'Consumidor Final', color: 'bg-slate-50 text-slate-600' },
+            'government': { label: 'Gubernamental', color: 'bg-amber-50 text-amber-700' },
+            'special': { label: 'Régimen Tributario', color: 'bg-purple-50 text-purple-700' }
         };
 
         const DOC_TYPES = { 'rnc': 'RNC', 'cedula': 'Cédula', 'passport': 'Pasaporte', 'na': 'N/A' };
 
-        const formatCurrency = (amount, currencyCode) => {
+        // --- Helper Functions ---
+        function formatCurrency(amount, currencyCode) {
             const symbol = CURRENCIES[currencyCode]?.symbol || 'RD$';
             return `${symbol}${Math.abs(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-        };
+        }
 
         // --- Global UI Components ---
-        const Icon = ({ name, size = 20, className = "" }) => {
+        function Icon({ name, size = 20, className = "" }) {
             const iconRef = useRef(null);
             useEffect(() => {
                 if (window.lucide && iconRef.current) {
@@ -88,13 +89,24 @@
                 }
             }, [name, size, className]);
             return <span ref={iconRef} className="inline-flex items-center justify-center leading-none" />;
-        };
+        }
 
-        const Card = ({ children, className = "", ...props }) => (
-            <div className={`bg-white rounded-3xl border border-slate-100 shadow-sm ${className}`} {...props}>{children}</div>
-        );
+        function Card({ children, className = "", ...props }) {
+            return <div className={`bg-white rounded-3xl border border-slate-100 shadow-sm ${className}`} {...props}>{children}</div>;
+        }
 
-        const Button = ({ children, onClick, variant = 'primary', className = "", icon, loading = false, type = "button", disabled = false }) => {
+        function Badge({ variant = 'default', children }) {
+            const styles = {
+                success: 'bg-emerald-100 text-emerald-700',
+                warning: 'bg-amber-100 text-amber-700',
+                danger: 'bg-red-100 text-red-700',
+                info: 'bg-blue-100 text-blue-700',
+                default: 'bg-slate-100 text-slate-600'
+            };
+            return <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${styles[variant] || styles.default}`}>{children}</span>;
+        }
+
+        function Button({ children, onClick, variant = 'primary', className = "", icon, loading = false, type = "button", disabled = false }) {
             const styles = {
                 primary: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100 shadow-lg',
                 secondary: 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50',
@@ -107,162 +119,117 @@
                     {children}
                 </button>
             );
-        };
+        }
 
-        const Badge = ({ variant = 'default', children }) => {
-            const styles = {
-                success: 'bg-emerald-100 text-emerald-700',
-                warning: 'bg-amber-100 text-amber-700',
-                danger: 'bg-red-100 text-red-700',
-                info: 'bg-blue-100 text-blue-700',
-                default: 'bg-slate-100 text-slate-600'
-            };
-            return <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${styles[variant] || styles.default}`}>{children}</span>;
-        };
-
-        const Modal = ({ isOpen, onClose, title, children }) => {
+        function ModalComponent({ isOpen, onClose, title, children }) {
             if (!isOpen) return null;
             return (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose}></div>
                     <Card className="relative w-full max-w-lg p-8 animate-slide-up shadow-2xl overflow-y-auto max-h-[90vh]">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-black italic">{title}</h3>
-                            <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><Icon name="X" /></button>
+                            <h3 className="text-xl font-black italic tracking-tighter uppercase">{title}</h3>
+                            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors"><Icon name="X" /></button>
                         </div>
                         {children}
                     </Card>
                 </div>
             );
-        };
+        }
+
+        // --- Funciones PDF ---
+        function generateDocPDFGlobal(companyName, document, type, clientsData) {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            const client = clientsData.find(c => c.id === document.clientId) || {};
+            pdf.setFontSize(20); pdf.setTextColor(79, 70, 229); pdf.text(companyName, 20, 25);
+            pdf.setFontSize(10); pdf.setTextColor(100); pdf.text(type.toUpperCase(), 20, 32);
+            pdf.setFillColor(248, 250, 252); pdf.rect(20, 42, 170, 45, 'F');
+            pdf.setTextColor(0); pdf.setFont("helvetica", "bold"); pdf.text("DATOS DEL CLIENTE:", 25, 50);
+            pdf.setFont("helvetica", "normal"); 
+            pdf.text(`Nombre: ${document.clientName}`, 25, 58);
+            pdf.text(`Identificación: ${client.rnc || 'S/N'}`, 25, 64);
+            pdf.text(`Email: ${client.email || '-'}`, 25, 70);
+            pdf.text(`Dirección: ${client.address || '-'}`, 25, 76);
+            const rows = (document.items || []).map(i => [i.name, i.qty, formatCurrency(i.price, document.currency), formatCurrency(i.price * i.qty, document.currency)]);
+            pdf.autoTable({ head: [['Descripción', 'Cant', 'Precio', 'Total']], body: rows, startY: 95, theme: 'grid' });
+            const finalY = pdf.lastAutoTable.finalY + 10;
+            pdf.setFont("helvetica", "bold");
+            pdf.text(`TOTAL: ${formatCurrency(document.total, document.currency)}`, 190, finalY + 5, { align: 'right' });
+            pdf.save(`${type}_${document.clientName}.pdf`);
+        }
+
+        function generateStatementPDFGlobal(companyName, client, invoices) {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            pdf.setFontSize(20); pdf.setTextColor(79, 70, 229); pdf.text(companyName, 20, 25);
+            pdf.setFontSize(10); pdf.text("ESTADO DE CUENTA", 20, 32);
+            pdf.setFillColor(248, 250, 252); pdf.rect(20, 40, 170, 40, 'F');
+            pdf.setTextColor(0); pdf.text(`Cliente: ${client.name}`, 25, 50); pdf.text(`RNC: ${client.rnc}`, 25, 58); pdf.text(`Tel: ${client.phone || '-'}`, 25, 66);
+            const rows = invoices.map(i => [i.date, i.id.substring(0,8), formatCurrency(i.total, i.currency), i.status.toUpperCase()]);
+            pdf.autoTable({ head: [['Fecha', 'Documento', 'Monto', 'Estado']], body: rows, startY: 90 });
+            pdf.save(`Estado_${client.name}.pdf`);
+        }
 
         // --- Login Screen ---
-        const LoginScreen = ({ onLogin }) => {
+        function LoginScreen({ onLogin }) {
             const [mode, setMode] = useState('select'); 
             const [selectedOrg, setSelectedOrg] = useState(null);
             const [companies, setCompanies] = useState([]);
             const [pin, setPin] = useState('');
             const [error, setError] = useState('');
-            const [loading, setLoading] = useState(false);
 
             useEffect(() => {
                 const q = collection(db, 'artifacts', currentAppId, 'public', 'data', 'companies');
                 const unsub = onSnapshot(q, (s) => {
-                    const list = s.docs.map(d => ({ id: d.id, ...d.data() }));
-                    setCompanies(list);
+                    setCompanies(s.docs.map(d => ({ id: d.id, ...d.data() })));
                 });
                 return () => unsub();
             }, []);
 
             const handlePinSubmit = (e) => {
                 e.preventDefault();
-                if (pin === selectedOrg.staticPin) {
-                    onLogin(selectedOrg.id, selectedOrg.name);
-                } else {
-                    setError('PIN incorrecto. Intente de nuevo.');
-                    setPin('');
-                }
-            };
-
-            const handleCreateCompany = async (e) => {
-                e.preventDefault();
-                setLoading(true);
-                const fd = new FormData(e.target);
-                const payload = Object.fromEntries(fd.entries());
-                if (payload.staticPin.length !== 4) {
-                    alert("El PIN debe tener exactamente 4 dígitos.");
-                    setLoading(false);
-                    return;
-                }
-                try {
-                    const slug = payload.name.toLowerCase().replace(/\s+/g, '-');
-                    await addDoc(collection(db, 'artifacts', currentAppId, 'public', 'data', 'companies'), {
-                        ...payload,
-                        slug,
-                        timestamp: Date.now(),
-                        defaultCurrency: 'DOP'
-                    });
-                    setMode('select');
-                    alert("Empresa registrada exitosamente.");
-                } catch (e) {
-                    alert("Error: " + e.message);
-                } finally { setLoading(false); }
+                if (pin === selectedOrg.staticPin) onLogin(selectedOrg.id, selectedOrg.name);
+                else { setError('PIN incorrecto'); setPin(''); }
             };
 
             return (
                 <div className="h-screen w-full flex items-center justify-center bg-slate-50 px-6 overflow-y-auto">
-                    <Card className={`w-full ${mode === 'create' ? 'max-w-2xl' : 'max-w-md'} p-10 shadow-2xl border-none my-8 animate-slide-up`}>
+                    <Card className="w-full max-w-md p-10 shadow-2xl border-none animate-slide-up">
                         <div className="text-center mb-8">
                             <h1 className="text-3xl font-black italic text-indigo-950 uppercase tracking-tighter">LorHels ERP</h1>
-                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Gestión de Negocios</p>
                         </div>
-                        {mode === 'select' && (
+                        {mode === 'select' ? (
                             <div className="space-y-4">
-                                <p className="text-[10px] font-black uppercase text-slate-400 text-center tracking-widest">Seleccione Organización</p>
                                 <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
                                     {companies.map(c => (
-                                        <button key={c.id} onClick={() => { setSelectedOrg(c); setMode('pin'); }} className="w-full p-4 bg-white border-2 border-slate-50 rounded-2xl hover:border-indigo-600 hover:bg-indigo-50 text-left flex justify-between items-center group transition-all shadow-sm">
-                                            <div className="flex items-center gap-3">
-                                                {c.logo ? <img src={c.logo} className="w-8 h-8 rounded-lg object-contain bg-slate-100" /> : <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center font-bold text-xs">{c.name.charAt(0)}</div>}
-                                                <span className="font-bold text-slate-700">{c.name}</span>
-                                            </div>
+                                        <button key={c.id} onClick={() => { setSelectedOrg(c); setMode('pin'); }} className="w-full p-4 bg-white border-2 border-slate-50 rounded-2xl hover:border-indigo-600 flex justify-between items-center shadow-sm">
+                                            <span className="font-bold text-slate-700">{c.name}</span>
                                             <Icon name="ChevronRight" size={18} />
                                         </button>
                                     ))}
-                                    {companies.length === 0 && <p className="text-center py-4 text-slate-300 text-sm italic">No hay empresas registradas</p>}
+                                    {companies.length === 0 && <p className="text-center py-4 text-slate-300 italic text-sm">Cargando empresas...</p>}
                                 </div>
-                                <Button variant="secondary" className="w-full" onClick={() => setMode('create')}>Crear Nueva Empresa</Button>
                             </div>
-                        )}
-                        {mode === 'pin' && (
+                        ) : (
                             <form onSubmit={handlePinSubmit} className="space-y-6 text-center animate-slide-up">
                                 <p className="font-black text-indigo-600 uppercase tracking-widest text-lg">{selectedOrg.name}</p>
-                                <input type="password" value={pin} onChange={e => setPin(e.target.value)} maxLength="4" placeholder="••••" className="w-full text-center text-4xl tracking-widest p-4 bg-slate-50 rounded-2xl font-black outline-none border-2 border-transparent focus:border-indigo-600 shadow-inner" required autoFocus />
-                                {error && <p className="text-red-500 font-bold text-xs bg-red-50 p-2 rounded-lg">{error}</p>}
+                                <input type="password" value={pin} onChange={e => setPin(e.target.value)} maxLength="4" placeholder="••••" className="w-full text-center text-4xl p-4 bg-slate-50 rounded-2xl font-black outline-none border-2 border-transparent focus:border-indigo-600" required autoFocus />
+                                {error && <p className="text-red-500 font-bold text-xs">{error}</p>}
                                 <div className="flex gap-4">
                                     <Button variant="ghost" className="flex-1" onClick={() => {setMode('select'); setError('');}}>Atrás</Button>
                                     <Button type="submit" className="flex-1">Acceder</Button>
                                 </div>
                             </form>
                         )}
-                        {mode === 'create' && (
-                            <form onSubmit={handleCreateCompany} className="space-y-4 animate-slide-up">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Nombre</label>
-                                        <input name="name" placeholder="Ej. Mi Empresa" className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Representante</label>
-                                        <input name="rep" placeholder="Nombre completo" className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">RNC / Cédula</label>
-                                        <input name="rnc" placeholder="000-00000-0" className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Email</label>
-                                        <input name="email" type="email" placeholder="contacto@empresa.com" className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required />
-                                    </div>
-                                    <div className="col-span-2 space-y-1">
-                                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">PIN DE SEGURIDAD (4 DÍGITOS)</label>
-                                        <input name="staticPin" type="password" maxLength="4" placeholder="••••" className="w-full p-4 bg-indigo-50 rounded-xl font-black border-none text-center tracking-[1em] text-2xl shadow-inner" required />
-                                    </div>
-                                </div>
-                                <div className="flex gap-4 pt-4">
-                                    <Button variant="ghost" className="flex-1" onClick={() => setMode('select')}>Cancelar</Button>
-                                    <Button type="submit" className="flex-1" loading={loading}>Registrar</Button>
-                                </div>
-                            </form>
-                        )}
                     </Card>
                 </div>
             );
-        };
+        }
 
         // --- App Component ---
         function App() {
-            // -- State Definitions --
+            // States
             const [user, setUser] = useState(null);
             const [loading, setLoading] = useState(true);
             const [companyId, setCompanyId] = useState(localStorage.getItem('lorhels_slug'));
@@ -272,7 +239,7 @@
             const [actionLoading, setActionLoading] = useState(false);
             const [syncStatus, setSyncStatus] = useState('offline');
             const [defaultCurrency, setDefaultCurrency] = useState('DOP');
-
+            
             const [data, setData] = useState({ 
                 clients: [], suppliers: [], taxes: [], products: [], movements: [], invoices: [], quotes: [], companyProfile: null 
             });
@@ -289,26 +256,20 @@
                 id: null, type: 'factura', clientId: '', clientName: '', currency: 'DOP', items: [], taxId: '', note: '', date: new Date().toISOString().split('T')[0] 
             });
 
-            // -- Logic Handlers --
+            // Handlers
             const handleLogin = (id, name) => { 
-                setCompanyId(id); 
-                setCompanyName(name); 
-                localStorage.setItem('lorhels_slug', id); 
-                localStorage.setItem('lorhels_name', name); 
+                setCompanyId(id); setCompanyName(name); 
+                localStorage.setItem('lorhels_slug', id); localStorage.setItem('lorhels_name', name); 
             };
 
-            const handleLogout = () => { 
-                setCompanyId(null); 
-                setCompanyName(''); 
-                localStorage.clear(); 
-            };
+            const handleLogout = () => { setCompanyId(null); setCompanyName(''); localStorage.clear(); };
 
             const handleViewClient = (client) => { setSelectedClient(client); setView('client_detail'); };
 
             const deleteData = async (type, id) => {
-                if (!confirm('¿Seguro que desea eliminar este registro?')) return;
-                const collectionName = type === 'tax' ? 'taxes' : type + 's';
-                try { await deleteDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', collectionName, id)); } catch (e) { console.error(e); }
+                if (!confirm('¿Seguro que desea eliminar?')) return;
+                const col = type === 'tax' ? 'taxes' : type + 's';
+                try { await deleteDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', col, id)); } catch (e) { console.error(e); }
             };
 
             const saveDataHandler = async (type, payload) => {
@@ -317,46 +278,44 @@
                 try {
                     const cleanPayload = Object.fromEntries(Object.entries(payload).map(([k, v]) => [k, v === undefined ? "" : v]));
                     cleanPayload.timestamp = Date.now();
-                    cleanPayload.createdBy = user.uid;
-                    const collectionName = type === 'tax' ? 'taxes' : type + 's';
+                    const col = type === 'tax' ? 'taxes' : type + 's';
                     if (cleanPayload.id) {
-                        const { id, ...updateData } = cleanPayload;
-                        await updateDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', collectionName, id), updateData);
+                        const { id, ...uData } = cleanPayload;
+                        await updateDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', col, id), uData);
                     } else {
-                        await addDoc(collection(db, 'artifacts', currentAppId, 'public', 'data', collectionName), cleanPayload);
+                        await addDoc(collection(db, 'artifacts', currentAppId, 'public', 'data', col), cleanPayload);
                     }
                     setModal({ open: false, type: '', data: null });
                 } catch (e) { alert("Error: " + e.message); } finally { setActionLoading(false); }
             };
 
-            const addItemToBilling = (product) => {
-                const existing = billingForm.items.find(i => i.id === product.id);
-                if (existing) {
-                    setBillingForm({ ...billingForm, items: billingForm.items.map(i => i.id === product.id ? {...i, qty: i.qty + 1} : i) });
+            const addItemToBilling = (p) => {
+                const ex = (billingForm.items || []).find(i => i.id === p.id);
+                if (ex) {
+                    setBillingForm({ ...billingForm, items: billingForm.items.map(i => i.id === p.id ? {...i, qty: i.qty + 1} : i) });
                 } else {
-                    setBillingForm({ ...billingForm, items: [...billingForm.items, { id: product.id, name: product.name, price: parseFloat(product.salePrice) || 0, qty: 1, currency: product.currency || defaultCurrency, trackStock: product.trackStock !== false }] });
+                    setBillingForm({ ...billingForm, items: [...(billingForm.items || []), { id: p.id, name: p.name, price: parseFloat(p.salePrice) || 0, qty: 1, currency: p.currency || defaultCurrency, trackStock: p.trackStock !== false }] });
                 }
             };
 
             const calculateBillingTotals = () => {
-                const subtotal = billingForm.items.reduce((a, b) => a + (b.price * b.qty), 0);
+                const subtotal = (billingForm.items || []).reduce((a, b) => a + (b.price * b.qty), 0);
                 const tax = data.taxes.find(t => t.id === billingForm.taxId);
                 const taxAmount = tax ? subtotal * (tax.rate / 100) : 0;
                 return { subtotal, taxAmount, total: subtotal + taxAmount };
             };
 
             const submitBilling = async () => {
-                if (!billingForm.clientId || billingForm.items.length === 0) return alert("Seleccione cliente y añada artículos.");
+                if (!billingForm.clientId || (billingForm.items || []).length === 0) return alert("Seleccione cliente y añada productos.");
                 setActionLoading(true);
                 const { total, subtotal, taxAmount } = calculateBillingTotals();
-                const collectionName = billingForm.type === 'factura' ? 'invoices' : 'quotes';
+                const col = billingForm.type === 'factura' ? 'invoices' : 'quotes';
                 try {
                     const docData = { ...billingForm, total, subtotal, taxAmount, timestamp: Date.now() };
                     if (billingForm.id) {
-                        const { id, ...uData } = docData;
-                        await updateDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', collectionName, id), uData);
+                        await updateDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', col, billingForm.id), docData);
                     } else {
-                        const docRef = await addDoc(collection(db, 'artifacts', currentAppId, 'public', 'data', collectionName), docData);
+                        const docRef = await addDoc(collection(db, 'artifacts', currentAppId, 'public', 'data', col), docData);
                         if (billingForm.type === 'factura') {
                             for (const item of billingForm.items) {
                                 if (item.trackStock) {
@@ -365,7 +324,6 @@
                                     if (pSnap.exists()) {
                                         const curStock = parseInt(pSnap.data().stock) || 0;
                                         await updateDoc(pRef, { stock: curStock - item.qty });
-                                        await addDoc(collection(db, 'artifacts', currentAppId, 'public', 'data', 'movements'), { productId: item.id, productName: item.name, type: 'SALIDA', quantity: item.qty, reason: `Venta Fact #${docRef.id.substring(0,4)}`, stockAfter: curStock - item.qty, date: billingForm.date, timestamp: Date.now() });
                                     }
                                 }
                             }
@@ -376,7 +334,7 @@
             };
 
             const convertQuoteToInvoice = async (quote) => {
-                if (!confirm("¿Convertir esta cotización en factura?")) return;
+                if (!confirm("¿Convertir en factura?")) return;
                 setActionLoading(true);
                 try {
                     const inv = { ...quote, type: 'factura', status: 'pendiente', timestamp: Date.now(), quoteId: quote.id };
@@ -387,8 +345,18 @@
                 } catch (e) { alert(e.message); } finally { setActionLoading(false); }
             };
 
-            const generateDocPDFLocal = (document, type) => {
-                generateDocPDF(document, type);
+            const adjustStock = async (e) => {
+                e.preventDefault();
+                setActionLoading(true);
+                const fd = new FormData(e.target);
+                const payload = Object.fromEntries(fd.entries());
+                const product = modal.data;
+                try {
+                    const qty = parseInt(payload.quantity) || 0;
+                    const newStock = payload.moveType === 'ENTRADA' ? (parseInt(product.stock) + qty) : (parseInt(product.stock) - qty);
+                    await updateDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'products', product.id), { stock: newStock });
+                    setModal({ open: false, type: '', data: null });
+                } catch (e) { alert(e.message); } finally { setActionLoading(false); }
             };
 
             const updateProfile = async (e) => {
@@ -402,30 +370,13 @@
                 } catch (e) { alert(e.message); } finally { setActionLoading(false); }
             };
 
-            const adjustStock = async (e) => {
-                e.preventDefault();
-                setActionLoading(true);
-                const fd = new FormData(e.target);
-                const payload = Object.fromEntries(fd.entries());
-                const product = modal.data;
-                const qty = parseInt(payload.quantity);
-                const isEntry = payload.moveType === 'ENTRADA';
-                try {
-                    const newStock = isEntry ? (parseInt(product.stock) + qty) : (parseInt(product.stock) - qty);
-                    const prodRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'products', product.id);
-                    await updateDoc(prodRef, { stock: newStock });
-                    await addDoc(collection(db, 'artifacts', currentAppId, 'public', 'data', 'movements'), { productId: product.id, productName: product.name, type: payload.moveType, quantity: qty, reason: payload.reason, stockAfter: newStock, date: new Date().toISOString().split('T')[0], timestamp: Date.now() });
-                    setModal({ open: false, type: '', data: null });
-                } catch (e) { alert(e.message); } finally { setActionLoading(false); }
-            };
-
-            // -- Effects --
+            // Firebase Subscriptions
             useEffect(() => {
-                const unsub = onAuthStateChanged(auth, u => {
+                const unsubAuth = onAuthStateChanged(auth, u => {
                     if (!u) signInAnonymously(auth);
                     setUser(u); setLoading(false);
                 });
-                return () => unsub();
+                return () => unsubAuth();
             }, []);
 
             useEffect(() => {
@@ -434,8 +385,9 @@
                 const unsubs = [
                     onSnapshot(doc(db, 'artifacts', currentAppId, 'public', 'data', 'companies', companyId), s => {
                         if (s.exists()) {
-                            setData(prev => ({ ...prev, companyProfile: { id: s.id, ...s.data() } }));
-                            if (s.data().defaultCurrency) setDefaultCurrency(s.data().defaultCurrency);
+                            const d = s.data();
+                            setData(prev => ({ ...prev, companyProfile: { id: s.id, ...d } }));
+                            if (d.defaultCurrency) setDefaultCurrency(d.defaultCurrency);
                         }
                     }),
                     onSnapshot(collection(db, 'artifacts', currentAppId, 'public', 'data', 'clients'), s => setData(p => ({...p, clients: s.docs.map(d => ({id: d.id, ...d.data()}))}))),
@@ -450,22 +402,28 @@
                 return () => unsubs.forEach(u => u());
             }, [user, companyId]);
 
-            // -- Rendering --
             if (loading) return <div className="h-screen flex items-center justify-center bg-white"><div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>;
             if (!companyId) return <LoginScreen onLogin={handleLogin} />;
 
-            const filteredProducts = data.products.filter(p => p.name?.toLowerCase().includes(searchTerm.toLowerCase()) || p.code?.toLowerCase().includes(searchTerm.toLowerCase()));
-            const filteredClients = data.clients.filter(c => c.name?.toLowerCase().includes(searchTerm.toLowerCase()) || c.rnc?.includes(searchTerm));
-            const filteredSuppliers = data.suppliers.filter(s => s.name?.toLowerCase().includes(searchTerm.toLowerCase()) || s.rnc?.includes(searchTerm));
+            const filteredProducts = data.products.filter(p => (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()));
+            const filteredClients = data.clients.filter(c => (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()));
+            const filteredSuppliers = data.suppliers.filter(s => (s.name || '').toLowerCase().includes(searchTerm.toLowerCase()));
+
+            // Info 360 Helpers
+            const cInvs = data.invoices.filter(i => i.clientId === selectedClient?.id);
+            const cQuotes = data.quotes.filter(q => q.clientId === selectedClient?.id);
+            const balance = cInvs.reduce((acc, i) => i.status === 'pendiente' ? acc + (i.total || 0) : acc, 0);
+            const billed = cInvs.reduce((acc, i) => acc + (i.total || 0), 0);
 
             return (
                 <div className="flex h-screen w-full relative bg-[#f8fafc]">
+                    {/* Sidebar */}
                     <aside className={`${sidebarOpen ? 'w-80' : 'w-24'} bg-white border-r border-slate-100 sidebar-transition flex flex-col z-30 shadow-2xl`}>
-                        <div className="p-10 flex items-center gap-4 overflow-hidden">
+                        <div className="p-10 flex items-center gap-4">
                             <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white transform -rotate-6 shadow-xl font-black text-xl italic">LH</div>
-                            {sidebarOpen && <h1 className="font-black text-2xl uppercase text-indigo-950">LorHels</h1>}
+                            {sidebarOpen && <h1 className="font-black text-2xl uppercase text-indigo-950 tracking-tighter">LorHels</h1>}
                         </div>
-                        <nav className="flex-grow px-6 space-y-2 overflow-y-auto">
+                        <nav className="flex-grow px-6 space-y-2">
                             {[{ id: 'billing', label: 'Facturación', icon: 'FileText' }, { id: 'inventory', label: 'Inventario', icon: 'Package' }, { id: 'suppliers', label: 'Suplidores', icon: 'Truck' }, { id: 'clients', label: 'Clientes', icon: 'Users' }, { id: 'settings', label: 'Configuración', icon: 'Settings' }].map(item => (
                                 <button key={item.id} onClick={() => {setView(item.id); setSelectedClient(null);}} className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all ${view === item.id || (view === 'billing_form' && item.id === 'billing') || (view === 'client_detail' && item.id === 'clients') ? 'bg-indigo-600 text-white shadow-xl' : 'text-slate-400 hover:bg-indigo-50 hover:text-indigo-600'}`}>
                                     <Icon name={item.icon} size={20} className={sidebarOpen ? '' : 'mx-auto'} />
@@ -474,8 +432,8 @@
                             ))}
                         </nav>
                         <div className="p-8 space-y-4">
-                            <button onClick={handleLogout} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-red-400 hover:bg-red-50 font-bold text-sm transition-all">{sidebarOpen ? "Cerrar Empresa" : <Icon name="LogOut" size={18} className="mx-auto" />}</button>
-                            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="w-full p-4 bg-slate-50 rounded-2xl text-slate-400 flex items-center justify-center transition-all"><Icon name="ChevronRight" className={sidebarOpen ? 'rotate-180' : ''} /></button>
+                            <button onClick={handleLogout} className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-red-400 hover:bg-red-50 font-bold text-sm">{sidebarOpen ? "Cerrar Empresa" : <Icon name="LogOut" size={18} className="mx-auto" />}</button>
+                            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="w-full p-4 bg-slate-50 rounded-2xl text-slate-400 flex items-center justify-center"><Icon name="ChevronRight" className={sidebarOpen ? 'rotate-180' : ''} /></button>
                         </div>
                     </aside>
 
@@ -483,24 +441,24 @@
                         <header className="h-28 glass border-b border-slate-100 flex items-center justify-between px-12 sticky top-0 z-20">
                             <div className="flex items-center gap-4">
                                 {data.companyProfile?.logo && <img src={data.companyProfile.logo} className="w-12 h-12 rounded-xl object-contain bg-white shadow-sm" />}
-                                <div><p className="text-2xl font-black text-slate-800 uppercase italic leading-none">{companyName}</p><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Gestión • {CURRENCIES[defaultCurrency]?.symbol}</p></div>
+                                <div><p className="text-2xl font-black text-slate-800 uppercase italic leading-none">{companyName}</p><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Gestión Empresarial • {CURRENCIES[defaultCurrency]?.symbol}</p></div>
                             </div>
                         </header>
 
-                        <div className="flex-grow overflow-y-auto p-12 custom-shadow">
+                        <div className="flex-grow overflow-y-auto p-12">
                             <div className="max-w-7xl mx-auto pb-20">
                                 
                                 {view === 'billing' && (
                                     <div className="space-y-8 animate-slide-up">
                                         <div className="flex justify-between items-end">
-                                            <div><h2 className="text-4xl font-black italic text-indigo-950 uppercase">Facturación</h2><div className="flex gap-4 mt-4 border-b border-slate-200"><button onClick={() => setBillingTab('facturas')} className={`pb-2 px-4 font-bold text-sm ${billingTab === 'facturas' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>Facturas</button><button onClick={() => setBillingTab('cotizaciones')} className={`pb-2 px-4 font-bold text-sm ${billingTab === 'cotizaciones' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>Cotizaciones</button></div></div>
+                                            <div><h2 className="text-4xl font-black italic text-indigo-950 uppercase">Facturación</h2><div className="flex gap-4 mt-4 border-b border-slate-200"><button onClick={() => setBillingTab('facturas')} className={`pb-2 px-4 font-bold text-sm transition-all ${billingTab === 'facturas' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>Facturas</button><button onClick={() => setBillingTab('cotizaciones')} className={`pb-2 px-4 font-bold text-sm transition-all ${billingTab === 'cotizaciones' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>Cotizaciones</button></div></div>
                                             <Button icon="Plus" onClick={() => { setBillingForm({ id: null, type: 'factura', clientId: '', clientName: '', currency: defaultCurrency, items: [], taxId: '', note: '', date: new Date().toISOString().split('T')[0] }); setView('billing_form'); }}>Crear Documento</Button>
                                         </div>
                                         <Card className="overflow-hidden">
                                             <table className="w-full text-left text-sm">
                                                 <thead className="bg-slate-50 text-[10px] uppercase font-black text-slate-400"><tr><th className="p-4">Fecha</th><th className="p-4">Cliente</th><th className="p-4">Total</th><th className="p-4">Estado</th><th className="p-4 text-center">Acciones</th></tr></thead>
                                                 <tbody className="divide-y divide-slate-100">{(billingTab === 'facturas' ? data.invoices : data.quotes).map(docItem => (
-                                                    <tr key={docItem.id} className="hover:bg-slate-50 transition-all"><td className="p-4 font-mono text-xs">{docItem.date}</td><td className="p-4 font-bold text-slate-700">{docItem.clientName}</td><td className="p-4 font-black">{formatCurrency(docItem.total, docItem.currency)}</td><td className="p-4"><Badge variant={docItem.status === 'facturada' || docItem.status === 'pagada' ? 'success' : 'warning'}>{docItem.status}</Badge></td><td className="p-4 text-center flex justify-center gap-3"><button onClick={() => generateDocPDF(docItem, billingTab === 'facturas' ? 'Factura' : 'Cotizacion')} className="text-slate-300 hover:text-indigo-600"><Icon name="FileDown" size={18} /></button>{billingTab === 'cotizaciones' && docItem.status === 'abierta' && (<><button onClick={() => { setBillingForm({ ...docItem, type: 'cotizacion' }); setView('billing_form'); }} className="text-amber-500 hover:text-amber-600"><Icon name="Pencil" size={18} /></button><button onClick={() => convertQuoteToInvoice(docItem)} className="text-emerald-300 hover:text-emerald-600"><Icon name="CheckCircle" size={18} /></button></>)}</td></tr>
+                                                    <tr key={docItem.id} className="hover:bg-slate-50 transition-all"><td className="p-4 font-mono text-xs">{docItem.date}</td><td className="p-4 font-bold text-slate-700">{docItem.clientName}</td><td className="p-4 font-black">{formatCurrency(docItem.total, docItem.currency)}</td><td className="p-4"><Badge variant={docItem.status === 'facturada' || docItem.status === 'pagada' ? 'success' : 'warning'}>{docItem.status}</Badge></td><td className="p-4 text-center flex justify-center gap-3"><button onClick={() => generateDocPDFGlobal(companyName, docItem, billingTab === 'facturas' ? 'Factura' : 'Cotizacion', data.clients)} className="text-slate-300 hover:text-indigo-600"><Icon name="FileDown" size={18} /></button>{billingTab === 'cotizaciones' && docItem.status === 'abierta' && (<><button onClick={() => { setBillingForm({ ...docItem, type: 'cotizacion' }); setView('billing_form'); }} className="text-amber-500 hover:text-amber-600"><Icon name="Pencil" size={18} /></button><button onClick={() => convertQuoteToInvoice(docItem)} className="text-emerald-300 hover:text-emerald-600"><Icon name="CheckCircle" size={18} /></button></>)}</td></tr>
                                                 ))}</tbody>
                                             </table>
                                         </Card>
@@ -511,50 +469,100 @@
                                     <div className="animate-slide-up space-y-8">
                                         <div className="flex items-center gap-4"><button onClick={() => setView('billing')} className="p-3 bg-white rounded-xl border border-slate-200"><Icon name="ArrowLeft" size={20} /></button><h2 className="text-3xl font-black italic text-indigo-950 uppercase">{billingForm.id ? 'Editar' : 'Nueva'} {billingForm.type}</h2></div>
                                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                            <Card className="p-8 space-y-6 lg:col-span-1">
-                                                <div><label className="text-[10px] font-black uppercase text-slate-400">Tipo Documento</label><div className="flex gap-2 mt-2"><button disabled={!!billingForm.id} onClick={() => setBillingForm({...billingForm, type: 'factura'})} className={`flex-1 p-3 rounded-xl font-bold text-sm border-2 ${billingForm.type === 'factura' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-100 text-slate-400'}`}>Factura</button><button disabled={!!billingForm.id} onClick={() => setBillingForm({...billingForm, type: 'cotizacion'})} className={`flex-1 p-3 rounded-xl font-bold text-sm border-2 ${billingForm.type === 'cotizacion' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-100 text-slate-400'}`}>Cotización</button></div></div>
-                                                <div><label className="text-[10px] font-black uppercase text-slate-400">Cliente</label><select value={billingForm.clientId} onChange={(e) => { const c = data.clients.find(cl => cl.id === e.target.value); setBillingForm({...billingForm, clientId: e.target.value, clientName: c?.name || ''}); }} className="w-full p-4 bg-slate-50 rounded-2xl font-bold mt-1 shadow-inner border-none">{data.clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
-                                                <div><label className="text-[10px] font-black uppercase text-slate-400">Impuesto</label><select value={billingForm.taxId} onChange={(e) => setBillingForm({...billingForm, taxId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl font-bold mt-1 shadow-inner border-none"><option value="">Sin Impuesto</option>{data.taxes.map(t => <option key={t.id} value={t.id}>{t.name} ({t.rate}%)</option>)}</select></div>
+                                            <Card className="p-8 space-y-6 lg:col-span-1 shadow-sm">
+                                                <div><label className="text-[10px] font-black uppercase text-slate-400">Tipo</label><div className="flex gap-2 mt-2"><button disabled={!!billingForm.id} onClick={() => setBillingForm({...billingForm, type: 'factura'})} className={`flex-1 p-3 rounded-xl font-bold text-sm border-2 ${billingForm.type === 'factura' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-100 text-slate-400'}`}>Factura</button><button disabled={!!billingForm.id} onClick={() => setBillingForm({...billingForm, type: 'cotizacion'})} className={`flex-1 p-3 rounded-xl font-bold text-sm border-2 ${billingForm.type === 'cotizacion' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-100 text-slate-400'}`}>Cotización</button></div></div>
+                                                <div><label className="text-[10px] font-black uppercase text-slate-400">Cliente</label><select value={billingForm.clientId} onChange={(e) => { const c = data.clients.find(cl => cl.id === e.target.value); setBillingForm({...billingForm, clientId: e.target.value, clientName: c?.name || ''}); }} className="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none mt-1 shadow-inner outline-none">{data.clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
+                                                <div><label className="text-[10px] font-black uppercase text-slate-400">Impuesto</label><select value={billingForm.taxId} onChange={(e) => setBillingForm({...billingForm, taxId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none mt-1 shadow-inner outline-none"><option value="">Sin Impuesto</option>{data.taxes.map(t => <option key={t.id} value={t.id}>{t.name} ({t.rate}%)</option>)}</select></div>
                                                 <div className="pt-6 border-t border-slate-100 space-y-2">{(() => { const { subtotal, taxAmount, total } = calculateBillingTotals(); return (<><div className="flex justify-between font-bold text-slate-400"><span>Subtotal</span><span>{formatCurrency(subtotal, billingForm.currency)}</span></div><div className="flex justify-between font-bold text-slate-400"><span>Impuesto</span><span>{formatCurrency(taxAmount, billingForm.currency)}</span></div><div className="flex justify-between text-2xl font-black text-indigo-950 pt-4 border-t border-slate-100"><span>TOTAL</span><span>{formatCurrency(total, billingForm.currency)}</span></div></>); })()}</div>
-                                                <Button onClick={submitBilling} className="w-full py-4 uppercase font-black" loading={actionLoading}>{billingForm.id ? 'Actualizar' : 'Generar'}</Button>
+                                                <Button onClick={submitBilling} className="w-full py-4 uppercase font-black shadow-lg" loading={actionLoading}>{billingForm.id ? 'Actualizar' : 'Generar'}</Button>
                                             </Card>
-                                            <Card className="p-8 lg:col-span-2 space-y-6">
-                                                <div className="flex justify-between items-center"><h4 className="font-black text-indigo-950 uppercase">Artículos</h4><input type="text" placeholder="Filtrar..." onChange={(e) => setSearchTerm(e.target.value)} className="p-2 bg-slate-50 rounded-xl text-xs font-bold w-48 shadow-inner" /></div>
-                                                <div className="max-h-60 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-2 p-2 bg-slate-50 rounded-2xl">{filteredProducts.map(p => (<button key={p.id} onClick={() => addItemToBilling(p)} className="p-3 bg-white rounded-xl border border-slate-100 hover:border-indigo-300 flex justify-between items-center text-left transition-all"><div><p className="font-bold text-slate-700 text-sm">{p.name}</p><p className="text-[10px] text-slate-400">{formatCurrency(p.salePrice, p.currency)}</p></div><Icon name="PlusCircle" size={18} /></button>))}</div>
-                                                <div className="space-y-2">{billingForm.items.map(item => (
-                                                    <div key={item.id} className="flex items-center gap-4 p-4 bg-slate-50/50 rounded-2xl border border-slate-100"><div className="flex-grow"><p className="font-bold text-slate-800">{item.name}</p><p className="text-xs text-slate-400">{formatCurrency(item.price, item.currency)} x {item.qty}</p></div><div className="flex items-center gap-2 bg-white p-1 rounded-xl shadow-sm"><button onClick={() => setBillingForm({...billingForm, items: billingForm.items.map(i => i.id === item.id ? {...i, qty: Math.max(1, i.qty - 1)} : i)})} className="w-8 h-8 flex items-center justify-center text-slate-400"><Icon name="Minus" size={12}/></button><span className="w-8 text-center font-black">{item.qty}</span><button onClick={() => setBillingForm({...billingForm, items: billingForm.items.map(i => i.id === item.id ? {...i, qty: i.qty + 1} : i)})} className="w-8 h-8 flex items-center justify-center text-slate-400"><Icon name="Plus" size={12}/></button></div><button onClick={() => setBillingForm({...billingForm, items: billingForm.items.filter(i => i.id !== item.id)})} className="text-red-300 hover:text-red-500 p-2"><Icon name="Trash2" size={18} /></button></div>
+                                            <Card className="p-8 lg:col-span-2 space-y-6 shadow-sm">
+                                                <div className="flex justify-between items-center mb-6"><h4 className="font-black text-indigo-950 uppercase tracking-widest text-sm">Artículos / Servicios</h4><input type="text" placeholder="Filtrar..." onChange={(e) => setSearchTerm(e.target.value)} className="p-2 bg-slate-50 rounded-xl text-xs font-bold w-48 shadow-inner" /></div>
+                                                <div className="max-h-60 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-2 p-2 bg-slate-50 rounded-2xl shadow-inner">{filteredProducts.map(p => (<button key={p.id} onClick={() => addItemToBilling(p)} className="p-3 bg-white rounded-xl border border-slate-100 hover:border-indigo-300 flex justify-between items-center text-left transition-all group"><div><p className="font-bold text-slate-700 text-sm">{p.name}</p><p className="text-[10px] text-slate-400">{formatCurrency(p.salePrice, p.currency || defaultCurrency)}</p></div><Icon name="PlusCircle" size={18} /></button>))}</div>
+                                                <div className="space-y-2">{billingForm.items?.map(item => (
+                                                    <div key={item.id} className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm"><div className="flex-grow"><p className="font-bold text-slate-800">{item.name}</p><p className="text-xs text-slate-400 font-bold">{formatCurrency(item.price, item.currency)} x {item.qty}</p></div><div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl"><button onClick={() => setBillingForm({...billingForm, items: billingForm.items.map(i => i.id === item.id ? {...i, qty: Math.max(1, i.qty - 1)} : i)})} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-slate-400 shadow-sm"><Icon name="Minus" size={12}/></button><span className="w-8 text-center font-black">{item.qty}</span><button onClick={() => setBillingForm({...billingForm, items: billingForm.items.map(i => i.id === item.id ? {...i, qty: i.qty + 1} : i)})} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-slate-400 shadow-sm"><Icon name="Plus" size={12}/></button></div><button onClick={() => setBillingForm({...billingForm, items: (billingForm.items || []).filter(i => i.id !== item.id)})} className="text-red-300 hover:text-red-500 p-2"><Icon name="Trash2" size={18} /></button></div>
                                                 ))}</div>
                                             </Card>
                                         </div>
                                     </div>
                                 )}
 
+                                {view === 'client_detail' && selectedClient && (
+                                    <div className="animate-slide-up space-y-8">
+                                        <div className="flex items-center gap-6">
+                                            <button onClick={() => setView('clients')} className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-500 transition-all"><Icon name="ArrowLeft" size={24} /></button>
+                                            <div className="flex-grow">
+                                                <div className="flex items-center gap-3"><h2 className="text-4xl font-black text-indigo-950 uppercase italic tracking-tighter">{selectedClient.name}</h2><Badge variant="info">INFO 360</Badge></div>
+                                                <p className="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">{DOC_TYPES[selectedClient.docType] || 'RNC'}: {selectedClient.rnc}</p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <Button variant="secondary" icon="Pencil" onClick={() => setModal({ open: true, type: 'client', data: selectedClient })}>Editar Perfil</Button>
+                                                <Button icon="FileDown" onClick={() => generateStatementPDFGlobal(companyName, selectedClient, cInvs)}>Estado de Cuenta</Button>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <Card className="p-8 border-l-8 border-red-500 flex flex-col justify-center shadow-sm">
+                                                <p className="text-[10px] font-black uppercase text-slate-400 mb-1 tracking-widest">Balance Pendiente</p>
+                                                <h3 className="text-3xl font-black text-red-600">{formatCurrency(balance, selectedClient.currency || defaultCurrency)}</h3>
+                                            </Card>
+                                            <Card className="p-8 border-l-8 border-indigo-600 flex flex-col justify-center shadow-sm">
+                                                <p className="text-[10px] font-black uppercase text-slate-400 mb-1 tracking-widest">Total Facturado</p>
+                                                <h3 className="text-3xl font-black text-indigo-950">{formatCurrency(billed, selectedClient.currency || defaultCurrency)}</h3>
+                                            </Card>
+                                            <Card className="p-8 border-l-8 border-emerald-500 flex flex-col justify-center shadow-sm">
+                                                <p className="text-[10px] font-black uppercase text-slate-400 mb-1 tracking-widest">Límite de Crédito</p>
+                                                <h3 className="text-3xl font-black text-emerald-700">{formatCurrency(selectedClient.creditLimit, selectedClient.currency || defaultCurrency)}</h3>
+                                            </Card>
+                                        </div>
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 text-left">
+                                            <Card className="p-8 space-y-6 lg:col-span-1 shadow-sm border-none">
+                                                <h4 className="font-black text-lg uppercase text-indigo-900 border-b pb-4 tracking-tighter">Perfil Completo</h4>
+                                                <div className="space-y-4">
+                                                    <div><p className="text-[10px] font-black uppercase text-slate-300">Dirección Física</p><p className="font-bold text-slate-700">{selectedClient.address || '-'}</p></div>
+                                                    <div><p className="text-[10px] font-black uppercase text-slate-300">Email</p><p className="font-bold text-slate-700 break-all">{selectedClient.email || '-'}</p></div>
+                                                    <div><p className="text-[10px] font-black uppercase text-slate-300">Teléfono</p><p className="font-bold text-slate-700">{selectedClient.phone || '-'}</p></div>
+                                                </div>
+                                            </Card>
+                                            <div className="lg:col-span-2 space-y-8">
+                                                <Card className="overflow-hidden border-none shadow-sm">
+                                                    <div className="p-6 bg-slate-50/50 border-b flex justify-between items-center"><h4 className="font-black text-indigo-900 uppercase text-sm tracking-widest">Historial de Compras</h4><Badge variant="success">{cInvs.length}</Badge></div>
+                                                    <table className="w-full text-sm text-left"><thead className="bg-slate-50/30 text-[10px] font-black text-slate-400 uppercase"><tr><th className="p-4">Fecha</th><th className="p-4">Monto</th><th className="p-4">Estado</th></tr></thead>
+                                                        <tbody className="divide-y divide-slate-50">{cInvs.map(i => (<tr key={i.id} className="hover:bg-slate-50/50 transition-all"><td className="p-4 font-mono text-xs">{i.date}</td><td className="p-4 font-black text-slate-700">{formatCurrency(i.total, i.currency)}</td><td className="p-4"><Badge variant={i.status === 'pagada' ? 'success' : 'warning'}>{i.status}</Badge></td></tr>))}</tbody>
+                                                    </table>
+                                                </Card>
+                                                <Card className="overflow-hidden border-none shadow-sm">
+                                                    <div className="p-6 bg-slate-50/50 border-b flex justify-between items-center"><h4 className="font-black text-indigo-900 uppercase text-sm tracking-widest">Cotizaciones</h4><Badge variant="info">{cQuotes.length}</Badge></div>
+                                                    <table className="w-full text-sm text-left"><thead className="bg-slate-50/30 text-[10px] font-black text-slate-400 uppercase"><tr><th className="p-4">Fecha</th><th className="p-4">Total</th><th className="p-4 text-center">PDF</th></tr></thead>
+                                                        <tbody className="divide-y divide-slate-50">{cQuotes.map(q => (<tr key={q.id} className="hover:bg-slate-50/50 transition-all"><td className="p-4 font-mono text-xs">{q.date}</td><td className="p-4 font-black text-slate-700">{formatCurrency(q.total, q.currency)}</td><td className="p-4 text-center"><button onClick={() => generateDocPDFGlobal(companyName, q, 'Cotizacion', data.clients)} className="text-slate-300 hover:text-indigo-600 transition-all"><Icon name="FileDown" size={16}/></button></td></tr>))}</tbody>
+                                                    </table>
+                                                </Card>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {view === 'inventory' && (
                                     <div className="space-y-8 animate-slide-up">
-                                        <div className="flex justify-between items-center"><div><h2 className="text-4xl font-black italic text-indigo-950 uppercase">Inventario</h2><div className="flex gap-4 mt-4 border-b border-slate-200"><button onClick={() => setInventoryTab('existencias')} className={`pb-2 px-4 font-bold text-sm ${inventoryTab === 'existencias' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>Existencias</button><button onClick={() => setInventoryTab('movimientos')} className={`pb-2 px-4 font-bold text-sm ${inventoryTab === 'movimientos' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>Movimientos</button></div></div><Button icon="Plus" onClick={() => setModal({ open: true, type: 'product', data: null })}>Añadir Ítem</Button></div>
+                                        <div className="flex justify-between items-center"><div><h2 className="text-4xl font-black italic text-indigo-950 uppercase tracking-tighter">Inventario</h2><div className="flex gap-4 mt-4 border-b border-slate-200"><button onClick={() => setInventoryTab('existencias')} className={`pb-2 px-4 font-bold text-sm ${inventoryTab === 'existencias' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>Existencias</button><button onClick={() => setInventoryTab('movimientos')} className={`pb-2 px-4 font-bold text-sm ${inventoryTab === 'movimientos' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>Movimientos</button></div></div><Button icon="Plus" onClick={() => setModal({ open: true, type: 'product', data: null })}>Añadir Ítem</Button></div>
                                         {inventoryTab === 'existencias' ? (
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">{filteredProducts.map(p => { const isLow = p.trackStock && (p.stock <= p.minStock); return (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">{filteredProducts.map(p => { const isLow = p.trackStock && (parseInt(p.stock) <= parseInt(p.minStock)); return (
                                                 <Card key={p.id} className={`p-6 flex flex-col justify-between transition-all ${isLow ? 'border-l-8 border-red-500 bg-red-50/10' : ''}`}>
-                                                    <div><div className="flex justify-between mb-4"><div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${p.itemType === 'service' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'}`}><Icon name={p.itemType === 'service' ? 'Zap' : 'Package'} /></div><div className="flex gap-1"><button onClick={() => setModal({ open: true, type: 'stock_adjustment', data: p })} className="p-2 text-slate-300 hover:text-indigo-600"><Icon name="Activity" size={18} /></button><button onClick={() => setModal({ open: true, type: 'product', data: p })} className="p-2 text-slate-300 hover:text-indigo-600"><Icon name="Pencil" size={18} /></button><button onClick={() => deleteData('product', p.id)} className="p-2 text-slate-300 hover:text-red-500"><Icon name="Trash2" size={18} /></button></div></div><h4 className="font-bold text-lg text-slate-800 leading-tight">{p.name}</h4><p className="text-[10px] font-mono text-slate-400 uppercase">Cód: {p.code}</p>{p.description && <p className="text-xs text-slate-500 mt-2 line-clamp-2 italic">{p.description}</p>}</div>
-                                                    <div className="mt-6 pt-6 border-t border-slate-50 flex justify-between items-end"><div><p className="text-[9px] uppercase font-black text-slate-300">Stock</p><p className="text-xl font-black">{p.trackStock ? `${p.stock} ${p.unit}` : '∞'}</p></div><div className="text-right"><p className="text-[9px] uppercase font-black text-slate-300">Precio</p><p className="text-xl font-black text-indigo-600">{formatCurrency(p.salePrice, p.currency || defaultCurrency)}</p></div></div>
+                                                    <div><div className="flex justify-between mb-4"><div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${p.itemType === 'service' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'}`}><Icon name={p.itemType === 'service' ? 'Zap' : 'Package'} /></div><div className="flex gap-1"><button onClick={() => setModal({ open: true, type: 'stock_adjustment', data: p })} className="p-2 text-slate-300 hover:text-indigo-600"><Icon name="Activity" size={18} /></button><button onClick={() => setModal({ open: true, type: 'product', data: p })} className="p-2 text-slate-300 hover:text-indigo-600"><Icon name="Pencil" size={18} /></button><button onClick={() => deleteData('product', p.id)} className="p-2 text-slate-300 hover:text-red-500"><Icon name="Trash2" size={18} /></button></div></div><h4 className="font-bold text-lg text-slate-800 leading-tight">{p.name}</h4><p className="text-[10px] font-mono text-slate-400 uppercase">Cód: {p.code}</p>{p.description && <p className="text-xs text-slate-500 mt-2 line-clamp-2 italic leading-relaxed">{p.description}</p>}</div>
+                                                    <div className="mt-6 pt-6 border-t border-slate-50 flex justify-between items-end"><div><p className="text-[9px] uppercase font-black text-slate-300 tracking-widest text-[10px]">Stock</p><p className="text-xl font-black">{p.trackStock ? `${p.stock} ${p.unit}` : '∞'}</p></div><div className="text-right"><p className="text-[9px] uppercase font-black text-slate-300 tracking-widest text-[10px]">Precio</p><p className="text-xl font-black text-indigo-600">{formatCurrency(p.salePrice, p.currency || defaultCurrency)}</p></div></div>
                                                 </Card>
                                             ); })}</div>
                                         ) : (
-                                            <Card className="overflow-hidden"><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-[10px] uppercase font-black text-slate-400"><tr><th className="p-4">Fecha</th><th className="p-4">Producto</th><th className="p-4">Tipo</th><th className="p-4 text-right">Saldo</th></tr></thead><tbody className="divide-y divide-slate-100">{data.movements.map(m => (<tr key={m.id} className="hover:bg-slate-50"><td className="p-4 font-mono text-xs">{m.date}</td><td className="p-4 font-bold">{m.productName}</td><td className="p-4"><Badge variant={m.type === 'ENTRADA' ? 'success' : 'danger'}>{m.type}</Badge></td><td className="p-4 text-right font-black">{m.stockAfter}</td></tr>))}</tbody></table></Card>
+                                            <Card className="overflow-hidden shadow-sm"><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-[10px] uppercase font-black text-slate-400"><tr><th className="p-4">Fecha</th><th className="p-4">Producto</th><th className="p-4">Tipo</th><th className="p-4 text-right">Saldo Final</th></tr></thead><tbody className="divide-y divide-slate-100">{data.movements.map(m => (<tr key={m.id} className="hover:bg-slate-50"><td className="p-4 font-mono text-xs">{m.date}</td><td className="p-4 font-bold">{m.productName}</td><td className="p-4"><Badge variant={m.type === 'ENTRADA' ? 'success' : 'danger'}>{m.type}</Badge></td><td className="p-4 text-right font-black">{m.stockAfter}</td></tr>))}</tbody></table></Card>
                                         )}
                                     </div>
                                 )}
 
                                 {view === 'suppliers' && (
                                     <div className="space-y-8 animate-slide-up">
-                                        <div className="flex justify-between items-center"><div><h2 className="text-4xl font-black italic text-indigo-950 uppercase tracking-tighter">Suplidores</h2><p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Base de datos de proveedores</p></div><div className="flex gap-3"><div className="bg-white p-1 rounded-xl border border-slate-100 flex shadow-sm"><button onClick={() => setSupplierViewMode('grid')} className={`p-2 rounded-lg ${supplierViewMode === 'grid' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-300'}`}><Icon name="LayoutGrid" size={20} /></button><button onClick={() => setSupplierViewMode('list')} className={`p-2 rounded-lg ${supplierViewMode === 'list' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-300'}`}><Icon name="List" size={20} /></button></div><Button icon="Plus" onClick={() => setModal({ open: true, type: 'supplier', data: null })}>Nuevo Suplidor</Button></div></div>
-                                        {supplierViewMode === 'grid' ? (
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">{filteredSuppliers.map(s => (
-                                                <Card key={s.id} className="p-8 group hover:border-indigo-300 transition-all flex flex-col justify-between shadow-sm"><div className="flex justify-between items-start mb-6"><div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-3xl font-black">{s.name.charAt(0)}</div><div className="flex gap-1"><button onClick={() => setModal({ open: true, type: 'supplier', data: s })} className="p-2 text-slate-200 hover:text-indigo-500"><Icon name="Pencil" size={18} /></button><button onClick={() => deleteData('supplier', s.id)} className="p-2 text-slate-200 hover:text-red-500"><Icon name="Trash2" size={18} /></button></div></div><h4 className="font-bold text-xl text-slate-800">{s.name}</h4><p className="text-xs font-black text-slate-400 mt-1 uppercase">RNC: {s.rnc}</p><div className="mt-4 pt-4 border-t border-slate-50 text-xs font-bold text-slate-500 space-y-1"><p className="flex items-center gap-2"><Icon name="Phone" size={14}/> {s.phone}</p><p className="flex items-center gap-2 text-slate-400 italic"><Icon name="MapPin" size={14}/> {s.address}</p></div></Card>
-                                            ))}</div>
-                                        ) : (
-                                            <Card className="overflow-hidden"><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-[10px] uppercase font-black text-slate-400"><tr><th className="p-4">Nombre</th><th className="p-4">RNC</th><th className="p-4 text-center">Acciones</th></tr></thead><tbody className="divide-y divide-slate-100">{filteredSuppliers.map(s => (<tr key={s.id} className="hover:bg-slate-50 transition-all"><td className="p-4 font-bold text-slate-700">{s.name}</td><td className="p-4 font-mono text-xs">{s.rnc}</td><td className="p-4 text-center flex justify-center gap-2"><button onClick={() => setModal({ open: true, type: 'supplier', data: s })} className="text-indigo-300"><Icon name="Pencil" size={16} /></button><button onClick={() => deleteData('supplier', s.id)} className="text-red-300"><Icon name="Trash2" size={16} /></button></td></tr>))}</tbody></table></Card>
-                                        )}
+                                        <div className="flex justify-between items-center"><div><h2 className="text-4xl font-black italic text-indigo-950 uppercase tracking-tighter">Suplidores</h2><p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Directorio de proveedores</p></div><Button icon="Plus" onClick={() => setModal({ open: true, type: 'supplier', data: null })}>Nuevo Suplidor</Button></div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">{filteredSuppliers.map(s => (
+                                            <Card key={s.id} className="p-8 group hover:border-indigo-300 transition-all shadow-sm flex flex-col justify-between"><div className="flex justify-between items-start mb-6"><div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-3xl font-black">{s.name.charAt(0)}</div><div className="flex gap-1"><button onClick={() => setModal({ open: true, type: 'supplier', data: s })} className="p-2 text-slate-200 hover:text-indigo-500 transition-all"><Icon name="Pencil" size={18} /></button><button onClick={() => deleteData('supplier', s.id)} className="p-2 text-slate-200 hover:text-red-500 transition-all"><Icon name="Trash2" size={18} /></button></div></div><h4 className="font-bold text-xl text-slate-800">{s.name}</h4><p className="text-[10px] font-black text-slate-400 mt-1 uppercase">RNC: {s.rnc}</p><div className="mt-4 pt-4 border-t border-slate-50 text-xs font-bold text-slate-500 space-y-1"><p><Icon name="Phone" size={12}/> {s.phone}</p><p className="italic text-slate-400 truncate"><Icon name="MapPin" size={12}/> {s.address}</p></div></Card>
+                                        ))}</div>
                                     </div>
                                 )}
 
@@ -563,10 +571,10 @@
                                         <div className="flex justify-between items-center"><div><h2 className="text-4xl font-black italic text-indigo-950 uppercase tracking-tighter">Clientes</h2><p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Cartera Comercial</p></div><div className="flex gap-3"><div className="bg-white p-1 rounded-xl border border-slate-100 flex shadow-sm"><button onClick={() => setClientViewMode('grid')} className={`p-2 rounded-lg ${clientViewMode === 'grid' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-300'}`}><Icon name="LayoutGrid" size={20} /></button><button onClick={() => setClientViewMode('list')} className={`p-2 rounded-lg ${clientViewMode === 'list' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-300'}`}><Icon name="List" size={20} /></button></div><Button icon="Plus" onClick={() => setModal({ open: true, type: 'client', data: null })}>Nuevo Cliente</Button></div></div>
                                         {clientViewMode === 'grid' ? (
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">{filteredClients.map(c => (
-                                                <Card key={c.id} className="p-8 group hover:border-indigo-300 cursor-pointer transition-all shadow-sm" onClick={() => handleViewClient(c)}><div className="flex justify-between items-start mb-6"><div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl font-black">{c.name?.charAt(0)}</div><div className="flex gap-1"><button onClick={(e) => { e.stopPropagation(); setModal({ open: true, type: 'client', data: c }); }} className="p-2 text-slate-200 hover:text-indigo-500 transition-colors"><Icon name="Pencil" size={18} /></button><button onClick={(e) => { e.stopPropagation(); deleteData('client', c.id); }} className="p-2 text-slate-200 hover:text-red-500 transition-colors"><Icon name="Trash2" size={18} /></button></div></div><h4 className="font-bold text-xl text-slate-800">{c.name}</h4><p className="text-[10px] font-black text-slate-400 mt-1 uppercase">RNC: {c.rnc}</p><div className="mt-6 pt-6 border-t border-slate-50 flex justify-between items-center"><div><p className="text-[9px] uppercase font-black text-slate-300 tracking-widest">Crédito</p><p className="font-black text-emerald-600">{formatCurrency(c.creditLimit, c.currency || defaultCurrency)}</p></div><Icon name="ChevronRight" size={16} /></div></Card>
+                                                <Card key={c.id} className="p-8 group hover:border-indigo-300 cursor-pointer transition-all shadow-sm" onClick={() => handleViewClient(c)}><div className="flex justify-between items-start mb-6"><div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl font-black">{c.name?.charAt(0)}</div><div className="flex gap-1"><button onClick={(e) => { e.stopPropagation(); setModal({ open: true, type: 'client', data: c }); }} className="p-2 text-slate-200 hover:text-indigo-500 transition-colors"><Icon name="Pencil" size={18} /></button><button onClick={(e) => { e.stopPropagation(); deleteData('client', c.id); }} className="p-2 text-slate-200 hover:text-red-500 transition-colors"><Icon name="Trash2" size={18} /></button></div></div><h4 className="font-bold text-xl text-slate-800">{c.name}</h4><p className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest">RNC: {c.rnc}</p><div className="mt-6 pt-6 border-t border-slate-50 flex justify-between items-center"><div><p className="text-[9px] uppercase font-black text-slate-300 tracking-widest text-[10px]">Límite</p><p className="font-black text-emerald-600">{formatCurrency(c.creditLimit, c.currency || defaultCurrency)}</p></div><Icon name="ChevronRight" size={16} /></div></Card>
                                             ))}</div>
                                         ) : (
-                                            <Card className="overflow-hidden"><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-[10px] uppercase font-black text-slate-400"><tr><th className="p-4">Nombre</th><th className="p-4 text-right">Crédito</th><th className="p-4 text-center">Acciones</th></tr></thead><tbody className="divide-y divide-slate-100">{filteredClients.map(c => (<tr key={c.id} className="hover:bg-slate-50 transition-all cursor-pointer" onClick={() => handleViewClient(c)}><td className="p-4 font-bold text-slate-700">{c.name}</td><td className="p-4 text-right font-black text-emerald-600">{formatCurrency(c.creditLimit, c.currency)}</td><td className="p-4 text-center flex justify-center gap-2"><button onClick={(e) => { e.stopPropagation(); setModal({ open: true, type: 'client', data: c }); }} className="text-indigo-300"><Icon name="Pencil" size={16} /></button><button onClick={(e) => { e.stopPropagation(); deleteData('client', c.id); }} className="text-red-300"><Icon name="Trash2" size={16} /></button></td></tr>))}</tbody></table></Card>
+                                            <Card className="overflow-hidden shadow-sm"><table className="w-full text-left text-sm"><thead className="bg-slate-50 text-[10px] uppercase font-black text-slate-400"><tr><th className="p-4">Nombre</th><th className="p-4">RNC</th><th className="p-4 text-right">Límite</th><th className="p-4 text-center">Acciones</th></tr></thead><tbody className="divide-y divide-slate-100">{filteredClients.map(c => (<tr key={c.id} className="hover:bg-slate-50 transition-all cursor-pointer" onClick={() => handleViewClient(c)}><td className="p-4 font-bold text-slate-700">{c.name}</td><td className="p-4 font-mono text-xs">{c.rnc}</td><td className="p-4 text-right font-black text-emerald-600">{formatCurrency(c.creditLimit, c.currency)}</td><td className="p-4 text-center flex justify-center gap-2"><button onClick={(e) => { e.stopPropagation(); setModal({ open: true, type: 'client', data: c }); }} className="text-indigo-300 hover:text-indigo-600"><Icon name="Pencil" size={16} /></button><button onClick={(e) => { e.stopPropagation(); deleteData('client', c.id); }} className="text-red-300 hover:text-red-500 transition-all"><Icon name="Trash2" size={16} /></button></td></tr>))}</tbody></table></Card>
                                         )}
                                     </div>
                                 )}
@@ -574,27 +582,23 @@
                                 {view === 'settings' && (
                                     <div className="animate-slide-up space-y-8">
                                         <h2 className="text-4xl font-black italic text-indigo-950 uppercase tracking-tighter">Configuración</h2>
-                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-left">
                                             <Card className="p-8 border-l-8 border-indigo-600 shadow-xl h-fit">
-                                                <h4 className="font-black text-xl mb-8 uppercase tracking-tighter">Perfil de Empresa</h4>
+                                                <h4 className="font-black text-xl mb-8 uppercase tracking-widest text-indigo-900 border-b pb-4">Perfil Corporativo</h4>
                                                 <form onSubmit={updateProfile} className="space-y-6">
                                                     <div className="grid grid-cols-2 gap-6">
                                                         <div className="space-y-1"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Nombre Comercial</label><input name="name" defaultValue={data.companyProfile?.name} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /></div>
-                                                        <div className="space-y-1"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Moneda Base</label><select name="defaultCurrency" defaultValue={data.companyProfile?.defaultCurrency || 'DOP'} className="w-full p-3 bg-indigo-50 rounded-xl font-bold border-none shadow-inner">{Object.entries(CURRENCIES).map(([k,v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
-                                                        <div className="space-y-1"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Representante</label><input name="rep" defaultValue={data.companyProfile?.rep} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /></div>
+                                                        <div className="space-y-1"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Moneda Sistema</label><select name="defaultCurrency" defaultValue={data.companyProfile?.defaultCurrency || 'DOP'} className="w-full p-3 bg-indigo-50 rounded-xl font-bold border-none shadow-inner">{Object.entries(CURRENCIES).map(([k,v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
                                                         <div className="space-y-1"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">RNC</label><input name="rnc" defaultValue={data.companyProfile?.rnc} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /></div>
                                                         <div className="space-y-1"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Email</label><input name="email" defaultValue={data.companyProfile?.email} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /></div>
-                                                        <div className="space-y-1"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Teléfono</label><input name="phone" defaultValue={data.companyProfile?.phone} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /></div>
-                                                        <div className="col-span-2 space-y-1"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Dirección Física</label><input name="address" defaultValue={data.companyProfile?.address} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /></div>
-                                                        <div className="col-span-2 space-y-1"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">URL Logo</label><input name="logo" defaultValue={data.companyProfile?.logo} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" /></div>
-                                                        <div className="col-span-2 p-4 bg-red-50 rounded-2xl text-center"><label className="text-[10px] font-black uppercase text-red-600 block mb-2 tracking-widest">CÓDIGO PIN SEGURO</label><input name="staticPin" maxLength="4" type="password" defaultValue={data.companyProfile?.staticPin} className="w-full p-3 bg-white rounded-xl font-black border-none text-center tracking-[1em] shadow-sm" required /></div>
+                                                        <div className="col-span-2 p-4 bg-red-50 rounded-2xl text-center shadow-sm"><label className="text-[10px] font-black uppercase text-red-600 block mb-2 tracking-widest">PIN DE ACCESO</label><input name="staticPin" maxLength="4" type="password" defaultValue={data.companyProfile?.staticPin} className="w-full p-3 bg-white rounded-xl font-black border-none text-center tracking-[1em] text-xl" required /></div>
                                                     </div>
-                                                    <Button type="submit" className="w-full py-4 uppercase font-black" loading={actionLoading}>Guardar Datos</Button>
+                                                    <Button type="submit" className="w-full py-4 uppercase font-black shadow-lg">Guardar Cambios</Button>
                                                 </form>
                                             </Card>
                                             <Card className="p-8 border-l-8 border-emerald-600 shadow-xl h-fit">
-                                                <div className="flex justify-between items-center mb-8"><h4 className="font-black text-xl uppercase tracking-tighter">Impuestos</h4><Button variant="secondary" icon="Plus" onClick={() => setModal({ open: true, type: 'tax', data: null })}>Nuevo</Button></div>
-                                                <div className="space-y-2">{data.taxes.map(t => (<div key={t.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl shadow-sm"><span className="font-bold text-slate-700">{t.name}</span><div className="flex items-center gap-4"><span className="font-black text-emerald-600">{t.rate}%</span><button onClick={() => setModal({ open: true, type: 'tax', data: t })} className="text-indigo-300 hover:text-indigo-600"><Icon name="Pencil" size={16} /></button><button onClick={() => deleteData('tax', t.id)} className="text-red-300 hover:text-red-500"><Icon name="Trash2" size={16} /></button></div></div>))}</div>
+                                                <div className="flex justify-between items-center mb-8 border-b pb-4"><h4 className="font-black text-xl uppercase tracking-widest text-indigo-900">Impuestos (ITBIS)</h4><Button variant="secondary" icon="Plus" onClick={() => setModal({ open: true, type: 'tax', data: null })}>Añadir</Button></div>
+                                                <div className="space-y-2">{data.taxes.map(t => (<div key={t.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl shadow-sm border border-slate-100 hover:bg-white transition-all"><span className="font-bold text-slate-700">{t.name}</span><div className="flex items-center gap-4"><span className="font-black text-emerald-600">{t.rate}%</span><button onClick={() => setModal({ open: true, type: 'tax', data: t })} className="text-indigo-300 hover:text-indigo-600"><Icon name="Pencil" size={16} /></button><button onClick={() => deleteData('tax', t.id)} className="text-red-300 hover:text-red-500"><Icon name="Trash2" size={16} /></button></div></div>))}</div>
                                             </Card>
                                         </div>
                                     </div>
@@ -604,25 +608,55 @@
                     </main>
 
                     {/* Modales */}
-                    <Modal isOpen={modal.open} onClose={() => setModal({ open: false, type: '', data: null })} title={modal.type === 'stock_adjustment' ? 'Ajuste de Stock' : modal.data ? `Editar ${modal.type}` : `Nuevo Registro`}>
-                        {modal.type === 'stock_adjustment' ? (<form onSubmit={adjustStock} className="space-y-6"><div className="bg-indigo-50 p-6 rounded-2xl text-center"><p className="text-xl font-black text-indigo-900 uppercase italic">{modal.data.name}</p></div><div><label className="text-[10px] font-black text-slate-400 ml-2 uppercase">Tipo Operación</label><select name="moveType" className="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none shadow-inner" required><option value="ENTRADA">ENTRADA (+)</option><option value="SALIDA">SALIDA (-)</option></select></div><div className="grid grid-cols-2 gap-4"><div><label className="text-[10px] font-black text-slate-400 ml-2 uppercase">Cantidad</label><input name="quantity" type="number" step="1" min="1" className="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none shadow-inner" required /></div><div><label className="text-[10px] font-black text-slate-400 ml-2 uppercase">Razón</label><input name="reason" className="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none shadow-inner" required /></div></div><Button type="submit" className="w-full py-4 uppercase font-black" loading={actionLoading}>Confirmar Ajuste</Button></form>) : (<form className="space-y-4" onSubmit={e => { e.preventDefault(); const fd = new FormData(e.target); saveDataHandler(modal.type, Object.fromEntries(fd.entries())); }}>{modal.data && <input type="hidden" name="id" value={modal.data.id} />}
-                            {modal.type === 'client' && (<div className="space-y-4 text-left"><input name="name" defaultValue={modal.data?.name} placeholder="Nombre Cliente" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /><input name="rnc" defaultValue={modal.data?.rnc} placeholder="RNC / Cédula" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /><input name="creditLimit" type="number" defaultValue={modal.data?.creditLimit || 0} placeholder="Límite Crédito" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /><input name="address" defaultValue={modal.data?.address} placeholder="Dirección" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" /></div>)}
-                            {modal.type === 'supplier' && (<div className="space-y-3 text-left"><input name="name" defaultValue={modal.data?.name} placeholder="Nombre Suplidor" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /><input name="rnc" defaultValue={modal.data?.rnc} placeholder="RNC" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /><input name="email" defaultValue={modal.data?.email} placeholder="Email" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" /><input name="phone" defaultValue={modal.data?.phone} placeholder="Teléfono" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" /><input name="address" defaultValue={modal.data?.address} placeholder="Dirección" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" /></div>)}
-                            {modal.type === 'product' && (<div className="space-y-4 text-left">
-                                <div className="flex gap-2"><label className="flex-1"><input type="radio" name="itemType" value="product" defaultChecked={modal.data?.itemType !== 'service'} className="sr-only peer" /><div className="p-3 rounded-xl border-2 text-center font-bold peer-checked:border-indigo-600 peer-checked:bg-indigo-50 cursor-pointer">Producto</div></label><label className="flex-1"><input type="radio" name="itemType" value="service" defaultChecked={modal.data?.itemType === 'service'} className="sr-only peer" /><div className="p-3 rounded-xl border-2 text-center font-bold peer-checked:border-indigo-600 peer-checked:bg-indigo-50 cursor-pointer">Servicio</div></label></div>
-                                <div className="grid grid-cols-2 gap-2"><input name="code" defaultValue={modal.data?.code} placeholder="Código" className="p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /><input name="name" defaultValue={modal.data?.name} placeholder="Nombre" className="p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /></div>
-                                <textarea name="description" defaultValue={modal.data?.description} placeholder="Descripción detallada..." className="w-full p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner min-h-[80px]" />
-                                <div className="grid grid-cols-2 gap-2 p-3 bg-slate-100 rounded-xl shadow-inner">
-                                    <select name="currency" defaultValue={modal.data?.currency || defaultCurrency} className="p-2 rounded-lg font-bold border-none"><option value="DOP">RD$</option><option value="USD">US$</option></select>
-                                    <input name="salePrice" type="number" step="0.01" defaultValue={modal.data?.salePrice || 0} placeholder="Precio" className="col-span-2 p-2 rounded-lg font-bold border-none text-indigo-600" required />
+                    <ModalComponent isOpen={modal.open} onClose={() => setModal({ open: false, type: '', data: null })} title={modal.type === 'stock_adjustment' ? 'Ajuste de Stock' : modal.data ? `Editar ${modal.type}` : `Nuevo Registro`}>
+                        {modal.type === 'stock_adjustment' ? (
+                            <form onSubmit={adjustStock} className="space-y-6 text-left">
+                                <div className="bg-indigo-50 p-6 rounded-2xl text-center shadow-inner"><p className="text-xl font-black text-indigo-900 uppercase italic">{modal.data.name}</p></div>
+                                <div><label className="text-[10px] font-black text-slate-400 ml-2 uppercase">Operación</label><select name="moveType" className="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none shadow-inner mt-1 outline-none" required><option value="ENTRADA">ENTRADA (+)</option><option value="SALIDA">SALIDA (-)</option></select></div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div><label className="text-[10px] font-black text-slate-400 ml-2 uppercase">Cantidad</label><input name="quantity" type="number" step="1" min="1" className="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none shadow-inner outline-none" required /></div>
+                                    <div><label className="text-[10px] font-black text-slate-400 ml-2 uppercase">Motivo</label><input name="reason" className="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none shadow-inner outline-none" required /></div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2"><input name="stock" type="number" defaultValue={modal.data?.stock || 0} placeholder="Stock Actual" className="p-3 bg-slate-50 rounded-xl font-bold border-none shadow-inner" /><input name="minStock" type="number" defaultValue={modal.data?.minStock || 5} placeholder="Alerta Mínima" className="p-3 bg-slate-50 rounded-xl font-bold border-none text-red-500 shadow-inner" /></div>
-                                <div className="flex items-center gap-2 px-2"><input type="checkbox" name="trackStock" defaultChecked={modal.data?.trackStock !== false} className="w-4 h-4 accent-indigo-600" /><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Habilitar Control de Existencia</label></div>
-                            </div>)}
-                            {modal.type === 'tax' && (<div className="space-y-4 text-left"><input name="name" defaultValue={modal.data?.name} placeholder="Nombre Impuesto" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /><input name="rate" type="number" step="0.01" defaultValue={modal.data?.rate} placeholder="Tasa %" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none shadow-inner" required /></div>)}
-                            <Button type="submit" loading={actionLoading} className="w-full py-4 uppercase font-black shadow-lg">Guardar Registro</Button>
-                        </form>)}
-                    </Modal>
+                                <Button type="submit" className="w-full py-4 uppercase font-black shadow-lg" loading={actionLoading}>Confirmar</Button>
+                            </form>
+                        ) : (
+                            <form className="space-y-4 text-left" onSubmit={e => { e.preventDefault(); const fd = new FormData(e.target); saveDataHandler(modal.type, Object.fromEntries(fd.entries())); }}>
+                                {modal.data && <input type="hidden" name="id" value={modal.data.id} />}
+                                {modal.type === 'client' && (
+                                    <div className="space-y-3">
+                                        <input name="name" defaultValue={modal.data?.name} placeholder="Nombre Cliente" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none" required />
+                                        <input name="rnc" defaultValue={modal.data?.rnc} placeholder="RNC / Cédula" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none" required />
+                                        <div className="grid grid-cols-2 gap-2"><input name="email" defaultValue={modal.data?.email} placeholder="Email" type="email" className="p-3 bg-slate-50 rounded-xl font-bold border-none" /><input name="phone" defaultValue={modal.data?.phone} placeholder="Teléfono" className="p-3 bg-slate-50 rounded-xl font-bold border-none" /></div>
+                                        <input name="creditLimit" type="number" defaultValue={modal.data?.creditLimit || 0} placeholder="Límite Crédito" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none" required />
+                                        <input name="address" defaultValue={modal.data?.address} placeholder="Dirección" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none" />
+                                    </div>
+                                )}
+                                {modal.type === 'supplier' && (
+                                    <div className="space-y-3">
+                                        <input name="name" defaultValue={modal.data?.name} placeholder="Nombre Suplidor" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none" required />
+                                        <input name="rnc" defaultValue={modal.data?.rnc} placeholder="RNC" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none" required />
+                                        <div className="grid grid-cols-2 gap-2"><input name="email" defaultValue={modal.data?.email} placeholder="Email" className="p-3 bg-slate-50 rounded-xl font-bold border-none" /><input name="phone" defaultValue={modal.data?.phone} placeholder="Teléfono" className="p-3 bg-slate-50 rounded-xl font-bold border-none" /></div>
+                                        <input name="address" defaultValue={modal.data?.address} placeholder="Dirección" className="p-3 w-full bg-slate-50 rounded-xl font-bold border-none" />
+                                    </div>
+                                )}
+                                {modal.type === 'product' && (
+                                    <div className="space-y-4">
+                                        <div className="flex gap-2"><label className="flex-1"><input type="radio" name="itemType" value="product" defaultChecked={modal.data?.itemType !== 'service'} className="sr-only peer" /><div className="p-3 rounded-xl border-2 text-center font-bold peer-checked:border-indigo-600 peer-checked:bg-indigo-50 cursor-pointer">Producto</div></label><label className="flex-1"><input type="radio" name="itemType" value="service" defaultChecked={modal.data?.itemType === 'service'} className="sr-only peer" /><div className="p-3 rounded-xl border-2 text-center font-bold peer-checked:border-indigo-600 peer-checked:bg-indigo-50 cursor-pointer">Servicio</div></label></div>
+                                        <div className="grid grid-cols-2 gap-2"><input name="code" defaultValue={modal.data?.code} placeholder="Código" className="p-3 bg-slate-50 rounded-xl font-bold" required /><input name="name" defaultValue={modal.data?.name} placeholder="Nombre" className="p-3 bg-slate-50 rounded-xl font-bold" required /></div>
+                                        <textarea name="description" defaultValue={modal.data?.description} placeholder="Descripción..." className="w-full p-3 bg-slate-50 rounded-xl font-bold min-h-[80px]" />
+                                        <div className="grid grid-cols-2 gap-2 p-3 bg-slate-100 rounded-xl">
+                                            <select name="currency" defaultValue={modal.data?.currency || defaultCurrency} className="p-2 rounded-lg font-bold"><option value="DOP">RD$</option><option value="USD">US$</option></select>
+                                            <input name="salePrice" type="number" step="0.01" defaultValue={modal.data?.salePrice || 0} placeholder="Precio" className="p-2 rounded-lg font-bold text-indigo-600" required />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2"><input name="stock" type="number" defaultValue={modal.data?.stock || 0} placeholder="Stock" className="p-3 bg-slate-50 rounded-xl font-bold" /><input name="minStock" type="number" defaultValue={modal.data?.minStock || 5} placeholder="Mínimo" className="p-3 bg-slate-50 rounded-xl font-bold text-red-500" /></div>
+                                        <div className="flex items-center gap-2"><input type="checkbox" name="trackStock" defaultChecked={modal.data?.trackStock !== false} className="w-4 h-4 accent-indigo-600" /><label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Controlar Stock</label></div>
+                                    </div>
+                                )}
+                                {modal.type === 'tax' && (<div className="space-y-4"><input name="name" defaultValue={modal.data?.name} placeholder="Impuesto" className="p-3 w-full bg-slate-50 rounded-xl font-bold" required /><input name="rate" type="number" step="0.01" defaultValue={modal.data?.rate} placeholder="%" className="p-3 w-full bg-slate-50 rounded-xl font-bold" required /></div>)}
+                                <Button type="submit" loading={actionLoading} className="w-full py-4 uppercase font-black">Guardar</Button>
+                            </form>
+                        )}
+                    </ModalComponent>
                 </div>
             );
         }
