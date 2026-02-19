@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="do">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -701,6 +701,10 @@
                 const doc = new jsPDF();
                 const primaryColor = [79, 70, 229];
 
+                // Buscar data extendida del cliente en el estado actual de la app
+                const clientInfo = data.clients.find(c => c.id === document.clientId) || {};
+
+                // Header
                 doc.setFontSize(22);
                 doc.setTextColor(...primaryColor);
                 doc.setFont("helvetica", "bold");
@@ -713,16 +717,24 @@
                 doc.text(`Número: #${document.id ? document.id.substring(0,8) : 'S/N'}`, 190, 25, { align: "right" });
                 doc.text(`Fecha: ${document.date || '-'}`, 190, 32, { align: "right" });
 
+                // Client Info Section (Caja Gris)
                 doc.setFillColor(248, 250, 252);
-                doc.rect(20, 42, 170, 30, 'F');
+                doc.rect(20, 42, 170, 42, 'F');
                 doc.setFontSize(11);
                 doc.setTextColor(0);
                 doc.setFont("helvetica", "bold");
                 doc.text("CLIENTE:", 25, 50);
+                
+                doc.setFontSize(10);
                 doc.setFont("helvetica", "normal");
-                doc.text(document.clientName || 'S/N', 25, 58);
+                doc.text(`${document.clientName || 'S/N'}`, 25, 58);
+                doc.text(`${DOC_TYPES[clientInfo.docType] || 'Identificación'}: ${clientInfo.rnc || 'S/N'}`, 25, 64);
+                doc.text(`Tel: ${clientInfo.phone || '-'} | Email: ${clientInfo.email || '-'}`, 25, 70);
+                doc.text(`Dirección: ${clientInfo.address || '-'}`, 25, 76);
+                
                 doc.text(`Moneda: ${document.currency || defaultCurrency}`, 190, 58, { align: "right" });
 
+                // Items Table
                 const tableColumn = ["Descripción", "Cant.", "Precio", "Total"];
                 const tableRows = (document.items || []).map(item => [
                     item.name || 'S/N',
@@ -731,8 +743,9 @@
                     formatCurrency((item.qty || 0) * (item.price || 0), document.currency)
                 ]);
 
-                doc.autoTable({ head: [tableColumn], body: tableRows, startY: 80, theme: 'grid' });
+                doc.autoTable({ head: [tableColumn], body: tableRows, startY: 90, theme: 'grid' });
 
+                // Totals
                 const finalY = doc.lastAutoTable.finalY + 10;
                 doc.setFontSize(10);
                 doc.text(`Subtotal: ${formatCurrency(document.subtotal, document.currency)}`, 190, finalY, { align: "right" });
