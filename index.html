@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="do">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,6 +28,7 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body class="bg-[#f8fafc] text-slate-900 overflow-hidden">
@@ -757,41 +758,48 @@
                                                     {filteredProducts.map(p => {
                                                         const isLow = p.trackStock && (parseInt(p.stock) <= parseInt(p.minStock));
                                                         return (
-                                                            <Card key={p.id} className={`p-6 hover:shadow-md transition-all ${isLow ? 'border-l-8 border-red-500 bg-red-50/10' : ''}`}>
-                                                                <div className="flex justify-between items-start mb-4">
-                                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${p.itemType === 'service' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'}`}>
-                                                                        <Icon name={p.itemType === 'service' ? 'Zap' : 'Package'} />
+                                                            <Card key={p.id} className={`p-6 hover:shadow-md transition-all flex flex-col justify-between ${isLow ? 'border-l-8 border-red-500 bg-red-50/10' : ''}`}>
+                                                                <div>
+                                                                    <div className="flex justify-between items-start mb-4">
+                                                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${p.itemType === 'service' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'}`}>
+                                                                            <Icon name={p.itemType === 'service' ? 'Zap' : 'Package'} />
+                                                                        </div>
+                                                                        <div className="flex gap-2">
+                                                                            {p.trackStock && (
+                                                                                <button onClick={() => setModal({ open: true, type: 'stock_adjustment', data: p })} className="p-2 text-slate-300 hover:text-indigo-600" title="Ajustar Stock"><Icon name="Activity" size={18} /></button>
+                                                                            )}
+                                                                            <button onClick={() => setModal({ open: true, type: 'product', data: p })} className="p-2 text-slate-300 hover:text-indigo-600"><Icon name="Pencil" size={18} /></button>
+                                                                            <button onClick={() => deleteData('product', p.id)} className="p-2 text-slate-300 hover:text-red-500"><Icon name="Trash2" size={18} /></button>
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="flex gap-2">
-                                                                        {p.trackStock && (
-                                                                            <button onClick={() => setModal({ open: true, type: 'stock_adjustment', data: p })} className="p-2 text-slate-300 hover:text-indigo-600" title="Ajustar Stock"><Icon name="Activity" size={18} /></button>
+                                                                    <div className="mb-2">
+                                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{p.category || 'General'}</p>
+                                                                        <h4 className="font-bold text-lg text-slate-800 leading-tight">{p.name}</h4>
+                                                                        <p className="text-[11px] font-mono text-slate-400 mt-1">Cód: {p.code}</p>
+                                                                        {p.description && (
+                                                                            <p className="text-xs text-slate-500 mt-2 line-clamp-2 italic leading-relaxed">{p.description}</p>
                                                                         )}
-                                                                        <button onClick={() => setModal({ open: true, type: 'product', data: p })} className="p-2 text-slate-300 hover:text-indigo-600"><Icon name="Pencil" size={18} /></button>
-                                                                        <button onClick={() => deleteData('product', p.id)} className="p-2 text-slate-300 hover:text-red-500"><Icon name="Trash2" size={18} /></button>
                                                                     </div>
                                                                 </div>
-                                                                <div className="mb-2">
-                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{p.category || 'General'}</p>
-                                                                    <h4 className="font-bold text-lg text-slate-800 leading-tight">{p.name}</h4>
-                                                                    <p className="text-[11px] font-mono text-slate-400 mt-1">Cód: {p.code}</p>
+                                                                <div>
+                                                                    <div className="mt-4 pt-4 border-t border-slate-50 flex justify-between items-end">
+                                                                        <div>
+                                                                            <p className="text-[9px] uppercase font-black text-slate-300">Existencia</p>
+                                                                            <p className={`text-xl font-black ${isLow ? 'text-red-600' : 'text-slate-800'}`}>
+                                                                                {p.trackStock ? `${p.stock} ${p.unit}` : '∞'}
+                                                                            </p>
+                                                                        </div>
+                                                                        <div className="text-right">
+                                                                            <p className="text-[9px] uppercase font-black text-slate-300">Precio Venta</p>
+                                                                            <p className="text-xl font-black text-indigo-600">{formatCurrency(p.salePrice, p.currency || defaultCurrency)}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    {isLow && (
+                                                                        <div className="mt-4 p-2 bg-red-600 text-white text-[10px] font-black rounded-lg text-center uppercase animate-pulse">
+                                                                            ¡Alerta: Stock Bajo!
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                                <div className="mt-4 pt-4 border-t border-slate-50 flex justify-between items-end">
-                                                                    <div>
-                                                                        <p className="text-[9px] uppercase font-black text-slate-300">Existencia</p>
-                                                                        <p className={`text-xl font-black ${isLow ? 'text-red-600' : 'text-slate-800'}`}>
-                                                                            {p.trackStock ? `${p.stock} ${p.unit}` : '∞'}
-                                                                        </p>
-                                                                    </div>
-                                                                    <div className="text-right">
-                                                                        <p className="text-[9px] uppercase font-black text-slate-300">Precio Venta</p>
-                                                                        <p className="text-xl font-black text-indigo-600">{formatCurrency(p.salePrice, p.currency || defaultCurrency)}</p>
-                                                                    </div>
-                                                                </div>
-                                                                {isLow && (
-                                                                    <div className="mt-4 p-2 bg-red-600 text-white text-[10px] font-black rounded-lg text-center uppercase animate-pulse">
-                                                                        ¡Alerta: Stock Bajo!
-                                                                    </div>
-                                                                )}
                                                             </Card>
                                                         );
                                                     })}
@@ -818,6 +826,7 @@
                                                                             <div>
                                                                                 <p className="font-bold text-slate-700">{p.name}</p>
                                                                                 <p className="text-[10px] font-mono text-slate-400">{p.code}</p>
+                                                                                {p.description && <p className="text-[10px] text-slate-400 italic truncate max-w-xs">{p.description}</p>}
                                                                             </div>
                                                                         </td>
                                                                         <td className="p-4 text-slate-500 text-xs font-bold uppercase">{p.category || '-'}</td>
@@ -1030,6 +1039,10 @@
                                         <div className="grid grid-cols-3 gap-4">
                                             <input name="code" defaultValue={modal.data?.code} placeholder="Código" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" required />
                                             <input name="name" defaultValue={modal.data?.name} placeholder="Nombre del Ítem" className="col-span-2 w-full p-4 bg-slate-50 rounded-2xl font-bold" required />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 ml-2 uppercase">Descripción detallada</label>
+                                            <textarea name="description" defaultValue={modal.data?.description} placeholder="Añada detalles adicionales, especificaciones técnicas o notas del servicio..." className="w-full p-4 bg-slate-50 rounded-2xl font-bold min-h-[100px] outline-none border-2 border-transparent focus:border-indigo-500 transition-all" />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <input name="category" defaultValue={modal.data?.category} placeholder="Categoría" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" />
