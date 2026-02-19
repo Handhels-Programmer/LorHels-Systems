@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="do">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -60,8 +60,7 @@
         // --- Constants ---
         const CURRENCIES = {
             'DOP': { symbol: 'RD$', label: 'Peso Dom. (DOP)' },
-            'USD': { symbol: 'US$', label: 'Dólar (USD)' },
-            'EUR': { symbol: '€', label: 'Euro (EUR)' }
+            'USD': { symbol: 'US$', label: 'Dólar (USD)' }
         };
 
         const CLIENT_TYPES = {
@@ -74,7 +73,7 @@
         const DOC_TYPES = { 'rnc': 'RNC', 'cedula': 'Cédula', 'passport': 'Pasaporte', 'na': 'N/A' };
 
         const formatCurrency = (amount, currencyCode) => {
-            const symbol = CURRENCIES[currencyCode]?.symbol || '€';
+            const symbol = CURRENCIES[currencyCode]?.symbol || 'RD$';
             return `${symbol}${Math.abs(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         };
 
@@ -183,7 +182,8 @@
                     await addDoc(collection(db, 'artifacts', currentAppId, 'public', 'data', 'companies'), {
                         ...payload,
                         slug,
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
+                        defaultCurrency: 'DOP'
                     });
                     setMode('select');
                     alert("Empresa creada exitosamente. Utilice su PIN para acceder.");
@@ -301,7 +301,7 @@
             
             const [companyId, setCompanyId] = useState(localStorage.getItem('lorhels_slug'));
             const [companyName, setCompanyName] = useState(localStorage.getItem('lorhels_name') || '');
-            const [defaultCurrency, setDefaultCurrency] = useState(localStorage.getItem('lorhels_currency') || 'DOP');
+            const [defaultCurrency, setDefaultCurrency] = useState('DOP');
             
             const [data, setData] = useState({ clients: [], taxes: [], config: {}, companyProfile: null, products: [], movements: [], invoices: [] });
             const [modal, setModal] = useState({ open: false, type: '', data: null });
@@ -335,6 +335,7 @@
                             const cdata = s.data();
                             setData(prev => ({ ...prev, companyProfile: { id: s.id, ...cdata } }));
                             setCompanyName(cdata.name);
+                            if (cdata.defaultCurrency) setDefaultCurrency(cdata.defaultCurrency);
                         }
                     }),
                     onSnapshot(collection(db, 'artifacts', currentAppId, 'public', 'data', 'clients'), s => setData(p => ({...p, clients: s.docs.map(d => ({id: d.id, ...d.data()}))}))),
@@ -368,7 +369,6 @@
                 setActionLoading(true);
                 try {
                     const cleanPayload = { ...payload, timestamp: Date.now(), createdBy: user.uid };
-                    
                     const collectionName = type === 'tax' ? 'taxes' : type + 's';
 
                     if (payload.id) {
@@ -440,7 +440,7 @@
                 try {
                     const docRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'companies', companyId);
                     await updateDoc(docRef, payload);
-                    alert("Información de la empresa actualizada.");
+                    alert("Configuración de empresa actualizada.");
                 } catch (e) {
                     alert("Error: " + e.message);
                 } finally {
@@ -472,7 +472,7 @@
                 );
 
                 const debtByCurrency = clientInvoices.reduce((acc, inv) => {
-                    const curr = inv.currency || 'EUR';
+                    const curr = inv.currency || defaultCurrency;
                     if (inv.status === 'pendiente' || inv.status === 'parcial') {
                         acc[curr] = (acc[curr] || 0) + (inv.total - (inv.paidAmount || 0));
                     }
@@ -516,7 +516,7 @@
                 doc.setFontSize(10);
                 doc.setTextColor(...primaryColor);
                 doc.setFont("helvetica", "bold");
-                doc.text(`LÍMITE CRÉDITO: ${formatCurrency(client.creditLimit, client.currency || 'DOP')}`, 190, 50, { align: "right" });
+                doc.text(`LÍMITE CRÉDITO: ${formatCurrency(client.creditLimit, client.currency || defaultCurrency)}`, 190, 50, { align: "right" });
 
                 const tableColumn = ["Fecha", "Documento", "Monto", "Pendiente", "Estado"];
                 const tableRows = invoices.map(inv => {
@@ -586,7 +586,7 @@
                                         <div className={`w-2.5 h-2.5 rounded-full ${syncStatus === 'online' ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}></div>
                                         <p className="text-2xl font-black text-slate-800 uppercase italic leading-none">{companyName}</p>
                                     </div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Módulo de Administración</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Módulo de Administración • {CURRENCIES[defaultCurrency]?.symbol}</p>
                                 </div>
                             </div>
                         </header>
@@ -628,7 +628,7 @@
                                                         <h4 className="font-bold text-xl text-slate-800">{c.name}</h4>
                                                         <p className="text-xs font-bold text-slate-400 mt-1">{c.rnc || 'S/N'}</p>
                                                         <div className="mt-6 pt-6 border-t border-slate-50 flex justify-between items-center">
-                                                            <div><p className="text-[9px] uppercase text-slate-300 font-black">Límite Crédito</p><p className="font-black text-emerald-600">{formatCurrency(c.creditLimit, c.currency || 'DOP')}</p></div>
+                                                            <div><p className="text-[9px] uppercase text-slate-300 font-black">Límite Crédito</p><p className="font-black text-emerald-600">{formatCurrency(c.creditLimit, c.currency || defaultCurrency)}</p></div>
                                                             <Icon name="ChevronRight" size={16} className="text-slate-300 group-hover:text-indigo-600 transition-all" />
                                                         </div>
                                                     </Card>
@@ -709,14 +709,14 @@
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     <Card className="p-6 border-l-8 border-emerald-500">
                                                         <p className="text-[10px] font-black uppercase text-slate-400 mb-1 tracking-widest">Límite de Crédito</p>
-                                                        <h3 className="text-3xl font-black text-emerald-700">{formatCurrency(selectedClient.creditLimit, selectedClient.currency || 'DOP')}</h3>
+                                                        <h3 className="text-3xl font-black text-emerald-700">{formatCurrency(selectedClient.creditLimit, selectedClient.currency || defaultCurrency)}</h3>
                                                     </Card>
                                                     <Card className="p-6 border-l-8 border-red-500">
                                                         <p className="text-[10px] font-black uppercase text-slate-400 mb-1 tracking-widest">Balance Pendiente (CxC)</p>
                                                         {(() => {
                                                             const { debtByCurrency } = getClientFinancials(selectedClient.name);
                                                             const currencies = Object.keys(debtByCurrency);
-                                                            if (currencies.length === 0) return <h3 className="text-3xl font-black text-slate-300">0.00</h3>;
+                                                            if (currencies.length === 0) return <h3 className="text-3xl font-black text-slate-300">{CURRENCIES[defaultCurrency]?.symbol}0.00</h3>;
                                                             return currencies.map(curr => <div key={curr} className="text-2xl font-black text-red-600">{formatCurrency(debtByCurrency[curr], curr)}</div>);
                                                         })()}
                                                     </Card>
@@ -784,7 +784,7 @@
                                                                     </div>
                                                                     <div className="text-right">
                                                                         <p className="text-[9px] uppercase font-black text-slate-300">Precio Venta</p>
-                                                                        <p className="text-xl font-black text-indigo-600">{formatCurrency(p.salePrice, p.currency || 'DOP')}</p>
+                                                                        <p className="text-xl font-black text-indigo-600">{formatCurrency(p.salePrice, p.currency || defaultCurrency)}</p>
                                                                     </div>
                                                                 </div>
                                                                 {isLow && (
@@ -892,6 +892,12 @@
                                                             <input name="name" defaultValue={data.companyProfile?.name} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-2 border-transparent focus:border-indigo-500 outline-none" required />
                                                         </div>
                                                         <div className="space-y-1">
+                                                            <label className="text-[10px] font-black text-slate-400 uppercase ml-2">Moneda Predeterminada del Sistema</label>
+                                                            <select name="defaultCurrency" defaultValue={data.companyProfile?.defaultCurrency || 'DOP'} className="w-full p-3 bg-indigo-50 rounded-xl font-bold border-2 border-transparent focus:border-indigo-500 outline-none">
+                                                                {Object.entries(CURRENCIES).map(([k,v]) => <option key={k} value={k}>{v.label}</option>)}
+                                                            </select>
+                                                        </div>
+                                                        <div className="space-y-1">
                                                             <label className="text-[10px] font-black text-slate-400 uppercase ml-2">Representante</label>
                                                             <input name="rep" defaultValue={data.companyProfile?.rep} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-2 border-transparent focus:border-indigo-500 outline-none" required />
                                                         </div>
@@ -907,10 +913,6 @@
                                                             <label className="text-[10px] font-black text-slate-400 uppercase ml-2">Teléfono</label>
                                                             <input name="phone" defaultValue={data.companyProfile?.phone} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-2 border-transparent focus:border-indigo-500 outline-none" required />
                                                         </div>
-                                                        <div className="space-y-1">
-                                                            <label className="text-[10px] font-black text-slate-400 uppercase ml-2">Sitio Web</label>
-                                                            <input name="website" defaultValue={data.companyProfile?.website} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-2 border-transparent focus:border-indigo-500 outline-none" />
-                                                        </div>
                                                         <div className="md:col-span-2 space-y-1">
                                                             <label className="text-[10px] font-black text-slate-400 uppercase ml-2">Dirección</label>
                                                             <input name="address" defaultValue={data.companyProfile?.address} className="w-full p-3 bg-slate-50 rounded-xl font-bold border-2 border-transparent focus:border-indigo-500 outline-none" required />
@@ -924,7 +926,7 @@
                                                             <input name="staticPin" type="password" maxLength="4" defaultValue={data.companyProfile?.staticPin} className="w-full text-center text-2xl tracking-[1em] p-3 bg-white rounded-xl font-black border-2 border-transparent focus:border-red-600 outline-none shadow-sm" required />
                                                         </div>
                                                     </div>
-                                                    <Button type="submit" className="w-full py-4 uppercase font-black" loading={actionLoading}>Guardar Perfil Corporativo</Button>
+                                                    <Button type="submit" className="w-full py-4 uppercase font-black" loading={actionLoading}>Guardar Configuración Corporativa</Button>
                                                 </form>
                                             </Card>
 
@@ -1022,8 +1024,8 @@
                                 {modal.type === 'product' && (
                                     <div className="space-y-4">
                                         <div className="flex gap-4">
-                                            <label className="flex-1 cursor-pointer"><input type="radio" name="itemType" value="product" defaultChecked={modal.data?.itemType !== 'service'} onChange={() => setTrackStock(true)} className="sr-only peer" /><div className="p-3 rounded-xl border-2 text-center font-bold peer-checked:border-indigo-600 peer-checked:bg-indigo-50">Producto</div></label>
-                                            <label className="flex-1 cursor-pointer"><input type="radio" name="itemType" value="service" defaultChecked={modal.data?.itemType === 'service'} onChange={() => setTrackStock(false)} className="sr-only peer" /><div className="p-3 rounded-xl border-2 text-center font-bold peer-checked:border-indigo-600 peer-checked:bg-indigo-50">Servicio</div></label>
+                                            <label className="flex-1 cursor-pointer"><input type="radio" name="itemType" value="product" defaultChecked={modal.data?.itemType !== 'service'} className="sr-only peer" /><div className="p-3 rounded-xl border-2 text-center font-bold peer-checked:border-indigo-600 peer-checked:bg-indigo-50">Producto</div></label>
+                                            <label className="flex-1 cursor-pointer"><input type="radio" name="itemType" value="service" defaultChecked={modal.data?.itemType === 'service'} className="sr-only peer" /><div className="p-3 rounded-xl border-2 text-center font-bold peer-checked:border-indigo-600 peer-checked:bg-indigo-50">Servicio</div></label>
                                         </div>
                                         <div className="grid grid-cols-3 gap-4">
                                             <input name="code" defaultValue={modal.data?.code} placeholder="Código" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" required />
@@ -1033,9 +1035,15 @@
                                             <input name="category" defaultValue={modal.data?.category} placeholder="Categoría" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" />
                                             <input name="unit" defaultValue={modal.data?.unit || 'UND'} placeholder="Unidad (UND, LB, Gal)" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" required />
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl">
-                                            <div><label className="text-[10px] font-black text-slate-400">Costo Inicial</label><input name="purchasePrice" type="number" step="0.01" defaultValue={modal.data?.purchasePrice || 0} className="w-full p-2 bg-white rounded-lg font-bold" required /></div>
-                                            <div><label className="text-[10px] font-black text-slate-400">Precio Venta</label><input name="salePrice" type="number" step="0.01" defaultValue={modal.data?.salePrice || 0} className="w-full p-2 bg-white rounded-lg font-bold text-indigo-600" required /></div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl">
+                                            <div className="md:col-span-1">
+                                                <label className="text-[10px] font-black text-slate-400 block mb-1">Moneda Ítem</label>
+                                                <select name="currency" defaultValue={modal.data?.currency || defaultCurrency} className="w-full p-2 bg-white rounded-lg font-bold border-2 border-transparent focus:border-indigo-500">
+                                                    {Object.entries(CURRENCIES).map(([k,v]) => <option key={k} value={k}>{k}</option>)}
+                                                </select>
+                                            </div>
+                                            <div><label className="text-[10px] font-black text-slate-400 block mb-1">Costo Inicial</label><input name="purchasePrice" type="number" step="0.01" defaultValue={modal.data?.purchasePrice || 0} className="w-full p-2 bg-white rounded-lg font-bold" required /></div>
+                                            <div><label className="text-[10px] font-black text-slate-400 block mb-1">Precio Venta</label><input name="salePrice" type="number" step="0.01" defaultValue={modal.data?.salePrice || 0} className="w-full p-2 bg-white rounded-lg font-bold text-indigo-600" required /></div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-1">
