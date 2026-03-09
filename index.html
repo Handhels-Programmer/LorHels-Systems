@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LorHels Systems | Soluciones Digitales a Medida</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at top right, #1e3a8a 0%, #020617 50%);
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+
+    <!-- Navegación -->
+    <nav class="fixed w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white text-xl">L</div>
+                <span class="text-xl font-extrabold tracking-tight text-white">LorHels <span class="text-blue-500 text-sm uppercase tracking-widest">Systems</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+                <a href="#inicio" class="hover:text-blue-400 transition-colors">Inicio</a>
+                <a href="#apps" class="hover:text-blue-400 transition-colors">Aplicaciones</a>
+                <a href="#tecnologias" class="hover:text-blue-400 transition-colors">Tecnologías</a>
+                <a href="#contacto" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-full text-white transition-all">Contáctame</a>
+                <button onclick="window.openAuthModal()" class="px-5 py-2.5 bg-slate-800 border border-white/10 hover:bg-slate-700 rounded-full text-white transition-all flex items-center gap-2">
+                    <i data-lucide="user" class="w-4 h-4"></i> Acceder
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sección Hero (1) -->
+    <section id="inicio" class="hero-gradient min-h-screen pt-32 pb-20 px-6 flex flex-col items-center justify-center text-center">
+        <div class="max-w-4xl animate-in fade-in slide-in-from-bottom-10 duration-1000">
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight">
+                Transformamos ideas en <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Sistemas de Alto Impacto</span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
+                Desarrollamos aplicaciones web personalizadas que optimizan procesos, 
+                automatizan tu negocio y elevan la experiencia de tus clientes.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="#apps" class="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all group shadow-lg shadow-blue-500/20">
+                    <i data-lucide="rocket" class="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
+                    Ver mis aplicaciones
+                </a>
+                <a href="#contacto" class="w-full sm:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all">
+                    <i data-lucide="phone" class="w-5 h-5"></i>
+                    Contactarme
+                </a>
+            </div>
+        </div>
+        
+        <!-- Mockup Flotante (Representativo) -->
+        <div class="mt-20 w-full max-w-5xl mx-auto animate-float">
+            <div class="rounded-t-xl bg-slate-800 border-x border-t border-white/10 p-2 flex items-center gap-2">
+                <div class="flex gap-1.5 ml-2">
+                    <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+                </div>
+                <div class="mx-auto bg-slate-900 rounded-md px-10 py-1 text-xs text-slate-500 border border-white/5">lorhels-systems.app/demo-preview</div>
+            </div>
+            <div class="glass-card aspect-video rounded-b-xl overflow-hidden flex items-center justify-center relative group">
+                <div class="absolute inset-0 bg-blue-600/10 mix-blend-overlay"></div>
+                <div class="text-center p-6">
+                    <i data-lucide="layout" class="w-16 h-16 text-blue-500 mx-auto mb-4 opacity-50"></i>
+                    <p class="text-slate-500">Vista previa del sistema interactivo</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Aplicaciones (2 y 3) -->
+    <section id="apps" class="py-24 px-6 max-w-7xl mx-auto">
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-white mb-4">Mis Aplicaciones</h2>
+            <div class="h-1 w-20 bg-blue-600 rounded-full"></div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- App Card -->
+            <div class="glass-card rounded-2xl p-1 transition-all hover:border-blue-500/50 group">
+                <div class="bg-slate-900/50 rounded-2xl p-6 h-full flex flex-col">
+                    <div class="bg-blue-500/10 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="bar-chart-3" class="text-blue-500 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Sistema ERP Inventario</h3>
+                    <p class="text-slate-400 mb-6 flex-grow">Control total de stock, proveedores y facturación en tiempo real con reportes automáticos.</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-8 text-xs font-semibold uppercase tracking-wider text-blue-400">
+                        <span class="px-2 py-1 bg-blue-500/10 rounded">Firebase</span>
+                        <span class="px-2 py-1 bg-blue-500/10 rounded">React</span>
+                        <span class="px-2 py-1 bg-blue-500/10 rounded">Tailwind</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="openDemo('erp')" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+                            <i data-lucide="play" class="w-4 h-4"></i> Probar Demo
+                        </button>
+                        <button class="flex-1 border border-white/10 hover:bg-white/5 text-white font-bold py-3 rounded-xl transition-colors">
+                            Características
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- App Card 2 -->
+            <div class="glass-card rounded-2xl p-1 transition-all hover:border-emerald-500/50 group">
+                <div class="bg-slate-900/50 rounded-2xl p-6 h-full flex flex-col">
+                    <div class="bg-emerald-500/10 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="shopping-cart" class="text-emerald-500 w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">E-Commerce Custom</h3>
+                    <p class="text-slate-400 mb-6 flex-grow">Tienda online con panel de administración, gestión de pagos y seguimiento de envíos.</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-8 text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                        <span class="px-2 py-1 bg-emerald-500/10 rounded">Node.js</span>
+                        <span class="px-2 py-1 bg-emerald-500/10 rounded">MySQL</span>
+                        <span class="px-2 py-1 bg-emerald-500/10 rounded">APIs</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="openDemo('ecommerce')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+                            <i data-lucide="play" class="w-4 h-4"></i> Probar Demo
+                        </button>
+                        <button class="flex-1 border border-white/10 hover:bg-white/5 text-white font-bold py-3 rounded-xl transition-colors">
+                            Características
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal del Simulador (Punto 3) -->
+    <div id="demoModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 md:p-8">
+        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onclick="closeDemo()"></div>
+        <div class="relative w-full max-w-6xl glass-card rounded-2xl overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
+            <!-- Header Ventana -->
+            <div class="bg-slate-800 border-b border-white/10 p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex gap-2">
+                        <button onclick="closeDemo()" class="w-3.5 h-3.5 rounded-full bg-red-500 hover:bg-red-400 transition-colors"></button>
+                        <div class="w-3.5 h-3.5 rounded-full bg-yellow-500"></div>
+                        <div class="w-3.5 h-3.5 rounded-full bg-green-500"></div>
+                    </div>
+                    <span id="demoTitle" class="ml-4 text-sm font-medium text-slate-300">Simulador de Sistema</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 text-slate-500 hover:text-white cursor-pointer transition-colors"></i>
+                </div>
+            </div>
+            
+            <!-- Contenido Simulado (Aquí iría tu app) -->
+            <div class="flex-grow min-h-[500px] flex bg-slate-900 overflow-hidden">
+                <!-- Sidebar Simulado -->
+                <div class="w-64 border-r border-white/5 p-6 hidden md:block">
+                    <div class="h-4 w-32 bg-slate-800 rounded mb-8"></div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3"><div class="w-5 h-5 bg-blue-500/20 rounded"></div><div class="h-3 w-full bg-slate-800 rounded"></div></div>
+                        <div class="flex items-center gap-3"><div class="w-5 h-5 bg-slate-800 rounded"></div><div class="h-3 w-full bg-slate-800 rounded"></div></div>
+                        <div class="flex items-center gap-3"><div class="w-5 h-5 bg-slate-800 rounded"></div><div class="h-3 w-full bg-slate-800 rounded"></div></div>
+                        <div class="flex items-center gap-3"><div class="w-5 h-5 bg-slate-800 rounded"></div><div class="h-3 w-full bg-slate-800 rounded"></div></div>
+                    </div>
+                </div>
+                <!-- Main Simulado -->
+                <div class="flex-grow p-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <div class="h-8 w-48 bg-slate-800 rounded"></div>
+                        <div class="h-10 w-10 bg-blue-600 rounded-full"></div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-6 mb-8">
+                        <div class="h-32 bg-slate-800 rounded-xl"></div>
+                        <div class="h-32 bg-slate-800 rounded-xl"></div>
+                        <div class="h-32 bg-slate-800 rounded-xl"></div>
+                    </div>
+                    <div class="h-64 bg-slate-800 rounded-xl"></div>
+                </div>
+            </div>
+            <!-- Overlay Informativo -->
+            <div class="absolute bottom-6 right-6 p-4 glass-card border-blue-500/50 rounded-xl max-w-xs animate-bounce shadow-xl">
+                <p class="text-sm font-bold text-white flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-blue-400"></i> Modo Interactivo Activo
+                </p>
+                <p class="text-xs text-slate-400 mt-1">Explora la funcionalidad básica del sistema directamente desde aquí.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="authModal" class="fixed inset-0 z-[70] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onclick="window.closeAuthModal()"></div>
+    
+        <div class="relative w-full max-w-md glass-card border-white/10 rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-300">
+            <button onclick="window.closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="text-center mb-8">
+                <div class="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-500 mx-auto mb-4">
+                    <i data-lucide="lock" class="w-6 h-6"></i>
+                </div>
+                <h3 id="authTitle" class="text-2xl font-bold text-white">Iniciar Sesión</h3>
+                <p id="authSubtitle" class="text-slate-400 text-sm mt-1">Accede a tu panel de control</p>
+            </div>
+        
+            <form id="authForm" class="space-y-4" onsubmit="window.handleAuthSubmit(event)">
+                <div id="nameField" class="hidden">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Nombre Completo</label>
+                    <input type="text" id="authName" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors" placeholder="Ej. Juan Pérez">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                    <input type="email" id="authEmail" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors" placeholder="tu@correo.com">
+                </div>
+            
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+                    <input type="password" id="authPassword" required minlength="6" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors" placeholder="••••••••">
+                </div>
+
+                <button type="submit" id="authSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-colors mt-2">
+                    Ingresar
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-slate-400">
+                <span id="authToggleText">¿No tienes cuenta?</span> 
+                <button onclick="window.toggleAuthMode()" id="authToggleBtn" class="text-blue-400 hover:text-blue-300 font-bold transition-colors">Regístrate aquí</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tecnologías (4) -->
+    <section id="tecnologias" class="py-24 bg-slate-900/50 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold text-white mb-16">Tecnologías de Vanguardia</h2>
+            <div class="flex flex-wrap justify-center gap-12 opacity-60">
+                <div class="flex flex-col items-center gap-3 hover:opacity-100 transition-opacity">
+                    <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center"><i data-lucide="code-2" class="w-8 h-8 text-orange-500"></i></div>
+                    <span class="text-sm font-semibold">HTML5/CSS3</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 hover:opacity-100 transition-opacity">
+                    <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center"><i data-lucide="terminal" class="w-8 h-8 text-yellow-400"></i></div>
+                    <span class="text-sm font-semibold">JavaScript</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 hover:opacity-100 transition-opacity">
+                    <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center"><i data-lucide="flame" class="w-8 h-8 text-orange-600"></i></div>
+                    <span class="text-sm font-semibold">Firebase</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 hover:opacity-100 transition-opacity">
+                    <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center"><i data-lucide="server" class="w-8 h-8 text-green-500"></i></div>
+                    <span class="text-sm font-semibold">Node.js</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 hover:opacity-100 transition-opacity">
+                    <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center"><i data-lucide="database" class="w-8 h-8 text-blue-400"></i></div>
+                    <span class="text-sm font-semibold">MySQL</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 hover:opacity-100 transition-opacity">
+                    <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center"><i data-lucide="link" class="w-8 h-8 text-emerald-400"></i></div>
+                    <span class="text-sm font-semibold">Rest APIs</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Beneficios (5) -->
+    <section class="py-24 px-6 max-w-7xl mx-auto">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-8 leading-snug">
+                    ¿Por qué elegir un sistema <br> 
+                    <span class="text-blue-500">desarrollado por LorHels?</span>
+                </h2>
+                <div class="space-y-6">
+                    <div class="flex gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors">
+                        <div class="flex-shrink-0 w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-500">
+                            <i data-lucide="settings"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">Sistemas Personalizados</h4>
+                            <p class="text-slate-400 text-sm">No usamos plantillas genéricas. Construimos herramientas adaptadas a tus reglas de negocio.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors">
+                        <div class="flex-shrink-0 w-12 h-12 bg-emerald-600/20 rounded-xl flex items-center justify-center text-emerald-500">
+                            <i data-lucide="zap"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">Automatización</h4>
+                            <p class="text-slate-400 text-sm">Reduce errores humanos y ahorra tiempo valioso automatizando tareas repetitivas.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors">
+                        <div class="flex-shrink-0 w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center text-purple-500">
+                            <i data-lucide="cloud"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">Acceso en la Nube</h4>
+                            <p class="text-slate-400 text-sm">Gestiona tu negocio desde cualquier dispositivo, en cualquier lugar del mundo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="absolute inset-0 bg-blue-600 blur-[100px] opacity-20 -z-10"></div>
+                <div class="glass-card rounded-3xl p-8 border-blue-500/20">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <i data-lucide="calculator" class="text-blue-500"></i> Estimación de Retorno
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-900/80 rounded-xl">
+                            <div class="text-xs text-slate-500 mb-1">Ahorro de Tiempo Semanal</div>
+                            <div class="text-2xl font-bold text-white">+15 Horas</div>
+                        </div>
+                        <div class="p-4 bg-slate-900/80 rounded-xl">
+                            <div class="text-xs text-slate-500 mb-1">Reducción de Errores de Facturación</div>
+                            <div class="text-2xl font-bold text-emerald-400">99.9%</div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-8 py-4 bg-blue-600 rounded-xl font-bold hover:bg-blue-500 transition-colors">Solicitar Auditoría Gratis</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contacto (6) -->
+    <section id="contacto" class="py-24 px-6 bg-blue-600">
+        <div class="max-w-4xl mx-auto text-center text-white">
+            <h2 class="text-4xl font-extrabold mb-4 italic">¿Listo para escalar tu negocio?</h2>
+            <p class="text-blue-100 mb-12 text-lg">Hablemos hoy mismo sobre cómo LorHels Systems puede potenciar tu empresa.</p>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <a href="https://wa.me/tu-numero" class="bg-white/10 hover:bg-white/20 p-8 rounded-3xl backdrop-blur-md transition-all group">
+                    <i data-lucide="message-circle" class="w-10 h-10 mx-auto mb-4 group-hover:scale-125 transition-transform"></i>
+                    <span class="block font-bold">WhatsApp</span>
+                </a>
+                <a href="mailto:contacto@lorhels.com" class="bg-white/10 hover:bg-white/20 p-8 rounded-3xl backdrop-blur-md transition-all group">
+                    <i data-lucide="mail" class="w-10 h-10 mx-auto mb-4 group-hover:scale-125 transition-transform"></i>
+                    <span class="block font-bold">Email</span>
+                </a>
+                <button class="bg-white text-blue-600 p-8 rounded-3xl font-extrabold shadow-xl hover:scale-105 transition-all">
+                    Cotizar Ahora
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-white/5 text-center text-slate-500 text-sm">
+        <p>© 2024 LorHels Systems. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Inicializar Iconos
+        lucide.createIcons();
+
+        // Lógica del Modal
+        const modal = document.getElementById('demoModal');
+        const demoTitle = document.getElementById('demoTitle');
+
+        function openDemo(type) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Evitar scroll
+            if(type === 'erp') {
+                demoTitle.innerText = "Simulador: Sistema ERP Inventario";
+            } else {
+                demoTitle.innerText = "Simulador: E-Commerce Custom";
+            }
+        }
+
+        function closeDemo() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Animación simple al scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in', 'fade-in', 'slide-in-from-bottom-5', 'duration-700');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        // Añadimos signInWithEmailAndPassword para el Login
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  
+        const firebaseConfig = {
+            apiKey: "AIzaSyAP-_ItKPOdGv2GpDlPAtIJgycR7JMVFXs",
+            authDomain: "lorhels-systems-1411a.firebaseapp.com",
+            projectId: "lorhels-systems-1411a",
+            storageBucket: "lorhels-systems-1411a.firebasestorage.app",
+            messagingSenderId: "707657117265",
+            appId: "1:707657117265:web:84dfe062cdc042be8a9270"
+        };
+  
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+  
+        // --- LÓGICA DE LA INTERFAZ (MODAL) ---
+        let isLoginMode = true; // Por defecto mostramos Login
+
+        window.openAuthModal = () => {
+            document.getElementById('authModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            // Re-renderizar iconos por si acaso
+            lucide.createIcons();
+        };
+  
+        window.closeAuthModal = () => {
+            document.getElementById('authModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        };
+  
+        window.toggleAuthMode = () => {
+            isLoginMode = !isLoginMode;
+            const nameField = document.getElementById('nameField');
+            const authTitle = document.getElementById('authTitle');
+            const authSubtitle = document.getElementById('authSubtitle');
+            const authSubmitBtn = document.getElementById('authSubmitBtn');
+            const authToggleText = document.getElementById('authToggleText');
+            const authToggleBtn = document.getElementById('authToggleBtn');
+      
+            if (isLoginMode) {
+                nameField.classList.add('hidden');
+                document.getElementById('authName').removeAttribute('required');
+                authTitle.innerText = "Iniciar Sesión";
+                authSubtitle.innerText = "Accede a tu panel de control";
+                authSubmitBtn.innerText = "Ingresar";
+                authToggleText.innerText = "¿No tienes cuenta?";
+                authToggleBtn.innerText = "Regístrate aquí";
+            } else {
+                nameField.classList.remove('hidden');
+                document.getElementById('authName').setAttribute('required', 'true');
+                authTitle.innerText = "Crear Cuenta";
+                authSubtitle.innerText = "Únete y transforma tu negocio";
+                authSubmitBtn.innerText = "Registrarme";
+                authToggleText.innerText = "¿Ya tienes cuenta?";
+                authToggleBtn.innerText = "Inicia sesión aquí";
+            }
+        };
+  
+        // --- LÓGICA DE FIREBASE (SUBMIT) ---
+        window.handleAuthSubmit = async (event) => {
+            event.preventDefault(); // Evita que la página se recargue
+            
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const nombre = document.getElementById('authName').value;
+            const btn = document.getElementById('authSubmitBtn');
+      
+            const textoOriginalBtn = btn.innerText;
+            btn.innerText = "Procesando...";
+            btn.disabled = true;
+      
+            try {
+                if (isLoginMode) {
+                    // INICIAR SESIÓN
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    alert("¡Bienvenido de vuelta, " + userCredential.user.email + "!");
+                    window.closeAuthModal();
+                    // Aquí luego redirigiremos al panel (dashboard)
+                     
+                } else {
+                    // REGISTRAR USUARIO
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+              
+                    // Guardar el rol en Firestore
+                    await setDoc(doc(db, "usuarios", user.uid), {
+                        nombre: nombre,
+                        email: email,
+                        rol: "cliente",
+                        fechaCreacion: new Date().toISOString()
+                    });
+              
+                    alert("¡Cuenta creada con éxito! Ya puedes iniciar sesión.");
+                    window.toggleAuthMode(); // Volvemos al modo login
+                }
+            } catch (error) {
+                console.error("Error de autenticación:", error);
+                // Mensajes de error más amigables
+                if(error.code === 'auth/email-already-in-use') alert("Este correo ya está registrado.");
+                else if(error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') alert("Correo o contraseña incorrectos.");
+                else alert("Ocurrió un error: " + error.message);
+            } finally {
+                btn.innerText = textoOriginalBtn;
+                btn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
