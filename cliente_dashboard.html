@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal del Cliente | LorHels Systems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 flex h-screen overflow-hidden hidden" id="bodyContent">
+
+    <div id="loadingScreen" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-slate-400">Cargando tu portal...</p>
+    </div>
+
+    <aside class="w-64 bg-slate-900 border-r border-white/5 flex flex-col hidden md:flex">
+        <div class="h-20 flex items-center px-6 border-b border-white/5">
+            <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-white mr-3">L</div>
+            <span class="text-lg font-extrabold tracking-tight text-white">LorHels <span class="text-emerald-500 text-xs uppercase tracking-widest">Portal</span></span>
+        </div>
+
+        <nav class="flex-grow py-6 px-4 space-y-2">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-emerald-600/10 text-emerald-400 rounded-xl font-medium transition-colors">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Mi Resumen
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                <i data-lucide="folder" class="w-5 h-5"></i> Mi Proyecto
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                <i data-lucide="life-buoy" class="w-5 h-5"></i> Soporte
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-white/5">
+            <button onclick="window.cerrarSesion()" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-medium transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-grow flex flex-col h-full overflow-hidden">
+        <header class="h-20 glass-card border-b-0 border-x-0 flex items-center justify-between px-8">
+            <h1 class="text-xl font-bold text-white">Bienvenido de vuelta</h1>
+            <div class="flex items-center gap-4">
+                <span id="nombreClienteUI" class="text-sm font-medium text-slate-300">Cargando...</span>
+                <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center border border-white/10">
+                    <i data-lucide="user" class="w-5 h-5 text-emerald-400"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-grow p-8 overflow-y-auto">
+            
+            <div class="bg-gradient-to-r from-emerald-900/40 to-slate-900 border border-emerald-500/20 rounded-2xl p-8 mb-8">
+                <h2 class="text-2xl font-bold text-white mb-2" id="saludoUI">Hola, Cliente</h2>
+                <p class="text-slate-400">Aquí puedes monitorear el avance de tus soluciones digitales y contactar a soporte.</p>
+            </div>
+
+            <h3 class="text-lg font-bold text-white mb-4">Estado de tu Proyecto Actual</h3>
+            <div class="glass-card rounded-2xl p-8 mb-8">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400">
+                            <i data-lucide="code-2" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Sistema ERP Personalizado</h4>
+                            <p class="text-sm text-slate-400">Fase actual: Desarrollo Backend</p>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-emerald-400 font-medium">En progreso</span>
+                            <span class="text-slate-400">45%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2.5">
+                            <div class="bg-emerald-500 h-2.5 rounded-full" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-6 rounded-2xl hover:border-emerald-500/30 transition-colors cursor-pointer group">
+                    <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="message-square"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Abrir Ticket de Soporte</h3>
+                    <p class="text-sm text-slate-400">¿Tienes algún problema o duda? Contáctanos directamente desde aquí.</p>
+                </div>
+                <div class="glass-card p-6 rounded-2xl hover:border-blue-500/30 transition-colors cursor-pointer group">
+                    <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="file-text"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Ver Cotizaciones</h3>
+                    <p class="text-sm text-slate-400">Revisa el historial de pagos y cotizaciones pendientes de aprobación.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAP-_ItKPOdGv2GpDlPAtIJgycR7JMVFXs",
+            authDomain: "lorhels-systems-1411a.firebaseapp.com",
+            projectId: "lorhels-systems-1411a",
+            storageBucket: "lorhels-systems-1411a.firebasestorage.app",
+            messagingSenderId: "707657117265",
+            appId: "1:707657117265:web:84dfe062cdc042be8a9270"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const loadingScreen = document.getElementById('loadingScreen');
+        const bodyContent = document.getElementById('bodyContent');
+        const nombreClienteUI = document.getElementById('nombreClienteUI');
+        const saludoUI = document.getElementById('saludoUI');
+
+        // SEGURIDAD: Verificar quién entra
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+                
+                if (userDoc.exists()) {
+                    const datos = userDoc.data();
+                    
+                    // Validamos que sea un cliente (o admin probando)
+                    if (datos.rol === 'cliente' || datos.rol === 'admin') {
+                        nombreClienteUI.innerText = datos.nombre;
+                        saludoUI.innerText = `Hola, ${datos.nombre.split(' ')[0]}`;
+                        
+                        loadingScreen.style.display = 'none';
+                        bodyContent.classList.remove('hidden');
+                    } else {
+                        alert("Rol no autorizado.");
+                        window.location.href = "index.html";
+                    }
+                }
+            } else {
+                // No está logueado
+                window.location.href = "index.html";
+            }
+        });
+
+        // Función para salir
+        window.cerrarSesion = async () => {
+            await signOut(auth);
+            window.location.href = "index.html";
+        };
+    </script>
+</body>
+</html>
