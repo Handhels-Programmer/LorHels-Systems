@@ -355,23 +355,64 @@
     </section>
 
     <!-- Contacto (6) -->
-    <section id="contacto" class="py-24 px-6 bg-blue-600">
-        <div class="max-w-4xl mx-auto text-center text-white">
-            <h2 class="text-4xl font-extrabold mb-4 italic">¿Listo para escalar tu negocio?</h2>
-            <p class="text-blue-100 mb-12 text-lg">Hablemos hoy mismo sobre cómo LorHels Systems puede potenciar tu empresa.</p>
-            
-            <div class="grid md:grid-cols-3 gap-6">
-                <a href="https://wa.me/tu-numero" class="bg-white/10 hover:bg-white/20 p-8 rounded-3xl backdrop-blur-md transition-all group">
-                    <i data-lucide="message-circle" class="w-10 h-10 mx-auto mb-4 group-hover:scale-125 transition-transform"></i>
-                    <span class="block font-bold">WhatsApp</span>
-                </a>
-                <a href="mailto:contacto@lorhels.com" class="bg-white/10 hover:bg-white/20 p-8 rounded-3xl backdrop-blur-md transition-all group">
-                    <i data-lucide="mail" class="w-10 h-10 mx-auto mb-4 group-hover:scale-125 transition-transform"></i>
-                    <span class="block font-bold">Email</span>
-                </a>
-                <button class="bg-white text-blue-600 p-8 rounded-3xl font-extrabold shadow-xl hover:scale-105 transition-all">
-                    Cotizar Ahora
-                </button>
+    <section id="contacto" class="py-24 px-6 relative border-t border-white/5">
+        <div class="absolute inset-0 bg-blue-900/10 blur-[100px] -z-10"></div>
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-6">¿Listo para escalar tu negocio?</h2>
+                    <p class="text-slate-400 mb-10 text-lg">Hablemos hoy mismo sobre cómo LorHels Systems puede potenciar tu empresa. Completa el formulario y me pondré en contacto contigo a la brevedad.</p>
+                    
+                    <div class="space-y-6">
+                        <a href="https://wa.me/tu-numero" target="_blank" class="flex items-center gap-4 group">
+                            <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                <i data-lucide="message-circle" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-500">Escríbeme por WhatsApp</p>
+                                <p class="text-lg font-bold text-white">+1 234 567 8900</p>
+                            </div>
+                        </a>
+                        <a href="mailto:contacto@lorhels.com" class="flex items-center gap-4 group">
+                            <div class="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                <i data-lucide="mail" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-500">Envíame un correo</p>
+                                <p class="text-lg font-bold text-white">contacto@lorhels.com</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 md:p-10 rounded-3xl border-blue-500/20 shadow-2xl relative">
+                    <form id="formContacto" onsubmit="window.enviarMensaje(event)" class="space-y-6">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-2">Nombre</label>
+                                <input type="text" id="contactoNombre" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="Tu nombre">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-2">Teléfono</label>
+                                <input type="tel" id="contactoTelefono" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="+1 ...">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Correo Electrónico</label>
+                            <input type="email" id="contactoEmail" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="tu@empresa.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">¿En qué puedo ayudarte?</label>
+                            <textarea id="contactoMensaje" required rows="4" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none" placeholder="Describe brevemente tu proyecto..."></textarea>
+                        </div>
+                        <button type="submit" id="btnEnviarMensaje" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                            <span>Enviar Mensaje</span>
+                        </button>
+                    </form>
+                </div>
+
             </div>
         </div>
     </section>
@@ -425,7 +466,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   
         const firebaseConfig = {
             apiKey: "AIzaSyAP-_ItKPOdGv2GpDlPAtIJgycR7JMVFXs",
@@ -440,13 +481,45 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
   
+        // --- FUNCIÓN DEL FORMULARIO DE CONTACTO ---
+        window.enviarMensaje = async (event) => {
+            event.preventDefault(); 
+      
+            const btn = document.getElementById('btnEnviarMensaje');
+            const textoOriginal = btn.innerHTML;
+      
+            btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div><span>Enviando...</span>';
+            btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "mensajes"), {
+                    nombre: document.getElementById('contactoNombre').value,
+                    telefono: document.getElementById('contactoTelefono').value,
+                    email: document.getElementById('contactoEmail').value,
+                    mensaje: document.getElementById('contactoMensaje').value,
+                    fecha: new Date().toISOString(),
+                    estado: "no leido" 
+                });
+
+                alert("¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.");
+                document.getElementById('formContacto').reset(); 
+          
+            } catch (error) {
+                console.error("Error al enviar el mensaje:", error);
+                alert("Hubo un error al enviar tu mensaje. Por favor, intenta de nuevo.");
+            } finally {
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+                lucide.createIcons(); 
+            }
+        };
+
         // --- LÓGICA DE LA INTERFAZ (MODAL) ---
-        let isLoginMode = true; // Por defecto mostramos Login
+        let isLoginMode = true;
 
         window.openAuthModal = () => {
             document.getElementById('authModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-            // Re-renderizar iconos por si acaso
             lucide.createIcons();
         };
   
@@ -485,7 +558,7 @@
   
         // --- LÓGICA DE FIREBASE (SUBMIT) ---
         window.handleAuthSubmit = async (event) => {
-            event.preventDefault(); // Evita que la página se recargue
+            event.preventDefault(); 
             
             const email = document.getElementById('authEmail').value;
             const password = document.getElementById('authPassword').value;
@@ -498,18 +571,13 @@
       
             try {
                 if (isLoginMode) {
-                    // INICIAR SESIÓN
                     const userCredential = await signInWithEmailAndPassword(auth, email, password);
                     alert("¡Bienvenido de vuelta, " + userCredential.user.email + "!");
                     window.closeAuthModal();
-                    // Aquí luego redirigiremos al panel (dashboard)
-                     
                 } else {
-                    // REGISTRAR USUARIO
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     const user = userCredential.user;
               
-                    // Guardar el rol en Firestore
                     await setDoc(doc(db, "usuarios", user.uid), {
                         nombre: nombre,
                         email: email,
@@ -518,11 +586,10 @@
                     });
               
                     alert("¡Cuenta creada con éxito! Ya puedes iniciar sesión.");
-                    window.toggleAuthMode(); // Volvemos al modo login
+                    window.toggleAuthMode(); 
                 }
             } catch (error) {
                 console.error("Error de autenticación:", error);
-                // Mensajes de error más amigables
                 if(error.code === 'auth/email-already-in-use') alert("Este correo ya está registrado.");
                 else if(error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') alert("Correo o contraseña incorrectos.");
                 else alert("Ocurrió un error: " + error.message);
@@ -543,45 +610,37 @@
             const nombreUsuarioUI = document.getElementById('nombreUsuarioUI');
 
             if (user) {
-                // HAY ALGUIEN LOGUEADO
                 window.usuarioActual = user;
          
-                // 1. Buscamos sus datos en Firestore para saber si es admin o cliente
                 const userDoc = await getDoc(doc(db, "usuarios", user.uid));
          
                 if (userDoc.exists()) {
                     const datos = userDoc.data();
                     window.rolActual = datos.rol;
          
-                    // Mostramos solo el primer nombre en la UI
                     const primerNombre = datos.nombre.split(' ')[0];
                     nombreUsuarioUI.innerText = `Hola, ${primerNombre}`;
               
-                    // Ocultamos "Acceder" y mostramos el Menú de Usuario
                     btnAcceder.classList.add('hidden');
                     menuUsuario.classList.remove('hidden');
                     menuUsuario.classList.add('flex');
               
-                    lucide.createIcons(); // Recargamos iconos por si acaso
+                    lucide.createIcons(); 
                 }
             } else {
-                // NO HAY NADIE LOGUEADO
                 window.usuarioActual = null;
                 window.rolActual = null;
           
-                // Mostramos "Acceder" y ocultamos el Menú de Usuario
                 btnAcceder.classList.remove('hidden');
                 menuUsuario.classList.add('hidden');
                 menuUsuario.classList.remove('flex');
             }
         });
 
-  
         // --- FUNCIÓN PARA CERRAR SESIÓN ---
         window.cerrarSesion = async () => {
             try {
                 await signOut(auth);
-                // Opcional: mostrar una alerta o mensaje
                 console.log("Sesión cerrada");
             } catch (error) {
                 console.error("Error al cerrar sesión:", error);
@@ -591,10 +650,8 @@
         // --- FUNCIÓN PARA IR AL PANEL DEPENDIENDO DEL ROL ---
         window.irAlPanel = () => {
             if (window.rolActual === 'admin') {
-                // Va al Centro de Mando
                 window.location.href = "dashboard.html";
             } else if (window.rolActual === 'cliente') {
-                // Va al Portal del Cliente
                 window.location.href = "cliente_dashboard.html";
             } else {
                 alert("Error: No se pudo verificar tu rol.");
