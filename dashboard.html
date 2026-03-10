@@ -30,18 +30,18 @@
         </div>
 
         <nav class="flex-grow py-6 px-4 space-y-2">
-            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-blue-600/10 text-blue-400 rounded-xl font-medium transition-colors">
+            <button onclick="window.cambiarSeccion('resumen')" id="btn-resumen" class="w-full flex items-center gap-3 px-4 py-3 bg-blue-600/10 text-blue-400 rounded-xl font-medium transition-colors">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Resumen
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
-                <i data-lucide="users" class="w-5 h-5"></i> Clientes
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+            </button>
+            <button onclick="window.cambiarSeccion('proyectos')" id="btn-proyectos" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
                 <i data-lucide="folder-kanban" class="w-5 h-5"></i> Proyectos
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
-                <i data-lucide="inbox" class="w-5 h-5"></i> Mensajes <span class="ml-auto bg-blue-600 text-white text-xs py-0.5 px-2 rounded-full">3</span>
-            </a>
+            </button>
+            <button onclick="window.cambiarSeccion('tickets')" id="btn-tickets" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                <i data-lucide="life-buoy" class="w-5 h-5"></i> Soporte
+            </button>
+            <button onclick="window.cambiarSeccion('mensajes')" id="btn-mensajes" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                <i data-lucide="inbox" class="w-5 h-5"></i> Mensajes (Leads)
+            </button>
         </nav>
 
         <div class="p-4 border-t border-white/5">
@@ -55,6 +55,10 @@
         <header class="h-20 glass-card border-b-0 border-x-0 flex items-center justify-between px-8">
             <h1 class="text-xl font-bold text-white">Centro de Mando</h1>
             <div class="flex items-center gap-4">
+                <button onclick="window.abrirModalProyecto()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-white text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Nuevo Proyecto
+                </button>
+                
                 <span id="nombreAdminUI" class="text-sm font-medium text-slate-300">Cargando...</span>
                 <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center border border-white/10">
                     <i data-lucide="user" class="w-5 h-5 text-blue-400"></i>
@@ -62,118 +66,124 @@
             </div>
         </header>
 
-        <div class="flex-grow p-8 overflow-y-auto">
+        <div class="flex-grow p-8 overflow-y-auto relative">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="glass-card p-6 rounded-2xl">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-blue-500/10 rounded-xl text-blue-400"><i data-lucide="users"></i></div>
-                        <span class="text-xs font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">+2 este mes</span>
+            <div id="sec-resumen" class="seccion-panel animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-blue-500/10 rounded-xl text-blue-400"><i data-lucide="users"></i></div>
+                        </div>
+                        <h3 class="text-3xl font-bold text-white mb-1" id="stat-clientes">--</h3>
+                        <p class="text-sm text-slate-400">Clientes Activos</p>
                     </div>
-                    <h3 class="text-3xl font-bold text-white mb-1" id="stat-clientes">--</h3>
-                    <p class="text-sm text-slate-400">Clientes Activos</p>
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-purple-500/10 rounded-xl text-purple-400"><i data-lucide="rocket"></i></div>
+                        </div>
+                        <h3 class="text-3xl font-bold text-white mb-1" id="stat-proyectos">--</h3>
+                        <p class="text-sm text-slate-400">Proyectos en Curso</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-yellow-500/10 rounded-xl text-yellow-400"><i data-lucide="ticket"></i></div>
+                        </div>
+                        <h3 class="text-3xl font-bold text-white mb-1" id="stat-tickets">--</h3>
+                        <p class="text-sm text-slate-400">Tickets Abiertos</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400"><i data-lucide="dollar-sign"></i></div>
+                        </div>
+                        <h3 class="text-3xl font-bold text-white mb-1">Finanzas</h3>
+                        <p class="text-sm text-slate-400">Próximamente</p>
+                    </div>
                 </div>
-                <div class="glass-card p-6 rounded-2xl">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-purple-500/10 rounded-xl text-purple-400"><i data-lucide="rocket"></i></div>
+
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-white">Últimos Usuarios Registrados</h2>
                     </div>
-                    <h3 class="text-3xl font-bold text-white mb-1" id="stat-proyectos">--</h3>
-                    <p class="text-sm text-slate-400">Proyectos en Curso</p>
-                </div>
-                <div class="glass-card p-6 rounded-2xl">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-yellow-500/10 rounded-xl text-yellow-400"><i data-lucide="ticket"></i></div>
-                        <span class="text-xs font-bold text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded-full">Requieren atención</span>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/50 text-slate-400 text-sm">
+                                    <th class="p-4 font-medium">Nombre</th>
+                                    <th class="p-4 font-medium">Correo</th>
+                                    <th class="p-4 font-medium">Rol</th>
+                                    <th class="p-4 font-medium">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaUsuarios" class="divide-y divide-white/5"></tbody>
+                        </table>
                     </div>
-                    <h3 class="text-3xl font-bold text-white mb-1" id="stat-tickets">--</h3>
-                    <p class="text-sm text-slate-400">Tickets de Soporte</p>
-                </div>
-                <div class="glass-card p-6 rounded-2xl">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400"><i data-lucide="dollar-sign"></i></div>
-                    </div>
-                    <h3 class="text-3xl font-bold text-white mb-1">Ingresos</h3>
-                    <p class="text-sm text-slate-400">Panel Financiero</p>
                 </div>
             </div>
 
-            <div class="glass-card rounded-2xl overflow-hidden">
-                <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                    <h2 class="text-lg font-bold text-white">Últimos Registros (Base de Datos)</h2>
-                    <button class="text-sm text-blue-400 hover:text-blue-300 font-medium">Ver todos</button>
+            <div id="sec-proyectos" class="seccion-panel hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Gestión de Proyectos</h2>
+                    <button onclick="window.abrirModalProyecto()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-white text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Nuevo Proyecto
+                    </button>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-900/50 text-slate-400 text-sm">
-                                <th class="p-4 font-medium">Nombre</th>
-                                <th class="p-4 font-medium">Correo</th>
-                                <th class="p-4 font-medium">Rol</th>
-                                <th class="p-4 font-medium">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaUsuarios" class="divide-y divide-white/5">
-                            <tr>
-                                <td colspan="4" class="p-4 text-center text-slate-500">Cargando usuarios desde Firebase...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/50 text-slate-400 text-sm">
+                                    <th class="p-4 font-medium">Proyecto</th>
+                                    <th class="p-4 font-medium">Fase Actual</th>
+                                    <th class="p-4 font-medium">Progreso</th>
+                                    <th class="p-4 font-medium">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaProyectosAdmin" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="glass-card rounded-2xl overflow-hidden mt-8">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-white">Mensajes Recientes (Leads)</h2>
-                <span class="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">Bandeja de entrada</span>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-900/50 text-slate-400 text-sm">
-                            <th class="p-4 font-medium">Fecha</th>
-                            <th class="p-4 font-medium">Nombre</th>
-                            <th class="p-4 font-medium">Contacto</th>
-                            <th class="p-4 font-medium">Mensaje</th>
-                            <th class="p-4 font-medium">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaMensajes" class="divide-y divide-white/5">
-                        <tr>
-                            <td colspan="5" class="p-4 text-center text-slate-500">Cargando mensajes desde Firebase...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <br>
-            <br>
-        </div>
 
-        <div class="glass-card rounded-2xl overflow-hidden mt-8">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-white">Tickets de Soporte (Clientes)</h2>
-                <span class="text-xs bg-yellow-500 text-slate-900 font-bold px-2 py-1 rounded-full">Atención requerida</span>
+            <div id="sec-tickets" class="seccion-panel hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <h2 class="text-2xl font-bold text-white mb-6">Tickets de Soporte</h2>
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/50 text-slate-400 text-sm">
+                                    <th class="p-4 font-medium">Fecha</th>
+                                    <th class="p-4 font-medium">Cliente</th>
+                                    <th class="p-4 font-medium">Asunto & Prioridad</th>
+                                    <th class="p-4 font-medium">Mensaje</th>
+                                    <th class="p-4 font-medium">Estado</th>
+                                    <th class="p-4 font-medium">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaTickets" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-900/50 text-slate-400 text-sm">
-                            <th class="p-4 font-medium">Fecha</th>
-                            <th class="p-4 font-medium">Cliente</th>
-                            <th class="p-4 font-medium">Asunto & Prioridad</th>
-                            <th class="p-4 font-medium">Mensaje</th>
-                            <th class="p-4 font-medium">Estado</th>
-                            <th class="p-4 font-medium">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaTickets" class="divide-y divide-white/5">
-                        <tr>
-                            <td colspan="6" class="p-4 text-center text-slate-500">Cargando tickets desde Firebase...</td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <div id="sec-mensajes" class="seccion-panel hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <h2 class="text-2xl font-bold text-white mb-6">Bandeja de Leads</h2>
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/50 text-slate-400 text-sm">
+                                    <th class="p-4 font-medium">Fecha</th>
+                                    <th class="p-4 font-medium">Nombre</th>
+                                    <th class="p-4 font-medium">Contacto</th>
+                                    <th class="p-4 font-medium">Mensaje</th>
+                                    <th class="p-4 font-medium">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaMensajes" class="divide-y divide-white/5"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <br>
-            <br>
         </div>
     </main>
 
@@ -181,10 +191,59 @@
         lucide.createIcons();
     </script>
 
+    <div id="modalProyecto" class="fixed inset-0 z-[70] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onclick="window.cerrarModalProyecto()"></div>
+        
+        <div class="relative w-full max-w-lg glass-card border-white/10 rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-300">
+            <button onclick="window.cerrarModalProyecto()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400">
+                    <i data-lucide="folder-plus" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Asignar Nuevo Proyecto</h3>
+                    <p class="text-slate-400 text-sm mt-1">Crea un proyecto y asígnalo a un cliente.</p>
+                </div>
+            </div>
+
+            <form id="formProyecto" class="space-y-4" onsubmit="window.crearProyecto(event)">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Nombre del Proyecto</label>
+                    <input type="text" id="proyNombre" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="Ej. Tienda Online">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Cliente Asignado</label>
+                    <select id="proyCliente" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        <option value="">Cargando clientes...</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Fase Actual</label>
+                        <input type="text" id="proyFase" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="Ej. Diseño UI">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Progreso (%)</label>
+                        <input type="number" id="proyProgreso" required min="0" max="100" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="25">
+                    </div>
+                </div>
+
+                <button type="submit" id="btnCrearProyecto" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-colors mt-4 flex justify-center items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Crear y Asignar
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, query, limit, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query, limit, orderBy, updateDoc, addDoc, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Tu configuración
         const firebaseConfig = {
@@ -207,6 +266,7 @@
         const tablaUsuarios = document.getElementById('tablaUsuarios');
         const tablaMensajes = document.getElementById('tablaMensajes');
         const tablaTickets = document.getElementById('tablaTickets');
+        const tablaProyectosAdmin = document.getElementById('tablaProyectosAdmin');
 
         // SEGURIDAD: Verificar quién entra
         onAuthStateChanged(auth, async (user) => {
@@ -227,6 +287,7 @@
                     cargarDatosDelPanel();
                     cargarMensajes();
                     cargarTickets();
+                    cargarProyectosAdmin();
                 } else {
                     // ES CLIENTE O ROL DESCONOCIDO: Lo echamos
                     alert("No tienes permisos de administrador para ver esta página.");
@@ -238,98 +299,94 @@
             }
         });
 
-        // Función para cargar usuarios y CONTAR TICKETS
+        // --- FUNCIÓN PARA CARGAR USUARIOS Y ESTADÍSTICAS ---
         async function cargarDatosDelPanel() {
             try {
-                // 1. Cargar Usuarios
+                // Solo cargamos Usuarios y contamos Clientes
                 const qUsuarios = query(collection(db, "usuarios"), limit(5));
                 const querySnapshot = await getDocs(qUsuarios);
                 
-                tablaUsuarios.innerHTML = '';
+                const tablaUsuarios = document.getElementById('tablaUsuarios');
+                if(tablaUsuarios) tablaUsuarios.innerHTML = '';
+                
                 let contadorClientes = 0;
 
                 querySnapshot.forEach((documento) => {
                     const usuario = documento.data();
                     if(usuario.rol === 'cliente') contadorClientes++;
 
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-white/5 transition-colors";
-                    tr.innerHTML = `
-                        <td class="p-4 text-white font-medium">${usuario.nombre || 'Sin nombre'}</td>
-                        <td class="p-4 text-slate-400">${usuario.email}</td>
-                        <td class="p-4"><span class="${usuario.rol === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">${usuario.rol}</span></td>
-                        <td class="p-4"><button class="text-slate-400 hover:text-white transition-colors p-1"><i data-lucide="edit" class="w-4 h-4"></i></button></td>
-                    `;
-                    tablaUsuarios.appendChild(tr);
+                    if(tablaUsuarios) {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-white/5 transition-colors";
+                        tr.innerHTML = `
+                            <td class="p-4 text-white font-medium">${usuario.nombre || 'Sin nombre'}</td>
+                            <td class="p-4 text-slate-400">${usuario.email}</td>
+                            <td class="p-4"><span class="${usuario.rol === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">${usuario.rol}</span></td>
+                            <td class="p-4"><span class="text-slate-600 p-1"><i data-lucide="lock" class="w-4 h-4"></i></span></td>
+                        `;
+                        tablaUsuarios.appendChild(tr);
+                    }
                 });
 
-                // 2. CONTAR TICKETS ABIERTOS (¡La magia nueva!)
-                const qTickets = query(collection(db, "tickets"));
-                const ticketsSnapshot = await getDocs(qTickets);
-                let ticketsAbiertos = 0;
+                // Actualizar Tarjeta de Clientes
+                const statClientes = document.getElementById('stat-clientes');
+                if(statClientes) statClientes.innerText = contadorClientes;
                 
-                ticketsSnapshot.forEach((doc) => {
-                    if(doc.data().estado === 'abierto') ticketsAbiertos++;
-                });
-
-                // 3. Actualizar Tarjetas
-                document.getElementById('stat-clientes').innerText = contadorClientes;
-                document.getElementById('stat-tickets').innerText = ticketsAbiertos; // <-- ¡Aquí se actualiza el número!
-                document.getElementById('stat-proyectos').innerText = "0"; 
-
                 lucide.createIcons();
             } catch (error) {
-                console.error("Error cargando datos:", error);
+                console.error("Error cargando usuarios:", error);
             }
         }
 
-        // Función para cargar los mensajes de contacto
-        async function cargarMensajes() {
+        // --- FUNCIÓN PARA CARGAR MENSAJES EN TIEMPO REAL ⚡ ---
+        function cargarMensajes() {
             try {
-                const qMensajes = query(collection(db, "mensajes"), orderBy("fecha", "desc"), limit(10));
-                const querySnapshot = await getDocs(qMensajes);
+                const qMensajes = query(collection(db, "mensajes"), orderBy("fecha", "desc"), limit(15));
                 
-                tablaMensajes.innerHTML = ''; 
-                
-                if (querySnapshot.empty) {
-                    tablaMensajes.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">No hay mensajes nuevos</td></tr>';
-                    return;
-                }
+                // onSnapshot crea el túnel directo con Firebase
+                onSnapshot(qMensajes, (querySnapshot) => {
+                    tablaMensajes.innerHTML = ''; 
+                    
+                    if (querySnapshot.empty) {
+                        tablaMensajes.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">No hay mensajes nuevos</td></tr>';
+                        return;
+                    }
 
-                querySnapshot.forEach((documento) => {
-                    const msg = documento.data();
-                    const idMensaje = documento.id; // ¡Capturamos el ID único de Firebase!
-                    
-                    const fechaFormateada = new Date(msg.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
-                    
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-white/5 transition-colors text-sm";
-                    
-                    // Creamos la fila. Fíjate en la última columna (Estado)
-                    tr.innerHTML = `
-                        <td class="p-4 text-slate-400">${fechaFormateada}</td>
-                        <td class="p-4 text-white font-medium">${msg.nombre}</td>
-                        <td class="p-4 text-slate-400">
-                            <div class="text-blue-400 hover:underline cursor-pointer"><a href="mailto:${msg.email}">${msg.email}</a></div>
-                            <div class="text-xs mt-1">${msg.telefono || 'Sin teléfono'}</div>
-                        </td>
-                        <td class="p-4 text-slate-400 max-w-xs truncate" title="${msg.mensaje}">${msg.mensaje}</td>
-                        <td class="p-4 flex items-center gap-3">
-                            <span class="${msg.estado === 'no leido' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-slate-500/20 text-slate-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
-                                ${msg.estado === 'no leido' ? 'Nuevo' : 'Leído'}
-                            </span>
-                            
-                            ${msg.estado === 'no leido' ? `
-                                <button onclick="window.marcarComoLeido('${idMensaje}')" class="text-slate-500 hover:text-emerald-400 transition-colors p-1" title="Marcar como atendido">
-                                    <i data-lucide="check-circle" class="w-5 h-5"></i>
-                                </button>
-                            ` : ''}
-                        </td>
-                    `;
-                    tablaMensajes.appendChild(tr);
+                    querySnapshot.forEach((documento) => {
+                        const msg = documento.data();
+                        const idMensaje = documento.id; 
+                        
+                        const fechaFormateada = new Date(msg.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' });
+                        
+                        const tr = document.createElement('tr');
+                        // Le agregamos una pequeña animación (animate-in fade-in) para cuando lleguen nuevos
+                        tr.className = "hover:bg-white/5 transition-colors text-sm animate-in fade-in duration-300";
+                        
+                        tr.innerHTML = `
+                            <td class="p-4 text-slate-400">${fechaFormateada}</td>
+                            <td class="p-4 text-white font-medium">${msg.nombre}</td>
+                            <td class="p-4 text-slate-400">
+                                <div class="text-blue-400 hover:underline cursor-pointer"><a href="mailto:${msg.email}">${msg.email}</a></div>
+                                <div class="text-xs mt-1">${msg.telefono || 'Sin teléfono'}</div>
+                            </td>
+                            <td class="p-4 text-slate-400 max-w-xs truncate" title="${msg.mensaje}">${msg.mensaje}</td>
+                            <td class="p-4 flex items-center gap-3">
+                                <span class="${msg.estado === 'no leido' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-slate-500/20 text-slate-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider transition-colors">
+                                    ${msg.estado === 'no leido' ? 'Nuevo' : 'Leído'}
+                                </span>
+                                
+                                ${msg.estado === 'no leido' ? `
+                                    <button onclick="window.marcarComoLeido('${idMensaje}')" class="text-slate-500 hover:text-emerald-400 transition-colors p-1" title="Marcar como atendido">
+                                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                    </button>
+                                ` : ''}
+                            </td>
+                        `;
+                        tablaMensajes.appendChild(tr);
+                    });
+
+                    lucide.createIcons(); 
                 });
-
-                lucide.createIcons(); // Recargamos los iconos para que aparezca el check
 
             } catch (error) {
                 console.error("Error cargando mensajes:", error);
@@ -346,75 +403,76 @@
         // --- FUNCIÓN PARA MARCAR MENSAJE COMO LEÍDO ---
         window.marcarComoLeido = async (idMensaje) => {
             try {
-                // Apuntamos al documento específico en la base de datos
                 const mensajeRef = doc(db, "mensajes", idMensaje);
-                
-                // Actualizamos solo el campo "estado"
                 await updateDoc(mensajeRef, {
                     estado: "leido"
                 });
-
-                // Volvemos a cargar los mensajes para que se actualice la vista
-                cargarMensajes();
-                
+                // ¡Borramos cargarMensajes() de aquí porque Firebase lo hace solo ahora!
             } catch (error) {
                 console.error("Error al actualizar el mensaje:", error);
                 alert("No se pudo marcar como leído.");
             }
         };
 
-        // --- FUNCIÓN PARA CARGAR TICKETS DE SOPORTE ---
-        async function cargarTickets() {
+        // --- FUNCIÓN PARA CARGAR TICKETS EN TIEMPO REAL ⚡ ---
+        function cargarTickets() {
             try {
-                // Traemos los tickets ordenados por fecha
                 const qTickets = query(collection(db, "tickets"), orderBy("fecha", "desc"));
-                const querySnapshot = await getDocs(qTickets);
                 
-                tablaTickets.innerHTML = ''; 
-                
-                if (querySnapshot.empty) {
-                    tablaTickets.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">No hay tickets de soporte</td></tr>';
-                    return;
-                }
+                onSnapshot(qTickets, (querySnapshot) => {
+                    tablaTickets.innerHTML = ''; 
+                    let ticketsAbiertos = 0; // Para actualizar la tarjeta superior
+                    
+                    if (querySnapshot.empty) {
+                        tablaTickets.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">No hay tickets de soporte</td></tr>';
+                        document.getElementById('stat-tickets').innerText = "0";
+                        return;
+                    }
 
-                querySnapshot.forEach((documento) => {
-                    const ticket = documento.data();
-                    const idTicket = documento.id;
-                    
-                    const fechaFormateada = new Date(ticket.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
-                    
-                    // Colores según la prioridad
-                    let colorPrioridad = 'text-blue-400';
-                    if(ticket.prioridad === 'alta') colorPrioridad = 'text-red-400';
-                    if(ticket.prioridad === 'media') colorPrioridad = 'text-yellow-400';
-                    
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-white/5 transition-colors text-sm";
-                    tr.innerHTML = `
-                        <td class="p-4 text-slate-400">${fechaFormateada}</td>
-                        <td class="p-4 text-white font-medium">${ticket.clienteNombre}</td>
-                        <td class="p-4">
-                            <div class="text-white font-medium">${ticket.asunto}</div>
-                            <div class="text-xs mt-1 ${colorPrioridad} uppercase tracking-wider font-bold">${ticket.prioridad}</div>
-                        </td>
-                        <td class="p-4 text-slate-400 max-w-xs truncate" title="${ticket.mensaje}">${ticket.mensaje}</td>
-                        <td class="p-4">
-                            <span class="${ticket.estado === 'abierto' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-emerald-500/20 text-emerald-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
-                                ${ticket.estado === 'abierto' ? 'Abierto' : 'Resuelto'}
-                            </span>
-                        </td>
-                        <td class="p-4">
-                            ${ticket.estado === 'abierto' ? `
-                                <button onclick="window.resolverTicket('${idTicket}')" class="text-slate-500 hover:text-emerald-400 transition-colors p-1" title="Marcar como resuelto">
-                                    <i data-lucide="check-square" class="w-5 h-5"></i>
-                                </button>
-                            ` : `<span class="text-slate-600"><i data-lucide="check" class="w-5 h-5"></i></span>`}
-                        </td>
-                    `;
-                    tablaTickets.appendChild(tr);
+                    querySnapshot.forEach((documento) => {
+                        const ticket = documento.data();
+                        const idTicket = documento.id;
+                        
+                        if(ticket.estado === 'abierto') ticketsAbiertos++;
+                        
+                        const fechaFormateada = new Date(ticket.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+                        
+                        let colorPrioridad = 'text-blue-400';
+                        if(ticket.prioridad === 'alta') colorPrioridad = 'text-red-400';
+                        if(ticket.prioridad === 'media') colorPrioridad = 'text-yellow-400';
+                        
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-white/5 transition-colors text-sm animate-in fade-in duration-300";
+                        tr.innerHTML = `
+                            <td class="p-4 text-slate-400">${fechaFormateada}</td>
+                            <td class="p-4 text-white font-medium">${ticket.clienteNombre}</td>
+                            <td class="p-4">
+                                <div class="text-white font-medium">${ticket.asunto}</div>
+                                <div class="text-xs mt-1 ${colorPrioridad} uppercase tracking-wider font-bold">${ticket.prioridad}</div>
+                            </td>
+                            <td class="p-4 text-slate-400 max-w-xs truncate" title="${ticket.mensaje}">${ticket.mensaje}</td>
+                            <td class="p-4">
+                                <span class="${ticket.estado === 'abierto' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-emerald-500/20 text-emerald-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider transition-colors">
+                                    ${ticket.estado === 'abierto' ? 'Abierto' : 'Resuelto'}
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                ${ticket.estado === 'abierto' ? `
+                                    <button onclick="window.resolverTicket('${idTicket}')" class="text-slate-500 hover:text-emerald-400 transition-colors p-1" title="Marcar como resuelto">
+                                        <i data-lucide="check-square" class="w-5 h-5"></i>
+                                    </button>
+                                ` : `<span class="text-slate-600"><i data-lucide="check" class="w-5 h-5"></i></span>`}
+                            </td>
+                        `;
+                        tablaTickets.appendChild(tr);
+                    });
+
+                    // Actualizamos la tarjeta amarilla de estadísticas al instante
+                    const statTicketsUI = document.getElementById('stat-tickets');
+                    if(statTicketsUI) statTicketsUI.innerText = ticketsAbiertos;
+
+                    lucide.createIcons();
                 });
-
-                lucide.createIcons();
 
             } catch (error) {
                 console.error("Error cargando tickets:", error);
@@ -425,18 +483,192 @@
         // --- FUNCIÓN PARA RESOLVER TICKET ---
         window.resolverTicket = async (idTicket) => {
             try {
-                // Actualizamos el ticket en la base de datos a "resuelto"
                 await updateDoc(doc(db, "tickets", idTicket), {
                     estado: "resuelto"
                 });
-                
-                // Recargamos la tabla de tickets y los contadores de las tarjetas de arriba
-                cargarTickets();
-                cargarDatosDelPanel(); 
-                
+                // ¡Firebase actualizará la tabla y la tarjeta automáticamente!
             } catch (error) {
                 console.error("Error al resolver el ticket:", error);
                 alert("No se pudo resolver el ticket.");
+            }
+        };
+
+        // --- LÓGICA DE PROYECTOS ---
+        window.abrirModalProyecto = async () => {
+            document.getElementById('modalProyecto').classList.remove('hidden');
+            lucide.createIcons();
+            
+            const selectCliente = document.getElementById('proyCliente');
+            selectCliente.innerHTML = '<option value="">Cargando clientes...</option>';
+            
+            try {
+                // Buscamos solo los usuarios que tengan el rol de "cliente"
+                const q = query(collection(db, "usuarios"), where("rol", "==", "cliente"));
+                const querySnapshot = await getDocs(q);
+                
+                selectCliente.innerHTML = '<option value="" disabled selected>Selecciona un cliente</option>';
+                
+                querySnapshot.forEach((doc) => {
+                    const cliente = doc.data();
+                    // Guardamos el ID del cliente en el "value" para conectarlo luego
+                    selectCliente.innerHTML += `<option value="${doc.id}">${cliente.nombre} (${cliente.email})</option>`;
+                });
+            } catch (error) {
+                console.error("Error al cargar clientes:", error);
+                selectCliente.innerHTML = '<option value="">Error al cargar la base de datos</option>';
+            }
+        };
+
+        window.cerrarModalProyecto = () => {
+            document.getElementById('modalProyecto').classList.add('hidden');
+        };
+
+        window.crearProyecto = async (event) => {
+            event.preventDefault();
+            const btn = document.getElementById('btnCrearProyecto');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Guardando...';
+            btn.disabled = true;
+
+            try {
+                // Guardamos el proyecto en Firebase
+                await addDoc(collection(db, "proyectos"), {
+                    nombre: document.getElementById('proyNombre').value,
+                    clienteId: document.getElementById('proyCliente').value, 
+                    fase: document.getElementById('proyFase').value,
+                    porcentaje: Number(document.getElementById('proyProgreso').value),
+                    fecha: new Date().toISOString()
+                });
+
+                alert("¡Proyecto creado y asignado con éxito!");
+                document.getElementById('formProyecto').reset();
+                window.cerrarModalProyecto();
+                
+            } catch (error) {
+                console.error("Error al crear proyecto:", error);
+                alert("Hubo un error al guardar.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        // --- FUNCIÓN PARA CARGAR PROYECTOS EN TIEMPO REAL ⚡ ---
+        function cargarProyectosAdmin() {
+            try {
+                const qProyectos = query(collection(db, "proyectos"), orderBy("fecha", "desc"));
+                
+                onSnapshot(qProyectos, (querySnapshot) => {
+                    tablaProyectosAdmin.innerHTML = ''; 
+                    let contadorProyectos = 0;
+                    
+                    if (querySnapshot.empty) {
+                        tablaProyectosAdmin.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">No hay proyectos activos</td></tr>';
+                        const statProyectosUI = document.getElementById('stat-proyectos');
+                        if(statProyectosUI) statProyectosUI.innerText = "0";
+                        return;
+                    }
+
+                    querySnapshot.forEach((documento) => {
+                        const proyecto = documento.data();
+                        const idProyecto = documento.id;
+                        contadorProyectos++;
+                        
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-white/5 transition-colors text-sm";
+                        tr.innerHTML = `
+                            <td class="p-4">
+                                <div class="text-white font-bold">${proyecto.nombre}</div>
+                                <div class="text-xs text-slate-400 mt-1">ID Cliente: <span class="text-slate-500">${proyecto.clienteId.substring(0,8)}...</span></div>
+                            </td>
+                            <td class="p-4 text-emerald-400 font-medium transition-all duration-300">${proyecto.fase}</td>
+                            <td class="p-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-white font-bold w-8 transition-all duration-300">${proyecto.porcentaje}%</span>
+                                    <div class="w-24 bg-slate-800 rounded-full h-2 overflow-hidden">
+                                        <div class="bg-blue-500 h-full rounded-full transition-all duration-1000 ease-out" style="width: ${proyecto.porcentaje}%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4 flex gap-2">
+                                <button onclick="window.actualizarProgreso('${idProyecto}', '${proyecto.nombre}', ${proyecto.porcentaje})" class="text-slate-400 hover:text-blue-400 transition-colors p-2 bg-slate-800 rounded-lg" title="Actualizar Progreso">
+                                    <i data-lucide="percent" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="window.actualizarFase('${idProyecto}', '${proyecto.nombre}', '${proyecto.fase}')" class="text-slate-400 hover:text-emerald-400 transition-colors p-2 bg-slate-800 rounded-lg" title="Cambiar Fase">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                            </td>
+                        `;
+                        tablaProyectosAdmin.appendChild(tr);
+                    });
+
+                    // Actualizamos la tarjeta púrpura de estadísticas al instante
+                    const statProyectosUI = document.getElementById('stat-proyectos');
+                    if(statProyectosUI) statProyectosUI.innerText = contadorProyectos;
+
+                    lucide.createIcons();
+                });
+
+            } catch (error) {
+                console.error("Error cargando proyectos:", error);
+                tablaProyectosAdmin.innerHTML = `<tr><td colspan="4" class="p-4 text-red-400 text-center">Error al cargar proyectos.</td></tr>`;
+            }
+        }
+
+        // --- FUNCIONES PARA EDITAR EL PROYECTO ---
+        window.actualizarProgreso = async (idProyecto, nombreProyecto, progresoActual) => {
+            const nuevoProgreso = prompt(`Actualizar progreso de "${nombreProyecto}" (0-100):`, progresoActual);
+            
+            if (nuevoProgreso !== null && nuevoProgreso !== "" && !isNaN(nuevoProgreso)) {
+                let num = Number(nuevoProgreso);
+                if(num < 0) num = 0;
+                if(num > 100) num = 100;
+                
+                try {
+                    await updateDoc(doc(db, "proyectos", idProyecto), { porcentaje: num });
+                    cargarProyectosAdmin(); // Recargar tabla
+                } catch (error) {
+                    alert("Error al actualizar.");
+                }
+            }
+        };
+
+        window.actualizarFase = async (idProyecto, nombreProyecto, faseActual) => {
+            const nuevaFase = prompt(`¿En qué fase se encuentra ahora "${nombreProyecto}"?`, faseActual);
+            
+            if (nuevaFase !== null && nuevaFase.trim() !== "") {
+                try {
+                    await updateDoc(doc(db, "proyectos", idProyecto), { fase: nuevaFase });
+                    cargarProyectosAdmin(); // Recargar tabla
+                } catch (error) {
+                    alert("Error al actualizar.");
+                }
+            }
+        };
+
+        // --- MOTOR DE NAVEGACIÓN POR PESTAÑAS ---
+        window.cambiarSeccion = (seccion) => {
+            // 1. Ocultamos todas las secciones
+            const secciones = document.querySelectorAll('.seccion-panel');
+            secciones.forEach(sec => sec.classList.add('hidden'));
+            
+            // 2. Mostramos solo la sección seleccionada
+            document.getElementById('sec-' + seccion).classList.remove('hidden');
+
+            // 3. Reiniciamos los colores de todos los botones del menú lateral
+            const botones = ['resumen', 'proyectos', 'mensajes', 'tickets'];
+            botones.forEach(btn => {
+                const elemento = document.getElementById('btn-' + btn);
+                if(elemento) {
+                    // Estilo inactivo
+                    elemento.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors";
+                }
+            });
+
+            // 4. Pintamos de azul el botón que acabamos de clickear (Estilo activo)
+            const btnActivo = document.getElementById('btn-' + seccion);
+            if(btnActivo) {
+                btnActivo.className = "w-full flex items-center gap-3 px-4 py-3 bg-blue-600/10 text-blue-400 rounded-xl font-medium transition-colors";
             }
         };
     </script>

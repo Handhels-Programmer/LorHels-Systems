@@ -30,18 +30,25 @@
         </div>
 
         <nav class="flex-grow py-6 px-4 space-y-2">
-            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-emerald-600/10 text-emerald-400 rounded-xl font-medium transition-colors">
+            <button onclick="window.cambiarSeccion('resumen')" id="btn-resumen" class="w-full flex items-center gap-3 px-4 py-3 bg-emerald-600/10 text-emerald-400 rounded-xl font-medium transition-colors">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Mi Resumen
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+            </button>
+            <button onclick="window.cambiarSeccion('proyecto')" id="btn-proyecto" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
                 <i data-lucide="folder" class="w-5 h-5"></i> Mi Proyecto
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
-                <i data-lucide="life-buoy" class="w-5 h-5"></i> Soporte
-            </a>
+            </button>
+            <button onclick="window.cambiarSeccion('soporte')" id="btn-soporte" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                <i data-lucide="life-buoy" class="w-5 h-5"></i> Soporte Técnico
+            </button>
+            <button onclick="window.cambiarSeccion('perfil')" id="btn-perfil" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                <i data-lucide="user" class="w-5 h-5"></i> Mi Perfil
+            </button>
         </nav>
 
-        <div class="p-4 border-t border-white/5">
+        <div class="p-4 border-t border-white/5 space-y-2">
+            <a href="index.html" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                <i data-lucide="globe" class="w-5 h-5"></i> Ir al Sitio Web
+            </a>
+            
             <button onclick="window.cerrarSesion()" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-xl font-medium transition-colors">
                 <i data-lucide="log-out" class="w-5 h-5"></i> Cerrar Sesión
             </button>
@@ -59,51 +66,104 @@
             </div>
         </header>
 
-        <div class="flex-grow p-8 overflow-y-auto">
+        <div class="flex-grow p-8 overflow-y-auto relative">
             
-            <div class="bg-gradient-to-r from-emerald-900/40 to-slate-900 border border-emerald-500/20 rounded-2xl p-8 mb-8">
-                <h2 class="text-2xl font-bold text-white mb-2" id="saludoUI">Hola, Cliente</h2>
-                <p class="text-slate-400">Aquí puedes monitorear el avance de tus soluciones digitales y contactar a soporte.</p>
+            <div id="sec-resumen" class="seccion-panel animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="bg-gradient-to-r from-emerald-900/40 to-slate-900 border border-emerald-500/20 rounded-2xl p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-white mb-2" id="saludoUI">Hola, Cliente</h2>
+                    <p class="text-slate-400">Aquí puedes monitorear el avance de tus soluciones digitales y contactar a soporte.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div onclick="window.cambiarSeccion('soporte')" class="glass-card p-6 rounded-2xl hover:border-emerald-500/30 transition-colors cursor-pointer group">
+                        <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
+                            <i data-lucide="message-square"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Centro de Soporte</h3>
+                        <p class="text-sm text-slate-400">¿Tienes algún problema o duda? Contáctanos directamente desde aquí.</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl hover:border-blue-500/30 transition-colors cursor-pointer group">
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Ver Cotizaciones</h3>
+                        <p class="text-sm text-slate-400">Revisa el historial de pagos y cotizaciones pendientes de aprobación.</p>
+                    </div>
+                </div>
             </div>
 
-            <h3 class="text-lg font-bold text-white mb-4">Estado de tu Proyecto Actual</h3>
-            <div class="glass-card rounded-2xl p-8 mb-8">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400">
-                            <i data-lucide="code-2" class="w-6 h-6"></i>
+            <div id="sec-proyecto" class="seccion-panel hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Mi Proyecto</h2>
+                    <button onclick="window.abrirModalSolicitud()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-white text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20">
+                        <i data-lucide="rocket" class="w-4 h-4"></i> Solicitar Proyecto
+                    </button>
+                </div>
+
+                <div id="contenedorProyecto">
+                    <div class="glass-card rounded-2xl p-8 mb-8 text-center animate-pulse">
+                        <div class="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p class="text-slate-400">Buscando tus proyectos activos...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sec-soporte" class="seccion-panel hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Soporte Técnico</h2>
+                    <button onclick="window.abrirModalTicket()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Nuevo Ticket
+                    </button>
+                </div>
+                
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="p-6 border-b border-white/5">
+                        <h3 class="font-bold text-white">Mis Tickets Recientes</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/50 text-slate-400 text-sm">
+                                    <th class="p-4 font-medium">Fecha</th>
+                                    <th class="p-4 font-medium">Asunto</th>
+                                    <th class="p-4 font-medium">Prioridad</th>
+                                    <th class="p-4 font-medium">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaMisTickets" class="divide-y divide-white/5">
+                                <tr>
+                                    <td colspan="4" class="p-4 text-center text-slate-500">Cargando tus tickets...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="sec-perfil" class="seccion-panel hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <h2 class="text-2xl font-bold text-white mb-6">Configuración de Perfil</h2>
+                <div class="glass-card rounded-2xl p-8 max-w-2xl border-emerald-500/20">
+                    <form id="formPerfil" onsubmit="window.actualizarPerfil(event)" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Nombre Completo</label>
+                            <input type="text" id="perfilNombre" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors">
                         </div>
                         <div>
-                            <h4 class="font-bold text-white text-lg">Sistema ERP Personalizado</h4>
-                            <p class="text-sm text-slate-400">Fase actual: Desarrollo Backend</p>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Correo Electrónico (No editable)</label>
+                            <input type="email" id="perfilEmail" disabled class="w-full bg-slate-800/50 border border-white/5 rounded-xl px-4 py-3 text-slate-500 cursor-not-allowed">
+                            <p class="text-xs text-slate-500 mt-1">El correo está vinculado a tu cuenta de acceso.</p>
                         </div>
-                    </div>
-                    <div class="w-full md:w-1/3">
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-emerald-400 font-medium">En progreso</span>
-                            <span class="text-slate-400">45%</span>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-2">Teléfono / WhatsApp</label>
+                            <input type="tel" id="perfilTelefono" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors" placeholder="+1 234 567 8900">
                         </div>
-                        <div class="w-full bg-slate-800 rounded-full h-2.5">
-                            <div class="bg-emerald-500 h-2.5 rounded-full" style="width: 45%"></div>
+                        
+                        <div class="pt-4 border-t border-white/10">
+                            <button type="submit" id="btnGuardarPerfil" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-xl transition-colors flex items-center gap-2">
+                                <i data-lucide="save" class="w-4 h-4"></i> Guardar Cambios
+                            </button>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div onclick="window.abrirModalTicket()" class="glass-card p-6 rounded-2xl hover:border-emerald-500/30 transition-colors cursor-pointer group">
-                    <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="message-square"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Abrir Ticket de Soporte</h3>
-                    <p class="text-sm text-slate-400">¿Tienes algún problema o duda? Contáctanos directamente desde aquí.</p>
-                </div>
-                <div class="glass-card p-6 rounded-2xl hover:border-blue-500/30 transition-colors cursor-pointer group">
-                    <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="file-text"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Ver Cotizaciones</h3>
-                    <p class="text-sm text-slate-400">Revisa el historial de pagos y cotizaciones pendientes de aprobación.</p>
+                    </form>
                 </div>
             </div>
         </div>
@@ -159,11 +219,55 @@
         lucide.createIcons();
     </script>
 
+    <div id="modalSolicitud" class="fixed inset-0 z-[70] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onclick="window.cerrarModalSolicitud()"></div>
+        
+        <div class="relative w-full max-w-lg glass-card border-white/10 rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-300">
+            <button onclick="window.cerrarModalSolicitud()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400">
+                    <i data-lucide="rocket" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Solicitar Nuevo Proyecto</h3>
+                    <p class="text-slate-400 text-sm mt-1">Cuéntanos tu idea y te prepararemos una cotización.</p>
+                </div>
+            </div>
+
+            <form id="formSolicitud" class="space-y-4" onsubmit="window.enviarSolicitud(event)">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Tipo de Solución</label>
+                    <select id="solTipo" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        <option value="Sistema a Medida / ERP">Sistema a Medida / ERP</option>
+                        <option value="App Móvil">Aplicación Móvil</option>
+                        <option value="Tienda Online">Tienda Online (E-commerce)</option>
+                        <option value="Landing Page">Página Web (Landing Page)</option>
+                        <option value="Otro tipo">Otro tipo de proyecto</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Describe tu idea</label>
+                    <textarea id="solMensaje" required rows="4" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none" placeholder="Me gustaría un sistema que me permita..."></textarea>
+                </div>
+
+                <button type="submit" id="btnEnviarSolicitud" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 mt-2">
+                    <i data-lucide="send" class="w-4 h-4"></i> Enviar Solicitud
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
+        // 1. TODAS LAS IMPORTACIONES HASTA ARRIBA (La regla de oro de JS)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // 2. CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAP-_ItKPOdGv2GpDlPAtIJgycR7JMVFXs",
             authDomain: "lorhels-systems-1411a.firebaseapp.com",
@@ -177,50 +281,217 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // 3. REFERENCIAS A LA UI
         const loadingScreen = document.getElementById('loadingScreen');
         const bodyContent = document.getElementById('bodyContent');
         const nombreClienteUI = document.getElementById('nombreClienteUI');
         const saludoUI = document.getElementById('saludoUI');
 
-        // SEGURIDAD: Verificar quién entra
+        // --- 4. SEGURIDAD Y CARGA INICIAL ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDoc = await getDoc(doc(db, "usuarios", user.uid));
-                
                 if (userDoc.exists()) {
                     const datos = userDoc.data();
-                    
-                    // Validamos que sea un cliente (o admin probando)
                     if (datos.rol === 'cliente' || datos.rol === 'admin') {
+                        // Actualizar textos
                         nombreClienteUI.innerText = datos.nombre;
                         saludoUI.innerText = `Hola, ${datos.nombre.split(' ')[0]}`;
                         
+                        // Variables globales del cliente
+                        window.clienteActualId = user.uid;
+                        window.clienteActualNombre = datos.nombre;
+                        window.clienteActualTelefono = datos.telefono || "";
+
+                        // Llenar formulario del perfil (si existe en la pantalla)
+                        const inputNombre = document.getElementById('perfilNombre');
+                        if(inputNombre) {
+                            inputNombre.value = datos.nombre;
+                            document.getElementById('perfilEmail').value = datos.email;
+                            document.getElementById('perfilTelefono').value = datos.telefono || "";
+                        }
+
+                        // ¡QUITAR PANTALLA DE CARGA!
                         loadingScreen.style.display = 'none';
                         bodyContent.classList.remove('hidden');
 
-                        window.clienteActualId = user.uid;
-                        window.clienteActualNombre = datos.nombre;
-                        
+                        // Cargar datos del sistema
+                        window.cargarProyecto();
+                        window.cargarMisTickets();
                     } else {
-                        alert("Rol no autorizado.");
                         window.location.href = "index.html";
                     }
                 }
             } else {
-                // No está logueado
                 window.location.href = "index.html";
             }
-            window.clienteActualId = user.uid;
-            window.clienteActualNombre = datos.nombre;
         });
 
-        // Función para salir
         window.cerrarSesion = async () => {
             await signOut(auth);
             window.location.href = "index.html";
         };
 
-        // --- LÓGICA DEL TICKET ---
+        // --- 5. MOTOR DE NAVEGACIÓN ---
+        window.cambiarSeccion = (seccion) => {
+            const secciones = document.querySelectorAll('.seccion-panel');
+            secciones.forEach(sec => sec.classList.add('hidden'));
+            
+            document.getElementById('sec-' + seccion).classList.remove('hidden');
+
+            const botones = ['resumen', 'proyecto', 'soporte', 'perfil'];
+            botones.forEach(btn => {
+                const elemento = document.getElementById('btn-' + btn);
+                if(elemento) {
+                    elemento.className = "w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors";
+                }
+            });
+
+            const btnActivo = document.getElementById('btn-' + seccion);
+            if(btnActivo) {
+                btnActivo.className = "w-full flex items-center gap-3 px-4 py-3 bg-emerald-600/10 text-emerald-400 rounded-xl font-medium transition-colors";
+            }
+        };
+
+        // --- 6. MAGIA EN TIEMPO REAL: PROYECTO ---
+        window.cargarProyecto = () => {
+            const contenedor = document.getElementById('contenedorProyecto');
+            if(!contenedor) return;
+            
+            try {
+                const qProyecto = query(collection(db, "proyectos"), where("clienteId", "==", window.clienteActualId));
+                
+                // onSnapshot escucha en vivo la base de datos
+                const unsubscribe = onSnapshot(qProyecto, (snapshot) => {
+                    if (snapshot.empty) {
+                        contenedor.innerHTML = `
+                            <div class="glass-card rounded-2xl p-8 mb-8 text-center border-dashed border-2 border-slate-700">
+                                <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center text-slate-500 mx-auto mb-4">
+                                    <i data-lucide="folder-open" class="w-8 h-8"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-2">Aún no hay proyectos activos</h3>
+                                <p class="text-slate-400">Cuando LorHels Systems comience a trabajar en tu solución, verás el progreso aquí.</p>
+                            </div>
+                        `;
+                    } else {
+                        let htmlProyectos = '<h3 class="text-lg font-bold text-white mb-4">Estado de tu Proyecto Actual</h3>';
+                        
+                        snapshot.forEach((doc) => {
+                            const proyecto = doc.data();
+                            htmlProyectos += `
+                                <div class="glass-card rounded-2xl p-8 mb-8 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all duration-500">
+                                    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400">
+                                                <i data-lucide="code-2" class="w-6 h-6"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-white text-lg">${proyecto.nombre}</h4>
+                                                <p class="text-sm text-slate-400">Fase actual: <span class="text-emerald-400 font-bold transition-all duration-300">${proyecto.fase}</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="w-full md:w-1/3">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span class="text-emerald-400 font-medium">Progreso</span>
+                                                <span class="text-white font-bold transition-all duration-300">${proyecto.porcentaje}%</span>
+                                            </div>
+                                            <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                                                <div class="bg-emerald-500 h-full rounded-full transition-all duration-1000 ease-out" style="width: ${proyecto.porcentaje}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        contenedor.innerHTML = htmlProyectos;
+                    }
+                    lucide.createIcons();
+                });
+                
+                window.unsubscribeProyecto = unsubscribe;
+            } catch (error) {
+                console.error("Error al cargar proyecto:", error);
+                contenedor.innerHTML = `<p class="text-red-400 p-4">Error al cargar la información del proyecto.</p>`;
+            }
+        };
+
+        // --- 7. LÓGICA DE MI PERFIL ---
+        window.actualizarPerfil = async (event) => {
+            event.preventDefault();
+            const btn = document.getElementById('btnGuardarPerfil');
+            const original = btn.innerHTML;
+            btn.innerHTML = 'Guardando...';
+            btn.disabled = true;
+
+            const nuevoNombre = document.getElementById('perfilNombre').value;
+            const nuevoTelefono = document.getElementById('perfilTelefono').value;
+
+            try {
+                await updateDoc(doc(db, "usuarios", window.clienteActualId), {
+                    nombre: nuevoNombre,
+                    telefono: nuevoTelefono
+                });
+
+                window.clienteActualNombre = nuevoNombre;
+                window.clienteActualTelefono = nuevoTelefono;
+                
+                document.getElementById('nombreClienteUI').innerText = nuevoNombre;
+                document.getElementById('saludoUI').innerText = `Hola, ${nuevoNombre.split(' ')[0]}`;
+
+                alert("¡Perfil actualizado correctamente!");
+            } catch (error) {
+                console.error("Error al actualizar perfil:", error);
+                alert("Hubo un error al guardar los cambios.");
+            } finally {
+                btn.innerHTML = original;
+                btn.disabled = false;
+            }
+        };
+
+        // --- 8. LÓGICA DE TICKETS DE SOPORTE ---
+        window.cargarMisTickets = async () => {
+            const tabla = document.getElementById('tablaMisTickets');
+            if(!tabla) return;
+            
+            try {
+                const qTickets = query(collection(db, "tickets"), where("clienteId", "==", window.clienteActualId));
+                const snapshot = await getDocs(qTickets);
+                
+                tabla.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    tabla.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">Aún no has abierto ningún ticket.</td></tr>';
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const ticket = doc.data();
+                    const fechaF = new Date(ticket.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+                    
+                    let colorPrio = 'text-blue-400';
+                    if(ticket.prioridad === 'alta') colorPrio = 'text-red-400';
+                    if(ticket.prioridad === 'media') colorPrio = 'text-yellow-400';
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-white/5 transition-colors text-sm";
+                    tr.innerHTML = `
+                        <td class="p-4 text-slate-400">${fechaF}</td>
+                        <td class="p-4 text-white font-medium">${ticket.asunto}</td>
+                        <td class="p-4"><span class="${colorPrio} font-bold uppercase tracking-wider text-xs">${ticket.prioridad}</span></td>
+                        <td class="p-4">
+                            <span class="${ticket.estado === 'abierto' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-emerald-500/20 text-emerald-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
+                                ${ticket.estado}
+                            </span>
+                        </td>
+                    `;
+                    tabla.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Error cargando tickets:", error);
+                tabla.innerHTML = '<tr><td colspan="4" class="p-4 text-red-400 text-center">Error al cargar el historial.</td></tr>';
+            }
+        };
+
         window.abrirModalTicket = () => {
             document.getElementById('modalTicket').classList.remove('hidden');
             lucide.createIcons();
@@ -232,33 +503,77 @@
 
         window.enviarTicket = async (event) => {
             event.preventDefault();
-            
             const btn = document.getElementById('btnEnviarTicket');
-            const textoOriginal = btn.innerHTML;
+            const original = btn.innerHTML;
             btn.innerHTML = 'Enviando...';
             btn.disabled = true;
 
             try {
-                // Guardamos el ticket en la colección "tickets"
                 await addDoc(collection(db, "tickets"), {
-                    clienteId: window.clienteActualId, // ID del cliente
-                    clienteNombre: window.clienteActualNombre, // Nombre del cliente
+                    clienteId: window.clienteActualId,
+                    clienteNombre: window.clienteActualNombre,
                     asunto: document.getElementById('ticketAsunto').value,
                     prioridad: document.getElementById('ticketPrioridad').value,
                     mensaje: document.getElementById('ticketMensaje').value,
-                    estado: 'abierto', // Por defecto está abierto para que el Admin lo vea
+                    estado: 'abierto',
                     fecha: new Date().toISOString()
                 });
 
-                alert("¡Ticket enviado correctamente! Lo revisaremos a la brevedad.");
+                alert("¡Ticket enviado correctamente!");
                 document.getElementById('formTicket').reset();
                 window.cerrarModalTicket();
+                window.cargarMisTickets(); // Recargar la tabla
                 
             } catch (error) {
                 console.error("Error al enviar ticket:", error);
                 alert("Hubo un error al enviar tu ticket.");
             } finally {
-                btn.innerHTML = textoOriginal;
+                btn.innerHTML = original;
+                btn.disabled = false;
+            }
+        };
+
+        // --- 9. LÓGICA DE SOLICITUD DE PROYECTO ---
+        window.abrirModalSolicitud = () => {
+            document.getElementById('modalSolicitud').classList.remove('hidden');
+            lucide.createIcons();
+        };
+
+        window.cerrarModalSolicitud = () => {
+            document.getElementById('modalSolicitud').classList.add('hidden');
+        };
+
+        window.enviarSolicitud = async (event) => {
+            event.preventDefault();
+            const btn = document.getElementById('btnEnviarSolicitud');
+            const original = btn.innerHTML;
+            btn.innerHTML = 'Enviando...';
+            btn.disabled = true;
+
+            try {
+                const telefonoEnviar = window.clienteActualTelefono || "¡Pedir teléfono! (No configurado)";
+                const tipoStr = document.getElementById('solTipo').value;
+                const mensajeStr = document.getElementById('solMensaje').value;
+                const mensajeCompleto = `[SOLICITUD DE PROYECTO: ${tipoStr}] - ${mensajeStr}`;
+
+                await addDoc(collection(db, "mensajes"), {
+                    nombre: window.clienteActualNombre,
+                    email: document.getElementById('perfilEmail').value || "Registrado",
+                    telefono: telefonoEnviar,
+                    mensaje: mensajeCompleto,
+                    fecha: new Date().toISOString(),
+                    estado: "no leido"
+                });
+
+                alert("¡Excelente! Hemos recibido tu solicitud. Te contactaremos pronto.");
+                document.getElementById('formSolicitud').reset();
+                window.cerrarModalSolicitud();
+                
+            } catch (error) {
+                console.error("Error al enviar solicitud:", error);
+                alert("Ocurrió un error. Intenta de nuevo.");
+            } finally {
+                btn.innerHTML = original;
                 btn.disabled = false;
             }
         };
