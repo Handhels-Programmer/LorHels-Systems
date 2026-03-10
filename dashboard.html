@@ -122,29 +122,59 @@
             </div>
         </div>
         <div class="glass-card rounded-2xl overflow-hidden mt-8">
-                <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                    <h2 class="text-lg font-bold text-white">Mensajes Recientes (Leads)</h2>
-                    <span class="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">Bandeja de entrada</span>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-900/50 text-slate-400 text-sm">
-                                <th class="p-4 font-medium">Fecha</th>
-                                <th class="p-4 font-medium">Nombre</th>
-                                <th class="p-4 font-medium">Contacto</th>
-                                <th class="p-4 font-medium">Mensaje</th>
-                                <th class="p-4 font-medium">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaMensajes" class="divide-y divide-white/5">
-                            <tr>
-                                <td colspan="5" class="p-4 text-center text-slate-500">Cargando mensajes desde Firebase...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-white">Mensajes Recientes (Leads)</h2>
+                <span class="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">Bandeja de entrada</span>
             </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900/50 text-slate-400 text-sm">
+                            <th class="p-4 font-medium">Fecha</th>
+                            <th class="p-4 font-medium">Nombre</th>
+                            <th class="p-4 font-medium">Contacto</th>
+                            <th class="p-4 font-medium">Mensaje</th>
+                            <th class="p-4 font-medium">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaMensajes" class="divide-y divide-white/5">
+                        <tr>
+                            <td colspan="5" class="p-4 text-center text-slate-500">Cargando mensajes desde Firebase...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <br>
+        </div>
+
+        <div class="glass-card rounded-2xl overflow-hidden mt-8">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-white">Tickets de Soporte (Clientes)</h2>
+                <span class="text-xs bg-yellow-500 text-slate-900 font-bold px-2 py-1 rounded-full">Atención requerida</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900/50 text-slate-400 text-sm">
+                            <th class="p-4 font-medium">Fecha</th>
+                            <th class="p-4 font-medium">Cliente</th>
+                            <th class="p-4 font-medium">Asunto & Prioridad</th>
+                            <th class="p-4 font-medium">Mensaje</th>
+                            <th class="p-4 font-medium">Estado</th>
+                            <th class="p-4 font-medium">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaTickets" class="divide-y divide-white/5">
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-slate-500">Cargando tickets desde Firebase...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <br>
+        </div>
     </main>
 
     <script>
@@ -154,7 +184,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, query, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query, limit, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Tu configuración
         const firebaseConfig = {
@@ -176,6 +206,7 @@
         const nombreAdminUI = document.getElementById('nombreAdminUI');
         const tablaUsuarios = document.getElementById('tablaUsuarios');
         const tablaMensajes = document.getElementById('tablaMensajes');
+        const tablaTickets = document.getElementById('tablaTickets');
 
         // SEGURIDAD: Verificar quién entra
         onAuthStateChanged(auth, async (user) => {
@@ -195,6 +226,7 @@
                     // Cargar datos de la base de datos
                     cargarDatosDelPanel();
                     cargarMensajes();
+                    cargarTickets();
                 } else {
                     // ES CLIENTE O ROL DESCONOCIDO: Lo echamos
                     alert("No tienes permisos de administrador para ver esta página.");
@@ -206,72 +238,74 @@
             }
         });
 
-        // Función para cargar usuarios reales en la tabla
+        // Función para cargar usuarios y CONTAR TICKETS
         async function cargarDatosDelPanel() {
             try {
-                // 1. Obtener la colección de usuarios
-                const q = query(collection(db, "usuarios"), limit(5)); // Traemos los últimos 5
-                const querySnapshot = await getDocs(q);
+                // 1. Cargar Usuarios
+                const qUsuarios = query(collection(db, "usuarios"), limit(5));
+                const querySnapshot = await getDocs(qUsuarios);
                 
-                tablaUsuarios.innerHTML = ''; // Limpiamos la tabla
+                tablaUsuarios.innerHTML = '';
                 let contadorClientes = 0;
 
-                querySnapshot.forEach((doc) => {
-                    const usuario = doc.data();
+                querySnapshot.forEach((documento) => {
+                    const usuario = documento.data();
                     if(usuario.rol === 'cliente') contadorClientes++;
 
-                    // Crear la fila HTML
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-white/5 transition-colors";
                     tr.innerHTML = `
                         <td class="p-4 text-white font-medium">${usuario.nombre || 'Sin nombre'}</td>
                         <td class="p-4 text-slate-400">${usuario.email}</td>
-                        <td class="p-4">
-                            <span class="${usuario.rol === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
-                                ${usuario.rol}
-                            </span>
-                        </td>
-                        <td class="p-4">
-                            <button class="text-slate-400 hover:text-white transition-colors p-1"><i data-lucide="edit" class="w-4 h-4"></i></button>
-                        </td>
+                        <td class="p-4"><span class="${usuario.rol === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">${usuario.rol}</span></td>
+                        <td class="p-4"><button class="text-slate-400 hover:text-white transition-colors p-1"><i data-lucide="edit" class="w-4 h-4"></i></button></td>
                     `;
                     tablaUsuarios.appendChild(tr);
                 });
 
-                // Actualizamos las tarjetas
-                document.getElementById('stat-clientes').innerText = contadorClientes;
-                document.getElementById('stat-proyectos').innerText = "0"; // Aún no tenemos tabla de proyectos
-                document.getElementById('stat-tickets').innerText = "0";
+                // 2. CONTAR TICKETS ABIERTOS (¡La magia nueva!)
+                const qTickets = query(collection(db, "tickets"));
+                const ticketsSnapshot = await getDocs(qTickets);
+                let ticketsAbiertos = 0;
+                
+                ticketsSnapshot.forEach((doc) => {
+                    if(doc.data().estado === 'abierto') ticketsAbiertos++;
+                });
 
-                lucide.createIcons(); // Recargar iconos de la nueva tabla
+                // 3. Actualizar Tarjetas
+                document.getElementById('stat-clientes').innerText = contadorClientes;
+                document.getElementById('stat-tickets').innerText = ticketsAbiertos; // <-- ¡Aquí se actualiza el número!
+                document.getElementById('stat-proyectos').innerText = "0"; 
+
+                lucide.createIcons();
             } catch (error) {
                 console.error("Error cargando datos:", error);
-                tablaUsuarios.innerHTML = `<tr><td colspan="4" class="p-4 text-red-400 text-center">Error al cargar datos. Verifica las reglas de Firestore.</td></tr>`;
             }
         }
 
         // Función para cargar los mensajes de contacto
         async function cargarMensajes() {
             try {
-                // Traer los últimos 10 mensajes ordenados por fecha
                 const qMensajes = query(collection(db, "mensajes"), orderBy("fecha", "desc"), limit(10));
                 const querySnapshot = await getDocs(qMensajes);
                 
-                tablaMensajes.innerHTML = ''; // Limpiamos la tabla
+                tablaMensajes.innerHTML = ''; 
                 
                 if (querySnapshot.empty) {
                     tablaMensajes.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">No hay mensajes nuevos</td></tr>';
                     return;
                 }
 
-                querySnapshot.forEach((doc) => {
-                    const msg = doc.data();
+                querySnapshot.forEach((documento) => {
+                    const msg = documento.data();
+                    const idMensaje = documento.id; // ¡Capturamos el ID único de Firebase!
                     
-                    // Formatear la fecha para que se vea bonita (ej. "15 oct")
                     const fechaFormateada = new Date(msg.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
                     
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-white/5 transition-colors text-sm";
+                    
+                    // Creamos la fila. Fíjate en la última columna (Estado)
                     tr.innerHTML = `
                         <td class="p-4 text-slate-400">${fechaFormateada}</td>
                         <td class="p-4 text-white font-medium">${msg.nombre}</td>
@@ -280,18 +314,26 @@
                             <div class="text-xs mt-1">${msg.telefono || 'Sin teléfono'}</div>
                         </td>
                         <td class="p-4 text-slate-400 max-w-xs truncate" title="${msg.mensaje}">${msg.mensaje}</td>
-                        <td class="p-4">
+                        <td class="p-4 flex items-center gap-3">
                             <span class="${msg.estado === 'no leido' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-slate-500/20 text-slate-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
                                 ${msg.estado === 'no leido' ? 'Nuevo' : 'Leído'}
                             </span>
+                            
+                            ${msg.estado === 'no leido' ? `
+                                <button onclick="window.marcarComoLeido('${idMensaje}')" class="text-slate-500 hover:text-emerald-400 transition-colors p-1" title="Marcar como atendido">
+                                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                </button>
+                            ` : ''}
                         </td>
                     `;
                     tablaMensajes.appendChild(tr);
                 });
 
+                lucide.createIcons(); // Recargamos los iconos para que aparezca el check
+
             } catch (error) {
                 console.error("Error cargando mensajes:", error);
-                tablaMensajes.innerHTML = `<tr><td colspan="5" class="p-4 text-red-400 text-center">Error al cargar mensajes. Verifica la consola.</td></tr>`;
+                tablaMensajes.innerHTML = `<tr><td colspan="5" class="p-4 text-red-400 text-center">Error al cargar mensajes.</td></tr>`;
             }
         }
 
@@ -299,6 +341,103 @@
         window.cerrarSesion = async () => {
             await signOut(auth);
             window.location.href = "index.html"; // Al salir, vuelve al inicio
+        };
+
+        // --- FUNCIÓN PARA MARCAR MENSAJE COMO LEÍDO ---
+        window.marcarComoLeido = async (idMensaje) => {
+            try {
+                // Apuntamos al documento específico en la base de datos
+                const mensajeRef = doc(db, "mensajes", idMensaje);
+                
+                // Actualizamos solo el campo "estado"
+                await updateDoc(mensajeRef, {
+                    estado: "leido"
+                });
+
+                // Volvemos a cargar los mensajes para que se actualice la vista
+                cargarMensajes();
+                
+            } catch (error) {
+                console.error("Error al actualizar el mensaje:", error);
+                alert("No se pudo marcar como leído.");
+            }
+        };
+
+        // --- FUNCIÓN PARA CARGAR TICKETS DE SOPORTE ---
+        async function cargarTickets() {
+            try {
+                // Traemos los tickets ordenados por fecha
+                const qTickets = query(collection(db, "tickets"), orderBy("fecha", "desc"));
+                const querySnapshot = await getDocs(qTickets);
+                
+                tablaTickets.innerHTML = ''; 
+                
+                if (querySnapshot.empty) {
+                    tablaTickets.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">No hay tickets de soporte</td></tr>';
+                    return;
+                }
+
+                querySnapshot.forEach((documento) => {
+                    const ticket = documento.data();
+                    const idTicket = documento.id;
+                    
+                    const fechaFormateada = new Date(ticket.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+                    
+                    // Colores según la prioridad
+                    let colorPrioridad = 'text-blue-400';
+                    if(ticket.prioridad === 'alta') colorPrioridad = 'text-red-400';
+                    if(ticket.prioridad === 'media') colorPrioridad = 'text-yellow-400';
+                    
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-white/5 transition-colors text-sm";
+                    tr.innerHTML = `
+                        <td class="p-4 text-slate-400">${fechaFormateada}</td>
+                        <td class="p-4 text-white font-medium">${ticket.clienteNombre}</td>
+                        <td class="p-4">
+                            <div class="text-white font-medium">${ticket.asunto}</div>
+                            <div class="text-xs mt-1 ${colorPrioridad} uppercase tracking-wider font-bold">${ticket.prioridad}</div>
+                        </td>
+                        <td class="p-4 text-slate-400 max-w-xs truncate" title="${ticket.mensaje}">${ticket.mensaje}</td>
+                        <td class="p-4">
+                            <span class="${ticket.estado === 'abierto' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-emerald-500/20 text-emerald-400'} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
+                                ${ticket.estado === 'abierto' ? 'Abierto' : 'Resuelto'}
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            ${ticket.estado === 'abierto' ? `
+                                <button onclick="window.resolverTicket('${idTicket}')" class="text-slate-500 hover:text-emerald-400 transition-colors p-1" title="Marcar como resuelto">
+                                    <i data-lucide="check-square" class="w-5 h-5"></i>
+                                </button>
+                            ` : `<span class="text-slate-600"><i data-lucide="check" class="w-5 h-5"></i></span>`}
+                        </td>
+                    `;
+                    tablaTickets.appendChild(tr);
+                });
+
+                lucide.createIcons();
+
+            } catch (error) {
+                console.error("Error cargando tickets:", error);
+                tablaTickets.innerHTML = `<tr><td colspan="6" class="p-4 text-red-400 text-center">Error al cargar tickets.</td></tr>`;
+            }
+        }
+
+        // --- FUNCIÓN PARA RESOLVER TICKET ---
+        window.resolverTicket = async (idTicket) => {
+            try {
+                // Actualizamos el ticket en la base de datos a "resuelto"
+                await updateDoc(doc(db, "tickets", idTicket), {
+                    estado: "resuelto"
+                });
+                
+                // Recargamos la tabla de tickets y los contadores de las tarjetas de arriba
+                cargarTickets();
+                cargarDatosDelPanel(); 
+                
+            } catch (error) {
+                console.error("Error al resolver el ticket:", error);
+                alert("No se pudo resolver el ticket.");
+            }
         };
     </script>
 </body>

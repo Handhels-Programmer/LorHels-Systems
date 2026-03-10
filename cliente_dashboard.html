@@ -91,7 +91,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="glass-card p-6 rounded-2xl hover:border-emerald-500/30 transition-colors cursor-pointer group">
+                <div onclick="window.abrirModalTicket()" class="glass-card p-6 rounded-2xl hover:border-emerald-500/30 transition-colors cursor-pointer group">
                     <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
                         <i data-lucide="message-square"></i>
                     </div>
@@ -106,7 +106,52 @@
                     <p class="text-sm text-slate-400">Revisa el historial de pagos y cotizaciones pendientes de aprobación.</p>
                 </div>
             </div>
+        </div>
 
+        <div id="modalTicket" class="fixed inset-0 z-[70] hidden flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onclick="window.cerrarModalTicket()"></div>
+        
+            <div class="relative w-full max-w-lg glass-card border-white/10 rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-300">
+                <button onclick="window.cerrarModalTicket()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
+                        <i data-lucide="life-buoy" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Nuevo Ticket de Soporte</h3>        
+                        <p class="text-slate-400 text-sm mt-1">Describe el problema o tu solicitud.</p>
+                    </div>
+                </div>
+
+            
+                <form id="formTicket" class="space-y-4" onsubmit="window.enviarTicket(event)">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Asunto</label>
+                        <input type="text" id="ticketAsunto" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors" placeholder="Ej. Error al cargar las ventas">            
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Prioridad</label>
+                        <select id="ticketPrioridad" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors">
+                            <option value="baja">Baja (Duda general)</option>
+                            <option value="media" selected>Media (Fallo menor)</option>
+                            <option value="alta">Alta (El sistema no funciona)</option>            
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Descripción Detallada</label>
+                        <textarea id="ticketMensaje" required rows="4" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors resize-none" placeholder="Explica qué estaba pasando cuando ocurrió el error..."></textarea>            
+                    </div>
+
+                    <button type="submit" id="btnEnviarTicket" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 mt-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> Enviar Ticket
+                    </button>
+                </form>
+            </div>
         </div>
     </main>
 
@@ -117,7 +162,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAP-_ItKPOdGv2GpDlPAtIJgycR7JMVFXs",
@@ -152,6 +197,10 @@
                         
                         loadingScreen.style.display = 'none';
                         bodyContent.classList.remove('hidden');
+
+                        window.clienteActualId = user.uid;
+                        window.clienteActualNombre = datos.nombre;
+                        
                     } else {
                         alert("Rol no autorizado.");
                         window.location.href = "index.html";
@@ -161,12 +210,57 @@
                 // No está logueado
                 window.location.href = "index.html";
             }
+            window.clienteActualId = user.uid;
+            window.clienteActualNombre = datos.nombre;
         });
 
         // Función para salir
         window.cerrarSesion = async () => {
             await signOut(auth);
             window.location.href = "index.html";
+        };
+
+        // --- LÓGICA DEL TICKET ---
+        window.abrirModalTicket = () => {
+            document.getElementById('modalTicket').classList.remove('hidden');
+            lucide.createIcons();
+        };
+
+        window.cerrarModalTicket = () => {
+            document.getElementById('modalTicket').classList.add('hidden');
+        };
+
+        window.enviarTicket = async (event) => {
+            event.preventDefault();
+            
+            const btn = document.getElementById('btnEnviarTicket');
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = 'Enviando...';
+            btn.disabled = true;
+
+            try {
+                // Guardamos el ticket en la colección "tickets"
+                await addDoc(collection(db, "tickets"), {
+                    clienteId: window.clienteActualId, // ID del cliente
+                    clienteNombre: window.clienteActualNombre, // Nombre del cliente
+                    asunto: document.getElementById('ticketAsunto').value,
+                    prioridad: document.getElementById('ticketPrioridad').value,
+                    mensaje: document.getElementById('ticketMensaje').value,
+                    estado: 'abierto', // Por defecto está abierto para que el Admin lo vea
+                    fecha: new Date().toISOString()
+                });
+
+                alert("¡Ticket enviado correctamente! Lo revisaremos a la brevedad.");
+                document.getElementById('formTicket').reset();
+                window.cerrarModalTicket();
+                
+            } catch (error) {
+                console.error("Error al enviar ticket:", error);
+                alert("Hubo un error al enviar tu ticket.");
+            } finally {
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+            }
         };
     </script>
 </body>
