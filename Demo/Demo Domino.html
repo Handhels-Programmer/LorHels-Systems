@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorhel's Domino - DEMO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: white; }
+        .font-gaming { font-family: 'Orbitron', sans-serif; }
+        .card-glass { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body class="p-4">
+
+    <div class="max-w-6xl mx-auto flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-black font-gaming text-blue-500 tracking-tighter">LORHEL'S <span class="text-white">DOMINO</span></h1>
+            <p id="auth-status" class="text-xs text-slate-500">MODO: INVITADO</p>
+        </div>
+        <button id="btn-login-demo" class="bg-blue-600 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
+            <i data-lucide="log-in" class="w-4 h-4"></i> INGRESAR
+        </button>
+    </div>
+
+    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="card-glass p-4 rounded-2xl text-center">
+            <p class="text-[10px] text-slate-400 uppercase">Mesas</p>
+            <p id="stat-tables" class="text-2xl font-bold font-gaming text-blue-400">0</p>
+        </div>
+        <div class="card-glass p-4 rounded-2xl text-center">
+            <p class="text-[10px] text-slate-400 uppercase">En Caja</p>
+            <p id="stat-cash" class="text-2xl font-bold font-gaming text-emerald-400">$0.00</p>
+        </div>
+    </div>
+
+    <div id="tables-grid" class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+
+    <div id="admin-controls" class="hidden fixed bottom-8 right-8">
+        <button onclick="createTable()" class="bg-blue-600 hover:bg-blue-500 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center">
+            <i data-lucide="plus" class="w-8 h-8"></i>
+        </button>
+    </div>
+
+    <script>
+        // --- DATOS SIMULADOS (MOCK DATA) ---
+        let isAdmin = false;
+        let tables = [
+            {
+                id: 1,
+                name: "Mesa VIP",
+                totalPaid: 50,
+                players: [
+                    { name: "Andrés", debt: 10, losses: 2 },
+                    { name: "Beto", debt: 0, losses: 0 },
+                    { name: "Carlos", debt: 5, losses: 1 },
+                    { name: "Dani", debt: 0, losses: 0 }
+                ]
+            }
+        ];
+
+        // --- LÓGICA DE LA DEMO ---
+        function render() {
+            const grid = document.getElementById('tables-grid');
+            document.getElementById('stat-tables').textContent = tables.length;
+            
+            grid.innerHTML = tables.map(t => `
+                <div class="card-glass rounded-3xl overflow-hidden border border-slate-700">
+                    <div class="p-4 bg-slate-800/50 flex justify-between">
+                        <span class="font-gaming font-bold text-blue-400">${t.name}</span>
+                        ${isAdmin ? `<button onclick="deleteTable(${t.id})" class="text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                    </div>
+                    <div class="p-4 space-y-3">
+                        ${t.players.map((p, idx) => `
+                            <div class="bg-slate-900/50 p-3 rounded-xl flex justify-between items-center border border-slate-800">
+                                <div>
+                                    <p class="font-bold text-sm">${p.name}</p>
+                                    <p class="text-[10px] text-rose-500 font-bold">${p.losses} PERDIDAS</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-slate-500">DEUDA</p>
+                                    <p class="font-gaming text-rose-400">$${p.debt.toFixed(2)}</p>
+                                </div>
+                                ${isAdmin ? `
+                                    <div class="flex flex-col gap-1 ml-2">
+                                        <button onclick="addLoss(${t.id}, ${idx})" class="bg-rose-600 text-[8px] px-2 py-1 rounded">PERDIÓ</button>
+                                        <button onclick="payDebt(${t.id}, ${idx})" class="bg-emerald-600 text-[8px] px-2 py-1 rounded">PAGÓ</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // ACCIONES DEMO
+        window.addLoss = (tId, pIdx) => {
+            const t = tables.find(x => x.id === tId);
+            t.players[pIdx].debt += 5;
+            t.players[pIdx].losses += 1;
+            render();
+        };
+
+        window.payDebt = (tId, pIdx) => {
+            const t = tables.find(x => x.id === tId);
+            if(t.players[pIdx].debt > 0) {
+                t.totalPaid += t.players[pIdx].debt;
+                t.players[pIdx].debt = 0;
+                render();
+            }
+        };
+
+        window.createTable = () => {
+            tables.push({
+                id: Date.now(),
+                name: "Mesa " + (tables.length + 1),
+                totalPaid: 0,
+                players: Array(4).fill(0).map((_, i) => ({ name: "Jugador "+(i+1), debt: 0, losses: 0 }))
+            });
+            render();
+        };
+
+        window.deleteTable = (id) => {
+            tables = tables.filter(t => t.id !== id);
+            render();
+        };
+
+        // LOGIN SIMULADO
+        document.getElementById('btn-login-demo').onclick = () => {
+            if(!isAdmin) {
+                const user = prompt("Usuario:");
+                const pass = prompt("Contraseña:");
+                if(user === 'admin' && pass === 'admin') {
+                    isAdmin = true;
+                    document.getElementById('auth-status').textContent = "MODO: ADMINISTRADOR";
+                    document.getElementById('auth-status').className = "text-xs text-green-500 font-bold";
+                    document.getElementById('btn-login-demo').innerHTML = '<i data-lucide="log-out" class="w-4 h-4"></i> SALIR';
+                    document.getElementById('admin-controls').classList.remove('hidden');
+                    render();
+                } else {
+                    alert("Error: Prueba con admin / admin");
+                }
+            } else {
+                isAdmin = false;
+                document.getElementById('auth-status').textContent = "MODO: INVITADO";
+                document.getElementById('auth-status').className = "text-xs text-slate-500";
+                document.getElementById('btn-login-demo').innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> INGRESAR';
+                document.getElementById('admin-controls').classList.add('hidden');
+                render();
+            }
+        };
+
+        // Inicio
+        render();
+    </script>
+</body>
+</html>

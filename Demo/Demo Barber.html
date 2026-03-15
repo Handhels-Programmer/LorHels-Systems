@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LorHels Barber | Demo Offline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-brand { font-family: 'Outfit', sans-serif; }
+        .glass { background: rgba(10, 20, 40, 0.85); backdrop-filter: blur(12px); }
+        .page-transition { transition: all 0.4s ease; }
+        .hidden-view { display: none !important; opacity: 0; }
+        .active-view { opacity: 1; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+
+    <nav class="fixed top-0 w-full z-50 glass border-b border-blue-900/30">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="showView('home')">
+                <div class="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-600/30"><i data-lucide="scissors" class="text-white"></i></div>
+                <span class="font-brand text-2xl font-bold tracking-tight italic">LORHELS <span class="text-blue-500 text-xs align-top">DEMO</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-10 font-medium">
+                <button onclick="showView('home')" class="hover:text-blue-400 transition">Inicio</button>
+                <button onclick="showView('booking')" class="hover:text-blue-400 transition">Reservas</button>
+                <button onclick="showView('gallery')" class="hover:text-blue-400 transition">Estilos</button>
+                <button onclick="showView('admin')" class="bg-blue-600 text-white px-6 py-2 rounded-full font-bold text-sm hover:bg-blue-500 transition shadow-lg shadow-blue-600/20 uppercase tracking-wider">Panel Admin</button>
+            </div>
+            <button class="md:hidden text-blue-400" onclick="toggleMobileMenu()"><i data-lucide="menu" size="28"></i></button>
+        </div>
+    </nav>
+
+    <div id="mobile-menu" class="fixed inset-0 z-[60] bg-zinc-950 hidden flex-col items-center justify-center gap-10 text-3xl font-bold">
+        <button class="absolute top-8 right-8 text-blue-400" onclick="toggleMobileMenu()"><i data-lucide="x" size="32"></i></button>
+        <button onclick="showView('home'); toggleMobileMenu()" class="hover:text-blue-400 transition">Inicio</button>
+        <button onclick="showView('booking'); toggleMobileMenu()" class="hover:text-blue-400 transition">Reservas</button>
+        <button onclick="showView('gallery'); toggleMobileMenu()" class="hover:text-blue-400 transition">Galería</button>
+        <button onclick="showView('admin'); toggleMobileMenu()" class="text-blue-500">Administración</button>
+    </div>
+
+    <main class="pt-20">
+        <section id="view-home" class="page-transition active-view">
+            <div class="relative h-[90vh] flex items-center justify-center overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1593269233759-427ba69acca5?q=80&w=1170&auto=format&fit=crop" alt="Barber Shop" class="absolute inset-0 w-full h-full object-cover opacity-30">
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-950/80 to-zinc-950"></div>
+                <div class="relative z-10 text-center px-6">
+                    <div class="inline-block px-4 py-1.5 mb-6 rounded-full bg-blue-600/10 border border-blue-500/30 text-blue-400 text-sm font-bold uppercase tracking-widest">Demo Offline Activa</div>
+                    <h1 class="text-6xl md:text-8xl font-brand font-extrabold mb-8 tracking-tighter uppercase leading-none">Cortes de <br> <span class="text-blue-500">Nueva Generación</span></h1>
+                    <p class="text-zinc-400 max-w-2xl mx-auto mb-10 text-xl font-light">Explora las funcionalidades del sistema LorHels sin necesidad de conexión a base de datos.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="showView('booking')" class="bg-blue-600 text-white px-10 py-5 rounded-xl font-bold text-lg uppercase tracking-widest hover:bg-blue-500 transition shadow-2xl shadow-blue-600/40">Reservar Ahora</button>
+                        <button onclick="showView('admin')" class="border border-emerald-600/40 text-emerald-400 px-10 py-5 rounded-xl font-bold text-lg uppercase tracking-widest hover:bg-emerald-600/10 transition">Probar Admin</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 py-24">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                    <div>
+                        <span class="text-blue-500 font-bold uppercase tracking-widest">Servicios</span>
+                        <h2 class="text-4xl font-brand font-bold mt-2">Nuestras Especialidades</h2>
+                    </div>
+                    <div class="h-[2px] flex-grow bg-blue-900/30 mx-8 hidden md:block"></div>
+                    <p class="text-zinc-500 max-w-xs italic text-right">Datos cargados desde el almacenamiento local.</p>
+                </div>
+                <div id="home-services-grid" class="grid md:grid-cols-4 gap-6">
+                    <p class="text-zinc-500 col-span-4 text-center py-10">Cargando especialidades...</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-gallery" class="page-transition hidden-view max-w-7xl mx-auto px-4 py-16">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-brand font-bold">Inspiración <span class="text-blue-500">Visual</span></h2>
+                <p class="text-zinc-500 mt-4">Nuestros mejores trabajos</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="group relative overflow-hidden rounded-3xl bg-zinc-900 aspect-[3/4]"><img src="https://images.unsplash.com/photo-1593702295094-22245df3b197?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-110 transition opacity-60 group-hover:opacity-100"></div>
+                <div class="group relative overflow-hidden rounded-3xl bg-zinc-900 aspect-[3/4]"><img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-110 transition opacity-60 group-hover:opacity-100"></div>
+                <div class="group relative overflow-hidden rounded-3xl bg-zinc-900 aspect-[3/4]"><img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-110 transition opacity-60 group-hover:opacity-100"></div>
+                <div class="group relative overflow-hidden rounded-3xl bg-zinc-900 aspect-[3/4]"><img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-110 transition opacity-60 group-hover:opacity-100"></div>
+            </div>
+        </section>
+
+        <section id="view-booking" class="page-transition hidden-view p-4 max-w-6xl mx-auto py-16">
+            <div class="mb-8 text-center md:text-left">
+                <h2 class="text-3xl font-black text-white italic tracking-tighter uppercase">Agendar Cita</h2>
+                <p class="text-zinc-500 text-sm">Prueba el sistema de bloqueo de horarios (Demo)</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-7 space-y-6">
+                    <form id="booking-form" class="bg-zinc-900/50 p-6 rounded-3xl border border-zinc-800 space-y-6">
+                        <div>
+                            <label class="block text-zinc-500 text-[10px] font-bold uppercase mb-3 tracking-widest">Paso 1: Servicio</label>
+                            <div id="dynamic-services" class="grid grid-cols-2 gap-3 text-zinc-500 text-xs">Cargando...</div>
+                        </div>
+                        <div>
+                            <label class="block text-zinc-500 text-[10px] font-bold uppercase mb-3 tracking-widest">Paso 2: Barbero</label>
+                            <select id="book-barber" required class="w-full bg-zinc-950 border border-zinc-800 text-white p-3 rounded-xl focus:border-blue-500 outline-none text-sm">
+                                <option value="">Cargando...</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-zinc-500 text-[10px] font-bold uppercase mb-2">Paso 3: Fecha</label>
+                                <input type="date" id="book-date" required class="w-full bg-zinc-950 border border-zinc-800 text-white p-3 rounded-xl focus:border-blue-500 outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-zinc-500 text-[10px] font-bold uppercase mb-2">Hora</label>
+                                <select id="book-time" required class="w-full bg-zinc-950 border border-zinc-800 text-white p-3 rounded-xl focus:border-blue-500 outline-none text-sm">
+                                    <option value="" disabled selected>Selecciona fecha primero</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="block text-zinc-500 text-[10px] font-bold uppercase tracking-widest">Paso 4: Tus Datos</label>
+                            <input type="text" id="book-name" placeholder="Nombre completo" required class="w-full bg-zinc-950 border border-zinc-800 text-white p-3 rounded-xl text-sm focus:border-blue-500 outline-none">
+                            <input type="tel" id="book-phone" placeholder="Teléfono" required class="w-full bg-zinc-950 border border-zinc-800 text-white p-3 rounded-xl text-sm focus:border-blue-500 outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl transition-all uppercase tracking-widest text-sm shadow-lg shadow-blue-500/20">
+                            Confirmar Reserva (Demo)
+                        </button>
+                    </form>
+                </div>
+                <div class="lg:col-span-5">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sticky top-24">
+                        <div class="flex items-center gap-2 mb-6">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                            <h3 class="text-white font-bold text-sm uppercase tracking-widest">Disponibilidad Local</h3>
+                        </div>
+                        <div id="availability-status" class="space-y-4">
+                            <p class="text-zinc-500 text-xs italic">Selecciona una fecha para probar el panel interactivo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-login" class="page-transition hidden-view flex items-center justify-center min-h-[70vh] px-4">
+            <div class="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 w-full max-w-md shadow-2xl">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-brand font-bold text-emerald-400">Modo Demo</h2>
+                    <p class="text-zinc-500 text-sm mt-2">Usuario: <b>admin</b> | Clave: <b>admin</b></p>
+                </div>
+                <form id="login-form" class="space-y-4">
+                    <input type="text" id="login-email" placeholder="Usuario" value="admin" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-zinc-100 outline-none focus:border-emerald-500">
+                    <input type="password" id="login-pass" placeholder="Contraseña" value="admin" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-zinc-100 outline-none focus:border-emerald-500">
+                    <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-emerald-500">Entrar al Panel</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="view-admin" class="page-transition hidden-view p-4 md:p-10 max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
+                <div>
+                    <h1 class="text-4xl font-brand font-bold tracking-tight">Centro de Mando <span class="text-emerald-500 text-sm align-top ml-2">DEMO OFFLINE</span></h1>
+                    <p class="text-zinc-500 mt-1">Los datos se guardan en tu navegador actual.</p>
+                </div>
+                <button onclick="window.logout()" class="text-xs text-red-400 hover:text-white flex items-center gap-2 px-4 py-2 bg-red-500/10 rounded-full transition"><i data-lucide="log-out" size="14"></i> Salir de Demo</button>
+            </div>
+
+            <div class="flex gap-6 mb-8 border-b border-zinc-800 pb-4 overflow-x-auto">
+                <button onclick="switchAdminTab('agenda')" id="tab-agenda" class="text-blue-400 font-bold uppercase tracking-widest text-xs border-b-2 border-blue-500 pb-4 -mb-4">📅 Agenda</button>
+                <button onclick="switchAdminTab('pos')" id="tab-pos" class="text-zinc-500 hover:text-blue-400 font-bold uppercase tracking-widest text-xs pb-4 -mb-4">🛒 Punto de Venta</button>
+                <button onclick="switchAdminTab('servicios')" id="tab-servicios" class="text-zinc-500 hover:text-blue-400 font-bold uppercase tracking-widest text-xs pb-4 -mb-4">✂️ Servicios</button>
+                <button onclick="switchAdminTab('barberos')" id="tab-barberos" class="text-zinc-500 hover:text-blue-400 font-bold uppercase tracking-widest text-xs pb-4 -mb-4">💈 Staff</button>
+                <button onclick="switchAdminTab('productos')" id="tab-productos" class="text-zinc-500 hover:text-blue-400 font-bold uppercase tracking-widest text-xs pb-4 -mb-4">📦 Inventario</button>
+            </div>
+
+            <div id="admin-agenda" class="admin-panel block">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl"><p class="text-[10px] text-zinc-500 uppercase font-bold mb-1">Citas/Ventas Hoy</p><p id="stat-count" class="text-3xl font-bold text-blue-500">0</p></div>
+                    <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl"><p class="text-[10px] text-zinc-500 uppercase font-bold mb-1">Caja Hoy</p><p id="stat-revenue" class="text-3xl font-bold text-emerald-500">$0</p></div>
+                </div>
+                <div class="bg-zinc-900 rounded-3xl border border-zinc-800 overflow-hidden overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-zinc-950 text-zinc-500 text-[10px] uppercase font-bold tracking-[0.2em]">
+                            <tr><th class="px-6 py-4">Cliente</th><th class="px-6 py-4">Detalle</th><th class="px-6 py-4">Horario</th><th class="px-6 py-4">Estado</th><th class="px-6 py-4 text-right">Control</th></tr>
+                        </thead>
+                        <tbody id="appointments-list" class="divide-y divide-zinc-800"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="admin-pos" class="admin-panel hidden">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-zinc-900 p-6 rounded-3xl border border-zinc-800 space-y-4">
+                        <h3 class="font-bold text-lg mb-4 text-emerald-400 flex items-center gap-2"><i data-lucide="zap"></i> Walk-in (Servicio)</h3>
+                        <form id="form-pos-service" class="space-y-4">
+                            <input type="text" id="pos-service-client" placeholder="Nombre de paso" class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-emerald-500">
+                            <select id="pos-service-select" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-emerald-500"></select>
+                            <select id="pos-barber-select" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-emerald-500"></select>
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl text-sm font-bold uppercase transition">Cobrar en Caja</button>
+                        </form>
+                    </div>
+                    <div class="bg-zinc-900 p-6 rounded-3xl border border-zinc-800 space-y-4">
+                        <h3 class="font-bold text-lg mb-4 text-blue-400 flex items-center gap-2"><i data-lucide="shopping-bag"></i> Venta Producto</h3>
+                        <form id="form-pos-product" class="space-y-4">
+                            <select id="pos-product-select" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500"></select>
+                            <input type="number" id="pos-product-qty" placeholder="Cantidad" required min="1" value="1" class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-sm font-bold uppercase transition">Cobrar y Descontar Stock</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-servicios" class="admin-panel hidden">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <form id="form-add-service" class="bg-zinc-900 p-6 rounded-3xl border border-zinc-800 space-y-4">
+                            <h3 class="font-bold text-lg mb-4">Añadir Servicio</h3>
+                            <input type="text" id="new-srv-name" placeholder="Nombre" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
+                            <input type="number" id="new-srv-price" placeholder="Precio" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
+                            <input type="text" id="new-srv-desc" placeholder="Descripción breve" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
+                            <input type="text" id="new-srv-duration" placeholder="Duración (Ej: 30 MIN)" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
+                            <button type="submit" class="w-full bg-blue-600 py-3 rounded-xl text-sm font-bold uppercase hover:bg-blue-500 transition">Guardar</button>
+                        </form>
+                    </div>
+                    <div class="md:col-span-2 bg-zinc-900 rounded-3xl border border-zinc-800 p-6">
+                        <h3 class="font-bold text-lg mb-4">Servicios Activos</h3>
+                        <div id="services-list" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-barberos" class="admin-panel hidden">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <form id="form-add-barber" class="bg-zinc-900 p-6 rounded-3xl border border-zinc-800 space-y-4">
+                            <h3 class="font-bold text-lg mb-4">Añadir Personal</h3>
+                            <input type="text" id="new-barber-name" placeholder="Nombre" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
+                            <input type="text" id="new-barber-role" placeholder="Rol (Ej: Master)" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
+                            <button type="submit" class="w-full bg-blue-600 py-3 rounded-xl text-sm font-bold uppercase hover:bg-blue-500 transition">Agregar</button>
+                        </form>
+                    </div>
+                    <div class="md:col-span-2 bg-zinc-900 rounded-3xl border border-zinc-800 p-6">
+                        <h3 class="font-bold text-lg mb-4">Staff Actual</h3>
+                        <div id="barbers-list" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-productos" class="admin-panel hidden">
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                        <form id="form-add-product" class="bg-zinc-900 p-6 rounded-3xl border border-zinc-800 space-y-4">
+                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i data-lucide="package-plus" class="text-blue-500"></i> Añadir Inventario</h3>
+                            <input type="text" id="new-prod-name" placeholder="Nombre producto" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
+                            <input type="number" id="new-prod-price" placeholder="Precio Venta" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
+                            <input type="number" id="new-prod-stock" placeholder="Cantidad Inicial" required class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-sm outline-none focus:border-blue-500">
+                            <button type="submit" class="w-full bg-blue-600 py-3 rounded-xl text-sm font-bold uppercase hover:bg-blue-500 transition">Guardar Producto</button>
+                        </form>
+                    </div>
+                    <div class="md:col-span-2 bg-zinc-900 rounded-3xl border border-zinc-800 p-6">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i data-lucide="boxes" class="text-blue-500"></i> Stock Actual</h3>
+                        <div id="products-list" class="space-y-3 max-h-[50vh] overflow-y-auto pr-2 text-sm text-zinc-500"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-zinc-900/50 border-t border-zinc-800 py-10 mt-20 text-center text-zinc-500 text-xs">
+        <p>© 2026 LorHels Barber | Versión Demo Offline</p>
+    </footer>
+
+    <div id="ui-modal" class="fixed inset-0 z-[100] bg-black/90 hidden items-center justify-center p-6">
+        <div class="bg-zinc-900 border border-blue-900/30 p-10 rounded-3xl max-w-sm w-full text-center">
+            <div id="modal-icon" class="mb-6 flex justify-center"></div>
+            <h3 id="modal-title" class="text-2xl font-brand font-bold mb-3"></h3>
+            <p id="modal-text" class="text-zinc-400 mb-8 text-sm"></p>
+            <button onclick="closeModal()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase hover:bg-blue-500 transition">Continuar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. CONFIGURACIÓN BASE DE DATOS LOCAL ---
+        const DB_KEY = 'lorhels_demo_db';
+        let db = JSON.parse(localStorage.getItem(DB_KEY));
+
+        // Precargar datos si está vacío
+        if (!db) {
+            db = {
+                services: [
+                    { id: 's1', name: 'Corte Clásico', price: 300, desc: 'Balance perfecto entre tradicional y moderno.', duration: '30 MIN' },
+                    { id: 's2', name: 'Corte + Barba', price: 500, desc: 'Transformación completa con toalla caliente.', duration: '45 MIN' },
+                    { id: 's3', name: 'Solo Barba', price: 200, desc: 'Mantenimiento y alineación profesional.', duration: '20 MIN' }
+                ],
+                barbers: [
+                    { id: 'b1', name: 'Mateo LorHels', role: 'Master' },
+                    { id: 'b2', name: 'Carlos Blade', role: 'Pro' }
+                ],
+                products: [
+                    { id: 'p1', name: 'Cera Mate Moldeadora', price: 600, stock: 15 },
+                    { id: 'p2', name: 'Aceite para Barba', price: 400, stock: 2 } // Stock bajo para probar
+                ],
+                appointments: []
+            };
+            saveDB();
+        }
+
+        function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); renderAll(); }
+        function genId() { return Math.random().toString(36).substr(2, 9); }
+
+        let isAdmin = localStorage.getItem('lorhels_auth') === 'admin';
+        lucide.createIcons();
+
+        // --- 2. NAVEGACIÓN Y TABS ---
+        window.showView = (viewId) => {
+            if (viewId === 'admin' && !isAdmin) viewId = 'login'; 
+            document.querySelectorAll('section.page-transition').forEach(s => s.classList.replace('active-view', 'hidden-view'));
+            const target = document.getElementById('view-' + viewId);
+            if(target) { target.classList.replace('hidden-view', 'active-view'); window.scrollTo(0, 0); }
+        };
+
+        window.switchAdminTab = (tabId) => {
+            document.querySelectorAll('.admin-panel').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('[id^="tab-"]').forEach(t => {
+                t.classList.replace('text-blue-400', 'text-zinc-500'); t.classList.remove('border-b-2', 'border-blue-500');
+            });
+            document.getElementById('admin-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).classList.add('text-blue-400', 'border-b-2', 'border-blue-500');
+            document.getElementById('tab-' + tabId).classList.remove('text-zinc-500');
+        };
+
+        window.toggleMobileMenu = () => {
+            const m = document.getElementById('mobile-menu'); m.classList.toggle('hidden'); m.classList.toggle('flex');
+        };
+
+        // --- 3. AUTENTICACIÓN LOCAL ---
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('login-email').value;
+            const p = document.getElementById('login-pass').value;
+            if(u === 'admin' && p === 'admin') {
+                isAdmin = true; localStorage.setItem('lorhels_auth', 'admin'); showView('admin'); renderAll();
+            } else { alert("Usuario o contraseña incorrectos. Usa admin/admin"); }
+        });
+        window.logout = () => { localStorage.removeItem('lorhels_auth'); isAdmin = false; location.reload(); };
+
+        // --- 4. RENDERIZADO DINÁMICO (Sustituye a onSnapshot) ---
+        function renderAll() {
+            renderServices();
+            renderBarbers();
+            renderProducts();
+            renderAppointments();
+            lucide.createIcons();
+        }
+
+        function renderServices() {
+            const homeGrid = document.getElementById('home-services-grid');
+            const clientServ = document.getElementById('dynamic-services');
+            const adminServ = document.getElementById('services-list');
+            const posServ = document.getElementById('pos-service-select');
+            
+            if(homeGrid) homeGrid.innerHTML = '';
+            if(clientServ) clientServ.innerHTML = '';
+            if(adminServ) adminServ.innerHTML = '';
+            if(posServ) posServ.innerHTML = '<option value="">Selecciona servicio...</option>';
+
+            const icons = ['scissors', 'user-check', 'zap', 'award'];
+            
+            db.services.forEach((s, idx) => {
+                const icon = icons[idx % icons.length];
+                if(homeGrid) homeGrid.innerHTML += `<div class="group bg-zinc-900/50 p-8 rounded-3xl border border-zinc-800 hover:border-blue-500/50 transition relative overflow-hidden"><div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-600/10 rounded-full group-hover:scale-150 transition duration-700"></div><i data-lucide="${icon}" class="text-blue-500 mb-6 w-12 h-12"></i><h3 class="text-2xl font-bold mb-3">${s.name}</h3><p class="text-zinc-500 mb-6">${s.desc}</p><div class="flex justify-between items-center"><span class="text-3xl font-brand font-bold text-white">$${s.price}</span><span class="text-xs text-blue-400 font-bold px-3 py-1 bg-blue-500/10 rounded-full">${s.duration}</span></div></div>`;
+                if(clientServ) clientServ.innerHTML += `<label class="cursor-pointer"><input type="radio" name="service" value="${s.name} $${s.price}" class="peer hidden" required><div class="p-3 bg-zinc-950 border border-zinc-800 rounded-xl peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all"><span class="block text-white font-bold text-xs">${s.name}</span><span class="text-blue-500 text-[10px]">$${s.price}</span></div></label>`;
+                if(adminServ) adminServ.innerHTML += `<div class="flex justify-between items-center p-3 bg-zinc-950 border border-zinc-800 rounded-xl"><div><p class="text-sm font-bold text-white">${s.name}</p><p class="text-xs text-blue-500">$${s.price} • ${s.duration}</p></div><button onclick="deleteItem('services', '${s.id}')" class="text-red-500 hover:text-red-400 p-2"><i data-lucide="trash-2" size="16"></i></button></div>`;
+                if(posServ) posServ.innerHTML += `<option value="${s.name} $${s.price}">${s.name} - $${s.price}</option>`;
+            });
+            if(db.services.length === 0 && homeGrid) homeGrid.innerHTML = "<p class='text-zinc-500 col-span-4 text-center'>Añade servicios en el panel admin.</p>";
+        }
+
+        function renderBarbers() {
+            const clientBarb = document.getElementById('book-barber');
+            const adminBarb = document.getElementById('barbers-list');
+            const posBarb = document.getElementById('pos-barber-select');
+            
+            if(clientBarb) clientBarb.innerHTML = '<option value="Cualquiera">Cualquiera disponible</option>';
+            if(adminBarb) adminBarb.innerHTML = '';
+            if(posBarb) posBarb.innerHTML = '<option value="">Atendido por...</option>';
+
+            db.barbers.forEach(b => {
+                if(clientBarb) clientBarb.innerHTML += `<option value="${b.name}">${b.name} (${b.role})</option>`;
+                if(adminBarb) adminBarb.innerHTML += `<div class="flex justify-between items-center p-3 bg-zinc-950 border border-zinc-800 rounded-xl"><div><p class="text-sm font-bold text-white">${b.name}</p><p class="text-xs text-zinc-500">${b.role}</p></div><button onclick="deleteItem('barbers', '${b.id}')" class="text-red-500 hover:text-red-400 p-2"><i data-lucide="trash-2" size="16"></i></button></div>`;
+                if(posBarb) posBarb.innerHTML += `<option value="${b.name}">${b.name}</option>`;
+            });
+        }
+
+        function renderProducts() {
+            const adminProd = document.getElementById('products-list');
+            const posProd = document.getElementById('pos-product-select');
+            if(adminProd) adminProd.innerHTML = '';
+            if(posProd) posProd.innerHTML = '<option value="">Selecciona producto...</option>';
+
+            db.products.forEach(p => {
+                const low = p.stock <= 3;
+                if(adminProd) {
+                    adminProd.innerHTML += `<div class="flex justify-between items-center p-3 bg-zinc-950 border ${low ? 'border-red-900/50' : 'border-zinc-800'} rounded-xl"><div><p class="text-sm font-bold text-white">${p.name} ${low ? '<span class="text-red-500 text-[9px] uppercase ml-2">Stock Bajo</span>' : ''}</p><p class="text-xs text-blue-500">$${p.price}</p></div><div class="flex items-center gap-3"><button onclick="updateStock('${p.id}', -1)" class="w-6 h-6 bg-zinc-800 hover:bg-zinc-700 rounded text-zinc-400">-</button><span class="font-bold w-6 text-center ${low ? 'text-red-500' : 'text-emerald-500'}">${p.stock}</span><button onclick="updateStock('${p.id}', 1)" class="w-6 h-6 bg-zinc-800 hover:bg-zinc-700 rounded text-zinc-400">+</button><button onclick="deleteItem('products', '${p.id}')" class="text-red-500 ml-2"><i data-lucide="trash-2" size="16"></i></button></div></div>`;
+                }
+                if(posProd && p.stock > 0) posProd.innerHTML += `<option value="${p.id}|${p.name}|${p.price}|${p.stock}">${p.name} ($${p.price}) - Disp: ${p.stock}</option>`;
+            });
+        }
+
+        function renderAppointments() {
+            const list = document.getElementById('appointments-list');
+            if(!list) return;
+            
+            let count = 0, money = 0;
+            list.innerHTML = '';
+            const today = new Date().toISOString().split('T')[0];
+
+            // Ordenar citas (más nuevas primero)
+            const sortedApps = [...db.appointments].reverse();
+
+            sortedApps.forEach(d => {
+                if(d.date === today && d.status !== 'cancelada') {
+                    count++;
+                    if(d.status === 'confirmada' || d.status === 'finalizada') money += parseInt(d.service.split('$')[1] || 0);
+                }
+                const isConf = d.status === 'confirmada' || d.status === 'finalizada';
+                list.innerHTML += `<tr class="border-b border-zinc-800/50 hover:bg-zinc-800/20"><td class="px-6 py-4"><p class="font-bold">${d.name}</p><p class="text-[10px] text-zinc-500">${d.phone}</p></td><td class="px-6 py-4"><p class="text-sm">${d.service}</p><p class="text-[10px] text-blue-500 font-bold uppercase">${d.barber}</p></td><td class="px-6 py-4"><p class="text-sm font-bold">${d.date}</p><p class="text-xs text-zinc-500">${d.time}</p></td><td class="px-6 py-4"><span class="px-2 py-1 rounded text-[9px] font-bold uppercase ${isConf ? 'bg-emerald-500/20 text-emerald-500' : 'bg-amber-500/20 text-amber-500'}">${d.status}</span></td><td class="px-6 py-4 text-right">${!isConf && d.status !== 'cancelada' ? `<button onclick="setApptStatus('${d.id}', 'confirmada')" class="p-2 text-blue-400 hover:bg-blue-900/30 rounded"><i data-lucide="check-circle" size="16"></i></button>` : ''}${d.status === 'confirmada' ? `<button onclick="setApptStatus('${d.id}', 'finalizada')" class="p-2 text-emerald-400 hover:bg-emerald-900/30 rounded"><i data-lucide="dollar-sign" size="16"></i></button>` : ''}<button onclick="setApptStatus('${d.id}', 'cancelada')" class="p-2 text-red-400 hover:bg-red-900/30 rounded"><i data-lucide="trash" size="16"></i></button></td></tr>`;
+            });
+            document.getElementById('stat-count').innerText = count; document.getElementById('stat-revenue').innerText = '$' + money;
+        }
+
+        // --- 5. ACCIONES DE DATOS LOCALES ---
+        document.getElementById('form-add-service').addEventListener('submit', (e) => { e.preventDefault(); db.services.push({ id: genId(), name: document.getElementById('new-srv-name').value, price: document.getElementById('new-srv-price').value, desc: document.getElementById('new-srv-desc').value, duration: document.getElementById('new-srv-duration').value }); saveDB(); e.target.reset(); });
+        document.getElementById('form-add-barber').addEventListener('submit', (e) => { e.preventDefault(); db.barbers.push({ id: genId(), name: document.getElementById('new-barber-name').value, role: document.getElementById('new-barber-role').value }); saveDB(); e.target.reset(); });
+        document.getElementById('form-add-product').addEventListener('submit', (e) => { e.preventDefault(); db.products.push({ id: genId(), name: document.getElementById('new-prod-name').value, price: Number(document.getElementById('new-prod-price').value), stock: Number(document.getElementById('new-prod-stock').value) }); saveDB(); e.target.reset(); });
+
+        window.deleteItem = (collection, id) => { if(confirm("¿Eliminar?")) { db[collection] = db[collection].filter(i => i.id !== id); saveDB(); } };
+        window.updateStock = (id, change) => { const p = db.products.find(x => x.id === id); if(p && (p.stock + change) >= 0) { p.stock += change; saveDB(); } };
+        window.setApptStatus = (id, status) => { if(status === 'cancelada' && !confirm("¿Cancelar cita?")) return; const a = db.appointments.find(x => x.id === id); if(a) { a.status = status; saveDB(); } };
+
+        // --- 6. PUNTO DE VENTA (POS) ---
+        document.getElementById('form-pos-service').addEventListener('submit', (e) => {
+            e.preventDefault(); const today = new Date().toISOString().split('T')[0]; const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            db.appointments.push({ id: genId(), name: '✂️ ' + (document.getElementById('pos-service-client').value || 'Cliente Local'), service: document.getElementById('pos-service-select').value, barber: document.getElementById('pos-barber-select').value, date: today, time: time, status: 'finalizada', phone: 'POS Caja', createdAt: new Date().toISOString() });
+            saveDB(); alert("Cobro registrado."); e.target.reset();
+        });
+
+        document.getElementById('form-pos-product').addEventListener('submit', (e) => {
+            e.preventDefault(); const val = document.getElementById('pos-product-select').value; if(!val) return;
+            const [pId, pName, pPrice, pStock] = val.split('|'); const qty = parseInt(document.getElementById('pos-product-qty').value);
+            if(qty > parseInt(pStock)) return alert("Stock insuficiente.");
+            
+            updateStock(pId, -qty); // Resta stock
+            const today = new Date().toISOString().split('T')[0]; const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            db.appointments.push({ id: genId(), name: '📦 Venta POS', service: `${qty}x ${pName} $${qty * parseInt(pPrice)}`, barber: 'Caja', date: today, time: time, status: 'finalizada', phone: 'N/A', createdAt: new Date().toISOString() });
+            saveDB(); alert("Venta registrada y stock descontado."); e.target.reset();
+        });
+
+        // --- 7. BLOQUEO DE HORARIOS Y RESERVA DEL CLIENTE ---
+        const dateInput = document.getElementById('book-date');
+        const horasBase = ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM"];
+        
+        if(dateInput) {
+            dateInput.min = new Date().toISOString().split('T')[0];
+            dateInput.addEventListener('change', (e) => {
+                const fecha = e.target.value; const sHora = document.getElementById('book-time'); const pnl = document.getElementById('availability-status');
+                const ocupados = db.appointments.filter(a => a.date === fecha && a.status !== 'cancelada').map(a => a.time);
+                
+                sHora.innerHTML = ''; pnl.innerHTML = `<div class="grid grid-cols-3 gap-2"></div>`; const grid = pnl.querySelector('div');
+                horasBase.forEach(h => {
+                    const o = ocupados.includes(h);
+                    if(!o) sHora.innerHTML += `<option value="${h}">${h}</option>`;
+                    grid.innerHTML += `<div class="p-2 text-[10px] text-center rounded-lg border font-bold ${o ? 'bg-red-500/10 border-red-500/40 text-red-500 line-through' : 'bg-zinc-800 border-zinc-700 text-zinc-400'}">${h}</div>`;
+                });
+                if(sHora.options.length === 0) sHora.innerHTML = '<option value="" disabled selected>Día lleno</option>';
+            });
+        }
+
+        document.getElementById('booking-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const srv = document.querySelector('input[name="service"]:checked'); if(!srv) return alert("Elige un servicio");
+            const b = { id: genId(), service: srv.value, barber: document.getElementById('book-barber').value, date: document.getElementById('book-date').value, time: document.getElementById('book-time').value, name: document.getElementById('book-name').value, phone: document.getElementById('book-phone').value, status: 'pendiente', createdAt: new Date().toISOString() };
+            
+            db.appointments.push(b); saveDB();
+            openModal('<i data-lucide="check-circle" class="text-blue-500 w-16 h-16"></i>', '¡Cita Guardada!', 'Como esto es un Demo Offline, tu cita se guardó directamente en el Panel de Administrador local.', () => { showView('home'); });
+            e.target.reset(); document.getElementById('availability-status').innerHTML = '<p class="text-zinc-500 text-xs italic">Selecciona una fecha para probar el panel interactivo.</p>';
+        });
+
+        // --- 8. UI MODAL ---
+        let _modalCb = null;
+        window.openModal = (i, t, d, cb) => { document.getElementById('modal-icon').innerHTML=i; document.getElementById('modal-title').innerText=t; document.getElementById('modal-text').innerText=d; document.getElementById('ui-modal').style.display='flex'; _modalCb=cb; lucide.createIcons(); };
+        window.closeModal = () => { document.getElementById('ui-modal').style.display='none'; if(_modalCb) _modalCb(); };
+
+        // Iniciar
+        if(isAdmin) showView('admin');
+        renderAll();
+    </script>
+</body>
+</html>

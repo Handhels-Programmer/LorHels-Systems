@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LorHels Viewer - DEMO MODE</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'lorhels-blue': '#1e3a8a', 
+                        'lorhels-gray': '#f3f4f6', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #canvas-container {
+            width: 100%; height: 400px;
+            background-color: #e5e7eb; border-radius: 0.5rem;
+            overflow: hidden; position: relative;
+        }
+    </style>
+</head>
+<body class="bg-lorhels-gray font-sans text-gray-800 min-h-screen flex flex-col">
+
+    <nav class="bg-lorhels-blue text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="app.navigate('public')">
+                <i class="ph ph-cube text-3xl text-blue-300"></i>
+                <span class="text-xl font-bold tracking-tight">LorHels<span class="font-light">Viewer</span> <span class="text-xs bg-yellow-400 text-black px-2 py-1 rounded ml-2">DEMO</span></span>
+            </div>
+            <div id="nav-actions"></div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8">
+
+        <section id="view-public" class="view-section active">
+            <div class="flex flex-col items-center justify-center mt-12 text-center">
+                <div class="bg-white p-6 rounded-full shadow-lg mb-8">
+                    <i class="ph ph-cube text-6xl text-lorhels-blue"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-lorhels-blue mb-4 tracking-tight">
+                    Visualiza tus proyectos 3D en línea
+                </h1>
+                <p class="text-xl text-gray-500 max-w-2xl mb-10">
+                    Versión Demo. Prueba la gestión de proyectos y comunicación en tiempo real.
+                </p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button onclick="app.navigate('login')" class="bg-lorhels-blue text-white px-8 py-3 rounded-lg font-bold shadow-md hover:bg-blue-800 transition">
+                        Ingresar al Demo
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-login" class="view-section">
+            <div class="flex justify-center mt-12">
+                <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md border border-gray-200">
+                    <div class="text-center mb-8">
+                        <i class="ph ph-user-circle text-5xl text-lorhels-blue mb-2"></i>
+                        <h2 class="text-2xl font-bold text-lorhels-blue">Iniciar Sesión</h2>
+                        <p class="text-gray-500 text-sm mt-1">Usa los datos de prueba para ingresar</p>
+                    </div>
+                    
+                    <form id="login-form" onsubmit="app.handleLogin(event)" class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Correo electrónico</label>
+                            <input type="text" id="login-email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="admin o cliente">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Contraseña</label>
+                            <input type="password" id="login-password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="admin o 123">
+                        </div>
+                        <button type="submit" class="w-full bg-lorhels-blue text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition shadow-sm">
+                            Ingresar
+                        </button>
+                    </form>
+                    <div class="mt-6 p-4 bg-yellow-50 rounded-lg text-sm text-yellow-800 border border-yellow-200">
+                        <p class="font-bold mb-1">Accesos Demo:</p>
+                        <p><strong>Admin:</strong> admin / admin</p>
+                        <p><strong>Cliente:</strong> cliente / 123</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-client-dash" class="view-section">
+            <div class="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800" id="client-welcome">Bienvenido</h2>
+                    <p class="text-gray-500 mt-1">Tus proyectos asignados</p>
+                </div>
+            </div>
+            <div id="client-projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <section id="view-project" class="view-section">
+            <div class="mb-4 flex items-center">
+                <button onclick="app.navigate(app.currentUser.role === 'admin' ? 'admin-dash' : 'client-dash')" class="flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                    <i class="ph ph-arrow-left mr-2"></i> Volver a proyectos
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 bg-gray-50">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-3xl font-bold text-lorhels-blue" id="project-view-title">Nombre del Proyecto</h2>
+                            <span id="project-view-status" class="inline-block mt-2 px-3 py-1 text-xs font-bold rounded-full">Estado</span>
+                        </div>
+                    </div>
+                    <p id="project-view-desc" class="mt-4 text-gray-600 max-w-3xl whitespace-pre-line">Descripción...</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3">
+                    <div class="lg:col-span-2 p-6 border-b lg:border-b-0 lg:border-r border-gray-200">
+                        <h3 class="font-bold text-gray-700 mb-4 flex items-center">
+                            <i class="ph ph-cube mr-2 text-xl text-blue-500"></i> Visor 3D Interactivo
+                        </h3>
+                        <div id="canvas-container" class="shadow-inner mb-8 rounded-lg overflow-hidden bg-gray-200" style="height: 500px;"></div>
+                        
+                        <div class="mt-8 border-t border-gray-100 pt-6">
+                            <h3 class="font-bold text-gray-700 mb-4 flex items-center">
+                                <i class="ph ph-images mr-2 text-xl text-blue-500"></i> Galería del Proyecto
+                            </h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider"><i class="ph ph-clock-counter-clockwise mr-1"></i> Estado Anterior</h4>
+                                    <div id="gallery-before" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider"><i class="ph ph-sparkle mr-1 text-yellow-500"></i> Resultado Final</h4>
+                                    <div id="gallery-after" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 flex flex-col h-full bg-white">
+                        <h3 class="font-bold text-gray-700 mb-4 flex items-center">
+                            <i class="ph ph-chats mr-2 text-xl text-blue-500"></i> Solicitudes y Cambios
+                        </h3>
+                        <div id="comments-list" class="flex-grow overflow-y-auto max-h-[600px] space-y-4 mb-4 pr-2"></div>
+                        <div class="mt-auto pt-4 border-t border-gray-200">
+                            <form id="comment-form" onsubmit="app.handleCommentSubmit(event)">
+                                <textarea id="new-comment-text" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lorhels-blue focus:outline-none resize-none text-sm" placeholder="Escribe tu solicitud..."></textarea>
+                                <button type="submit" class="mt-2 w-full bg-lorhels-blue text-white font-bold py-2 rounded-lg hover:bg-blue-800 transition">Enviar solicitud</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-admin-dash" class="view-section">
+            <div class="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">Panel Administrador <span class="text-sm text-yellow-600 bg-yellow-100 px-2 py-1 rounded ml-2">DEMO OFFLINE</span></h2>
+                    <p class="text-gray-500 mt-1">Gestión general del estudio</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                    <div><p class="text-sm font-medium text-gray-500 mb-1">Proyectos Activos</p><p class="text-3xl font-bold text-lorhels-blue" id="admin-stat-projects">0</p></div>
+                    <div class="p-3 bg-blue-50 rounded-lg text-lorhels-blue"><i class="ph ph-folder-open text-3xl"></i></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                    <div><p class="text-sm font-medium text-gray-500 mb-1">Clientes Registrados</p><p class="text-3xl font-bold text-lorhels-blue" id="admin-stat-clients">0</p></div>
+                    <div class="p-3 bg-green-50 rounded-lg text-green-600"><i class="ph ph-users text-3xl"></i></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                    <div><p class="text-sm font-medium text-gray-500 mb-1">Comentarios Totales</p><p class="text-3xl font-bold text-lorhels-blue" id="admin-stat-comments">0</p></div>
+                    <div class="p-3 bg-yellow-50 rounded-lg text-yellow-600"><i class="ph ph-chat-circle-dots text-3xl"></i></div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="flex border-b border-gray-200 bg-gray-50">
+                    <button onclick="app.switchAdminTab('projects')" id="tab-btn-projects" class="flex-1 py-4 text-center font-bold text-lorhels-blue border-b-2 border-lorhels-blue bg-white"><i class="ph ph-folders mr-2"></i> Proyectos</button>
+                    <button onclick="app.switchAdminTab('clients')" id="tab-btn-clients" class="flex-1 py-4 text-center font-medium text-gray-500 hover:text-lorhels-blue transition"><i class="ph ph-users mr-2"></i> Clientes</button>
+                    <button onclick="app.switchAdminTab('requests')" id="tab-btn-requests" class="flex-1 py-4 text-center font-medium text-gray-500 hover:text-lorhels-blue transition"><i class="ph ph-bell-ringing mr-2"></i> Solicitudes</button>
+                </div>
+
+                <div class="p-6">
+                    <div id="admin-tab-projects" class="block">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-gray-800">Todos los Proyectos</h3>
+                            <button onclick="app.showNewProjectModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold shadow-sm hover:bg-green-700 transition flex items-center"><i class="ph ph-plus mr-2"></i> Nuevo Proyecto</button>
+                        </div>
+                        <table class="w-full text-left border-collapse">
+                            <thead><tr class="bg-gray-100 text-gray-600 text-sm"><th class="p-3">Proyecto</th><th class="p-3">Cliente</th><th class="p-3">Estado</th><th class="p-3 text-center">Acciones</th></tr></thead>
+                            <tbody id="admin-projects-table" class="divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="admin-tab-clients" class="hidden">
+                         <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-gray-800">Directorio de Clientes</h3>
+                            <button onclick="app.showNewClientModal()" class="bg-lorhels-blue text-white px-4 py-2 rounded-lg font-bold shadow-sm hover:bg-blue-800 transition flex items-center"><i class="ph ph-user-plus mr-2"></i> Nuevo Cliente</button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="admin-clients-grid"></div>
+                    </div>
+
+                    <div id="admin-tab-requests" class="hidden">
+                         <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-gray-800">Solicitudes y Cambios</h3>
+                        </div>
+                        <table class="w-full text-left border-collapse">
+                            <thead><tr class="bg-gray-100 text-gray-600 text-sm"><th class="p-3">Fecha</th><th class="p-3">Proyecto/Cliente</th><th class="p-3 w-1/3">Solicitud</th><th class="p-3">Estado</th><th class="p-3 text-center">Gestionar</th></tr></thead>
+                            <tbody id="admin-requests-table" class="divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="modal-project" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center overflow-y-auto pt-10 pb-10">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden my-auto">
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <h3 class="font-bold text-lg text-lorhels-blue" id="modal-project-title">Nuevo Proyecto</h3>
+                <button onclick="document.getElementById('modal-project').classList.add('hidden')" class="text-gray-400 hover:text-gray-700"><i class="ph ph-x text-xl"></i></button>
+            </div>
+            <div class="p-6 max-h-[80vh] overflow-y-auto">
+                <form id="form-project" onsubmit="app.handleSaveProject(event)" class="space-y-4">
+                    <input type="hidden" id="proj-id">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label><input type="text" id="proj-name" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label><select id="proj-client" required class="w-full px-3 py-2 border border-gray-300 rounded-md"></select></div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                        <select id="proj-status" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="En diseño">En diseño</option><option value="En revisión">En revisión</option><option value="Aprobado">Aprobado</option>
+                        </select>
+                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">URL Imagen Portada</label><input type="url" id="proj-cover" class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label><textarea id="proj-desc" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"></textarea></div>
+                    <div class="border-t border-gray-200 pt-4"><label class="block text-sm font-medium text-gray-700 mb-1">Código 3D (Embed Code)</label><textarea id="proj-3d-link" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-xs resize-y"></textarea></div>
+                    <div class="grid grid-cols-2 gap-4 border-t border-gray-200 pt-4">
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Antes (1 URL x línea)</label><textarea id="proj-img-before" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md text-xs font-mono"></textarea></div>
+                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Después (1 URL x línea)</label><textarea id="proj-img-after" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md text-xs font-mono"></textarea></div>
+                    </div>
+                    <div class="pt-4"><button type="submit" class="w-full bg-lorhels-blue text-white font-bold py-3 rounded-lg hover:bg-blue-800 transition">Guardar Proyecto</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-new-client" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <h3 class="font-bold text-lg text-lorhels-blue">Registrar Cliente</h3>
+                <button onclick="document.getElementById('modal-new-client').classList.add('hidden')" class="text-gray-400 hover:text-gray-700"><i class="ph ph-x text-xl"></i></button>
+            </div>
+            <div class="p-6">
+                <form id="form-new-client" onsubmit="app.handleNewClient(event)" class="space-y-4">
+                    <div><label class="block text-sm">Nombre</label><input type="text" id="nc-name" required class="w-full px-3 py-2 border rounded-md"></div>
+                    <div><label class="block text-sm">Correo (Usuario)</label><input type="text" id="nc-email" required class="w-full px-3 py-2 border rounded-md"></div>
+                    <div><label class="block text-sm">Contraseña</label><input type="password" id="nc-password" required class="w-full px-3 py-2 border rounded-md"></div>
+                    <button type="submit" class="w-full bg-lorhels-blue text-white font-bold py-2 rounded-lg">Crear Cliente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-manage-request" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-lorhels-blue">Gestionar Solicitud</h3>
+                <button onclick="document.getElementById('modal-manage-request').classList.add('hidden')" class="text-gray-400"><i class="ph ph-x text-xl"></i></button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <p class="text-xs text-blue-500 font-bold mb-1" id="manage-req-info"></p>
+                    <p class="text-sm text-gray-800 italic" id="manage-req-text"></p>
+                </div>
+                <form onsubmit="app.handleSaveRequest(event)" class="space-y-4">
+                    <input type="hidden" id="manage-req-id">
+                    <div><label class="block text-sm">Estado</label><select id="manage-req-status" class="w-full px-3 py-2 border rounded-md"><option value="Pendiente">Pendiente</option><option value="En proceso">En proceso</option><option value="Listo">Listo</option></select></div>
+                    <div><label class="block text-sm">Respuesta</label><textarea id="manage-req-reply" rows="3" class="w-full px-3 py-2 border rounded-md"></textarea></div>
+                    <button type="submit" class="w-full bg-lorhels-blue text-white font-bold py-2 rounded-lg">Actualizar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-image-viewer" class="fixed inset-0 bg-black bg-opacity-90 hidden z-[100] flex items-center justify-center p-4 cursor-pointer" onclick="document.getElementById('modal-image-viewer').classList.add('hidden')">
+        <button class="absolute top-4 right-4 text-white"><i class="ph ph-x text-4xl"></i></button>
+        <img id="lightbox-img" src="" class="max-w-full max-h-full object-contain rounded shadow-2xl" onclick="event.stopPropagation()">
+    </div>
+
+    <script>
+        // DATOS SIMULADOS EN MEMORIA (No usa Firebase)
+        let localUsers = [
+            { id: 'admin1', role: 'admin', nombre: 'Estudio LorHels', email: 'admin', password: 'admin' },
+            { id: 'client1', role: 'client', nombre: 'María Pérez', email: 'cliente', password: '123' }
+        ];
+
+        let localProjects = [
+            {
+                id: 'proj1', clientId: 'client1', title: 'Renovación Sala de Estar', status: 'En revisión',
+                description: 'Propuesta de remodelación integrando tonos cálidos y mobiliario moderno.\n\nPor favor, revisa el modelo 3D y déjanos tus comentarios.',
+                modelUrl: '', // Puedes editarlo y poner tu código de sketchfab
+                imgBefore: ['https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'],
+                imgAfter: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'],
+                cover: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+            }
+        ];
+
+        let localComments = [
+            { id: 'com1', projectId: 'proj1', authorId: 'client1', text: 'Me encanta la iluminación. ¿Podríamos probar con un sofá más oscuro?', timestamp: Date.now() - 3600000, status: 'En proceso', adminReply: '¡Claro que sí María! Ya estamos renderizando la opción con sofá azul marino.' }
+        ];
+
+        const app = {
+            currentUser: null,
+            currentProject: null,
+            scene3D: null,
+
+            init: function() { this.navigate('public'); },
+
+            navigate: function(viewId) {
+                document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+                const view = document.getElementById(`view-${viewId}`);
+                if(view) view.classList.add('active');
+                
+                this.updateNavbar();
+
+                if (viewId === 'client-dash') this.renderClientDashboard();
+                if (viewId === 'admin-dash') this.renderAdminDashboard();
+                if (viewId === 'project') this.renderProjectView();
+            },
+
+            updateNavbar: function() {
+                const navActions = document.getElementById('nav-actions');
+                if (this.currentUser) {
+                    navActions.innerHTML = `
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm font-medium">Hola, ${this.currentUser.nombre}</span>
+                            <button onclick="app.handleLogout()" class="text-blue-200 hover:text-white"><i class="ph ph-sign-out text-xl"></i> Salir</button>
+                        </div>`;
+                } else {
+                    navActions.innerHTML = `<button onclick="app.navigate('login')" class="bg-white text-lorhels-blue px-4 py-2 rounded-md text-sm font-bold">Iniciar Sesión</button>`;
+                }
+            },
+
+            handleLogin: function(e) {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const pass = document.getElementById('login-password').value;
+
+                const user = localUsers.find(u => u.email === email && u.password === pass);
+                if (user) {
+                    this.currentUser = user;
+                    document.getElementById('login-form').reset();
+                    this.navigate(user.role === 'admin' ? 'admin-dash' : 'client-dash');
+                } else {
+                    alert('Credenciales incorrectas. Usa admin/admin o cliente/123');
+                }
+            },
+
+            handleLogout: function() {
+                this.currentUser = null; this.currentProject = null;
+                this.navigate('public');
+            },
+
+            openImageViewer: function(url) {
+                document.getElementById('lightbox-img').src = url;
+                document.getElementById('modal-image-viewer').classList.remove('hidden');
+            },
+
+            // --- CLIENTE ---
+            renderClientDashboard: function() {
+                document.getElementById('client-welcome').innerText = `Hola, ${this.currentUser.nombre}`;
+                const grid = document.getElementById('client-projects-grid');
+                grid.innerHTML = '';
+                const myProjects = localProjects.filter(p => p.clientId === this.currentUser.id);
+
+                if(myProjects.length === 0) { grid.innerHTML = `<p class="col-span-full p-8 text-center text-gray-500 bg-white rounded-xl">No tienes proyectos asignados.</p>`; return; }
+
+                myProjects.forEach(p => {
+                    const statusColor = p.status === 'Aprobado' ? 'bg-green-100 text-green-800' : (p.status === 'En revisión' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800');
+                    grid.innerHTML += `
+                        <div class="bg-white rounded-xl shadow border border-gray-200 flex flex-col">
+                            <div class="h-48 relative"><img src="${p.cover}" class="w-full h-full object-cover"><div class="absolute top-3 right-3 ${statusColor} text-xs font-bold px-3 py-1 rounded-full">${p.status}</div></div>
+                            <div class="p-5 flex-grow flex flex-col justify-between"><h3 class="text-lg font-bold mb-4">${p.title}</h3><button onclick="app.openProject('${p.id}')" class="w-full bg-gray-50 text-lorhels-blue border font-bold py-2 rounded-lg hover:bg-gray-100"><i class="ph ph-eye mr-2"></i>Ver</button></div>
+                        </div>`;
+                });
+            },
+
+            // --- PROYECTO ---
+            openProject: function(id) {
+                this.currentProject = localProjects.find(p => p.id === id);
+                this.navigate('project');
+            },
+
+            renderProjectView: function() {
+                if(!this.currentProject) return;
+                const p = this.currentProject;
+                
+                document.getElementById('project-view-title').innerText = p.title;
+                document.getElementById('project-view-desc').innerText = p.description || '';
+                const statusEl = document.getElementById('project-view-status');
+                statusEl.innerText = p.status;
+                statusEl.className = `inline-block mt-2 px-3 py-1 text-xs font-bold rounded-full ${p.status==='Aprobado'?'bg-green-100 text-green-800':(p.status==='En revisión'?'bg-yellow-100 text-yellow-800':'bg-blue-100 text-blue-800')}`;
+
+                const buildGallery = (arr, elId) => {
+                    const el = document.getElementById(elId); el.innerHTML = '';
+                    if (arr.length > 0) arr.forEach(url => el.innerHTML += `<div class="aspect-video bg-gray-200 rounded-lg overflow-hidden cursor-pointer" onclick="app.openImageViewer('${url}')"><img src="${url}" class="w-full h-full object-cover hover:scale-105 transition"></div>`);
+                    else el.innerHTML = `<p class="text-sm text-gray-400 col-span-full">Sin imágenes.</p>`;
+                };
+                buildGallery(Array.isArray(p.imgBefore)?p.imgBefore:(p.imgBefore?[p.imgBefore]:[]), 'gallery-before');
+                buildGallery(Array.isArray(p.imgAfter)?p.imgAfter:(p.imgAfter?[p.imgAfter]:[]), 'gallery-after');
+
+                this.renderComments();
+
+                const container = document.getElementById('canvas-container');
+                if (p.modelUrl) {
+                    if (p.modelUrl.startsWith('<')) { container.innerHTML = p.modelUrl; const ifr = container.querySelector('iframe'); if(ifr){ifr.style.width='100%';ifr.style.height='100%';} } 
+                    else container.innerHTML = `<iframe src="${p.modelUrl}" width="100%" height="100%" frameborder="0"></iframe>`;
+                } else setTimeout(() => this.init3DViewer(), 100);
+            },
+
+            renderComments: function() {
+                const list = document.getElementById('comments-list'); list.innerHTML = '';
+                const reqs = localComments.filter(c => c.projectId === this.currentProject.id).sort((a,b) => a.timestamp - b.timestamp);
+                if(reqs.length === 0) { list.innerHTML = `<p class="text-sm text-gray-400 italic text-center mt-4">No hay solicitudes.</p>`; return; }
+
+                reqs.forEach(c => {
+                    const author = localUsers.find(u => u.id === c.authorId);
+                    const sColor = c.status==='Listo'?'bg-green-100 text-green-700':(c.status==='En proceso'?'bg-blue-100 text-blue-700':'bg-red-100 text-red-700');
+                    const rep = c.adminReply ? `<div class="mt-3 p-2 bg-blue-50 border-l-2 border-lorhels-blue text-xs rounded-r"><span class="font-bold text-lorhels-blue block"><i class="ph ph-shield-check"></i> Estudio:</span>${c.adminReply}</div>` : '';
+                    
+                    list.innerHTML += `
+                        <div class="p-3 rounded-lg text-sm bg-gray-50 border border-gray-100 mb-4">
+                            <div class="flex items-center justify-between border-b pb-2 mb-2"><span class="font-bold"><i class="ph ph-user-circle"></i> ${author?author.nombre:'User'}</span><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${sColor}">${c.status}</span></div>
+                            <p class="text-gray-600">${c.text}</p>${rep}
+                        </div>`;
+                });
+                list.scrollTop = list.scrollHeight;
+            },
+
+            handleCommentSubmit: function(e) {
+                e.preventDefault();
+                const text = document.getElementById('new-comment-text').value.trim();
+                if(!text) return;
+                localComments.push({ id: 'c'+Date.now(), projectId: this.currentProject.id, authorId: this.currentUser.id, text, timestamp: Date.now(), status: 'Pendiente', adminReply: '' });
+                document.getElementById('new-comment-text').value = '';
+                this.renderComments(); // Actualización manual para el demo
+            },
+
+            // --- ADMIN ---
+            renderAdminDashboard: function() {
+                document.getElementById('admin-stat-projects').innerText = localProjects.length;
+                document.getElementById('admin-stat-clients').innerText = localUsers.filter(u=>u.role==='client').length;
+                document.getElementById('admin-stat-comments').innerText = localComments.length;
+
+                this.renderAdminProjectsTable();
+                this.renderAdminClientsGrid();
+                this.renderAdminRequestsTable();
+
+                const select = document.getElementById('proj-client');
+                if (select) {
+                    select.innerHTML = '';
+                    localUsers.filter(u => u.role === 'client').forEach(c => select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`);
+                }
+            },
+
+            switchAdminTab: function(tab) {
+                ['projects','clients','requests'].forEach(t => {
+                    document.getElementById(`admin-tab-${t}`).classList.toggle('hidden', t !== tab);
+                    document.getElementById(`admin-tab-${t}`).classList.toggle('block', t === tab);
+                    document.getElementById(`tab-btn-${t}`).className = t === tab ? "flex-1 py-4 font-bold text-lorhels-blue border-b-2 border-lorhels-blue bg-white" : "flex-1 py-4 font-medium text-gray-500 bg-gray-50";
+                });
+            },
+
+            renderAdminProjectsTable: function() {
+                const tbody = document.getElementById('admin-projects-table'); tbody.innerHTML = '';
+                localProjects.forEach(p => {
+                    const cli = localUsers.find(u => u.id === p.clientId);
+                    const sC = p.status==='Aprobado'?'bg-green-100 text-green-700':(p.status==='En revisión'?'bg-yellow-100 text-yellow-700':'bg-blue-100 text-blue-700');
+                    tbody.innerHTML += `<tr class="border-t">
+                        <td class="p-3 font-bold">${p.title}</td><td class="p-3">${cli?cli.nombre:''}</td><td class="p-3"><span class="px-2 py-1 rounded text-xs font-bold ${sC}">${p.status}</span></td>
+                        <td class="p-3 text-center"><button onclick="app.openProject('${p.id}')" class="text-blue-600 p-2"><i class="ph ph-eye text-lg"></i></button><button onclick="app.showEditProjectModal('${p.id}')" class="text-gray-500 p-2"><i class="ph ph-pencil-simple text-lg"></i></button></td>
+                    </tr>`;
+                });
+            },
+
+            renderAdminClientsGrid: function() {
+                const grid = document.getElementById('admin-clients-grid'); grid.innerHTML = '';
+                localUsers.filter(u=>u.role==='client').forEach(c => {
+                    grid.innerHTML += `<div class="bg-white border rounded-lg p-4 flex items-center shadow-sm">
+                        <div class="bg-blue-100 text-lorhels-blue h-10 w-10 rounded-full flex items-center justify-center font-bold mr-4">${c.nombre.charAt(0)}</div>
+                        <div><h4 class="font-bold">${c.nombre}</h4><p class="text-xs text-gray-500">${c.email}</p></div>
+                    </div>`;
+                });
+            },
+
+            renderAdminRequestsTable: function() {
+                const tbody = document.getElementById('admin-requests-table'); tbody.innerHTML = '';
+                [...localComments].sort((a,b)=>b.timestamp-a.timestamp).forEach(req => {
+                    const p = localProjects.find(x=>x.id===req.projectId); const u = localUsers.find(x=>x.id===req.authorId);
+                    const sC = req.status==='Listo'?'bg-green-100 text-green-700':(req.status==='En proceso'?'bg-blue-100 text-blue-700':'bg-red-100 text-red-700');
+                    tbody.innerHTML += `<tr class="border-t text-sm">
+                        <td class="p-3">${new Date(req.timestamp).toLocaleDateString()}</td><td class="p-3 font-bold">${p?p.title:''}</td>
+                        <td class="p-3 italic">"${req.text}"</td><td class="p-3"><span class="px-2 py-1 rounded text-xs font-bold ${sC}">${req.status}</span></td>
+                        <td class="p-3 text-center"><button onclick="app.openManageRequestModal('${req.id}')" class="bg-lorhels-blue text-white px-3 py-1 rounded text-xs">Gestionar</button></td>
+                    </tr>`;
+                });
+            },
+
+            showNewClientModal: function() { document.getElementById('modal-new-client').classList.remove('hidden'); },
+            handleNewClient: function(e) {
+                e.preventDefault();
+                localUsers.push({ id: 'c'+Date.now(), role: 'client', nombre: document.getElementById('nc-name').value, email: document.getElementById('nc-email').value, password: document.getElementById('nc-password').value });
+                document.getElementById('form-new-client').reset(); document.getElementById('modal-new-client').classList.add('hidden');
+                this.renderAdminDashboard(); alert('Cliente Demo Creado');
+            },
+
+            showNewProjectModal: function() {
+                document.getElementById('form-project').reset(); document.getElementById('proj-id').value = '';
+                document.getElementById('modal-project-title').innerText = 'Crear Proyecto'; document.getElementById('modal-project').classList.remove('hidden');
+            },
+            showEditProjectModal: function(id) {
+                const p = localProjects.find(x=>x.id===id); if(!p) return;
+                document.getElementById('proj-id').value = p.id; document.getElementById('proj-name').value = p.title; document.getElementById('proj-client').value = p.clientId;
+                document.getElementById('proj-status').value = p.status; document.getElementById('proj-cover').value = p.cover||''; document.getElementById('proj-desc').value = p.description||'';
+                document.getElementById('proj-3d-link').value = p.modelUrl||''; document.getElementById('proj-img-before').value = (p.imgBefore||[]).join('\n'); document.getElementById('proj-img-after').value = (p.imgAfter||[]).join('\n');
+                document.getElementById('modal-project-title').innerText = 'Editar Proyecto'; document.getElementById('modal-project').classList.remove('hidden');
+            },
+            handleSaveProject: function(e) {
+                e.preventDefault(); const id = document.getElementById('proj-id').value;
+                const urlBefore = document.getElementById('proj-img-before').value.split('\n').map(l=>l.trim()).filter(l=>l);
+                const urlAfter = document.getElementById('proj-img-after').value.split('\n').map(l=>l.trim()).filter(l=>l);
+                const pData = {
+                    title: document.getElementById('proj-name').value, clientId: document.getElementById('proj-client').value, status: document.getElementById('proj-status').value,
+                    cover: document.getElementById('proj-cover').value || 'https://images.unsplash.com/photo-1503387762?w=600', description: document.getElementById('proj-desc').value,
+                    modelUrl: document.getElementById('proj-3d-link').value, imgBefore: urlBefore, imgAfter: urlAfter
+                };
+                if(id) { Object.assign(localProjects.find(x=>x.id===id), pData); } else { pData.id = 'p'+Date.now(); localProjects.push(pData); }
+                document.getElementById('modal-project').classList.add('hidden'); this.renderAdminDashboard();
+            },
+
+            openManageRequestModal: function(id) {
+                const r = localComments.find(x=>x.id===id); document.getElementById('manage-req-id').value = r.id; document.getElementById('manage-req-text').innerText = `"${r.text}"`;
+                document.getElementById('manage-req-status').value = r.status; document.getElementById('manage-req-reply').value = r.adminReply||''; document.getElementById('modal-manage-request').classList.remove('hidden');
+            },
+            handleSaveRequest: function(e) {
+                e.preventDefault(); const r = localComments.find(x=>x.id===document.getElementById('manage-req-id').value);
+                r.status = document.getElementById('manage-req-status').value; r.adminReply = document.getElementById('manage-req-reply').value;
+                document.getElementById('modal-manage-request').classList.add('hidden'); this.renderAdminDashboard();
+            },
+
+            // --- THREE.JS ---
+            init3DViewer: function() {
+                const container = document.getElementById('canvas-container'); container.innerHTML = '';
+                const scene = new THREE.Scene(); scene.background = new THREE.Color(0xe5e7eb);
+                const camera = new THREE.PerspectiveCamera(45, container.clientWidth/container.clientHeight, 0.1, 1000); camera.position.set(10, 8, 10); camera.lookAt(0,0,0);
+                const renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(container.clientWidth, container.clientHeight); container.appendChild(renderer.domElement);
+                scene.add(new THREE.AmbientLight(0xffffff, 0.6)); const dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(5,10,7); scene.add(dl);
+                const floor = new THREE.Mesh(new THREE.PlaneGeometry(10,10), new THREE.MeshStandardMaterial({color:0xa8a29e})); floor.rotation.x = -Math.PI/2; scene.add(floor);
+                const wallMat = new THREE.MeshStandardMaterial({color:0xf8fafc}); const w1 = new THREE.Mesh(new THREE.BoxGeometry(10,3,0.2), wallMat); w1.position.set(0,1.5,-5); scene.add(w1);
+                const w2 = new THREE.Mesh(new THREE.BoxGeometry(0.2,3,10), wallMat); w2.position.set(-5,1.5,0); scene.add(w2);
+                let tX=0, tY=0, cX=0, cY=0, isD=false, pM={x:0,y:0};
+                container.addEventListener('mousedown',()=>isD=true); window.addEventListener('mouseup',()=>isD=false);
+                container.addEventListener('mousemove',(e)=>{if(isD){tY-=(e.offsetX-pM.x)*0.01; tX-=(e.offsetY-pM.y)*0.01; tX=Math.max(-1.5,Math.min(1.5,tX));} pM={x:e.offsetX,y:e.offsetY};});
+                container.addEventListener('wheel',(e)=>{e.preventDefault(); camera.position.z=Math.max(3,Math.min(20,camera.position.z+e.deltaY*0.01));});
+                const animate = () => { requestAnimationFrame(animate); cX+=(tX-cX)*0.1; cY+=(tY-cY)*0.1; const r=Math.sqrt(camera.position.x**2+camera.position.z**2); camera.position.x=r*Math.sin(cY); camera.position.z=r*Math.cos(cY); camera.position.y=5+cX*5; camera.lookAt(0,1,0); renderer.render(scene,camera); };
+                animate(); window.addEventListener('resize',()=>{if(container){camera.aspect=container.clientWidth/container.clientHeight;camera.updateProjectionMatrix();renderer.setSize(container.clientWidth,container.clientHeight);}});
+            }
+        };
+
+        window.app = app;
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
