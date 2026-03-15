@@ -36,6 +36,9 @@
             <button onclick="window.cambiarSeccion('proyectos')" id="btn-proyectos" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
                 <i data-lucide="folder-kanban" class="w-5 h-5"></i> Proyectos
             </button>
+            <button onclick="window.cambiarSeccion('finanzas')" id="btn-finanzas" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
+                <i data-lucide="dollar-sign" class="w-5 h-5"></i> Finanzas
+            </button>
             <button onclick="window.cambiarSeccion('tickets')" id="btn-tickets" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl font-medium transition-colors">
                 <i data-lucide="life-buoy" class="w-5 h-5"></i> Soporte
             </button>
@@ -184,6 +187,74 @@
                     </div>
                 </div>
             </div>
+
+            <div id="sec-finanzas" class="seccion-panel hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Gestión Financiera</h2>
+                    <button onclick="window.abrirModalCotizacion()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Nueva Cotización
+                    </button>
+                </div>
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/50 text-slate-400 text-sm">
+                                    <th class="p-4 font-medium">Fecha</th>
+                                    <th class="p-4 font-medium">Cliente</th>
+                                    <th class="p-4 font-medium">Concepto</th>
+                                    <th class="p-4 font-medium">Monto (USD)</th>
+                                    <th class="p-4 font-medium">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCotizaciones" class="divide-y divide-white/5">
+                                <tr><td colspan="5" class="p-4 text-center text-slate-500">Cargando cotizaciones...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modalCotizacion" class="fixed inset-0 z-[70] hidden flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onclick="window.cerrarModalCotizacion()"></div>
+                
+                <div class="relative w-full max-w-lg glass-card border-white/10 rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-300">
+                    <button onclick="window.cerrarModalCotizacion()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
+                            <i data-lucide="file-signature" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Enviar Cotización</h3>
+                            <p class="text-slate-400 text-sm mt-1">Genera un presupuesto para aprobación.</p>
+                        </div>
+                    </div>
+
+                    <form id="formCotizacion" class="space-y-4" onsubmit="window.crearCotizacion(event)">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Cliente</label>
+                            <select id="cotCliente" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors">
+                                <option value="">Cargando clientes...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Concepto o Servicio</label>
+                            <input type="text" id="cotConcepto" required class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors" placeholder="Ej. Desarrollo de Landing Page">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Precio Total (USD)</label>
+                            <input type="number" id="cotMonto" required min="1" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors" placeholder="1500">
+                        </div>
+
+                        <button type="submit" id="btnCrearCotizacion" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-colors mt-4 flex justify-center items-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i> Enviar al Cliente
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -288,6 +359,7 @@
                     cargarMensajes();
                     cargarTickets();
                     cargarProyectosAdmin();
+                    cargarCotizacionesAdmin();
                 } else {
                     // ES CLIENTE O ROL DESCONOCIDO: Lo echamos
                     alert("No tienes permisos de administrador para ver esta página.");
@@ -656,7 +728,7 @@
             document.getElementById('sec-' + seccion).classList.remove('hidden');
 
             // 3. Reiniciamos los colores de todos los botones del menú lateral
-            const botones = ['resumen', 'proyectos', 'mensajes', 'tickets'];
+            const botones = ['resumen', 'proyectos', 'mensajes', 'tickets', 'finanzas'];
             botones.forEach(btn => {
                 const elemento = document.getElementById('btn-' + btn);
                 if(elemento) {
@@ -669,6 +741,121 @@
             const btnActivo = document.getElementById('btn-' + seccion);
             if(btnActivo) {
                 btnActivo.className = "w-full flex items-center gap-3 px-4 py-3 bg-blue-600/10 text-blue-400 rounded-xl font-medium transition-colors";
+            }
+        };
+
+        // --- LÓGICA DE FINANZAS Y COTIZACIONES ---
+        const tablaCotizaciones = document.getElementById('tablaCotizaciones');
+
+        function cargarCotizacionesAdmin() {
+            try {
+                const qCoti = query(collection(db, "cotizaciones"), orderBy("fecha", "desc"));
+                
+                onSnapshot(qCoti, (snapshot) => {
+                    if(!tablaCotizaciones) return;
+                    tablaCotizaciones.innerHTML = ''; 
+                    
+                    if (snapshot.empty) {
+                        tablaCotizaciones.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">No hay cotizaciones registradas</td></tr>';
+                        return;
+                    }
+
+                    snapshot.forEach((doc) => {
+                        const coti = doc.data();
+                        const fechaF = new Date(coti.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+                        
+                        // Estilos según estado
+                        let estadoEstilo = 'bg-yellow-500/20 text-yellow-400';
+                        let estadoTexto = 'Pendiente';
+                        
+                        if(coti.estado === 'aprobada') {
+                            estadoEstilo = 'bg-emerald-500/20 text-emerald-400';
+                            estadoTexto = 'Aprobada';
+                        } else if(coti.estado === 'pagada') {
+                            estadoEstilo = 'bg-blue-500/20 text-blue-400';
+                            estadoTexto = 'Pagada';
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-white/5 transition-colors text-sm animate-in fade-in duration-300";
+                        tr.innerHTML = `
+                            <td class="p-4 text-slate-400">${fechaF}</td>
+                            <td class="p-4 text-white font-medium">${coti.clienteNombre}</td>
+                            <td class="p-4 text-slate-300">${coti.concepto}</td>
+                            <td class="p-4 text-emerald-400 font-bold">$${Number(coti.monto).toLocaleString()}</td>
+                            <td class="p-4">
+                                <span class="${estadoEstilo} px-2 py-1 rounded text-xs font-bold uppercase tracking-wider transition-colors">
+                                    ${estadoTexto}
+                                </span>
+                            </td>
+                        `;
+                        tablaCotizaciones.appendChild(tr);
+                    });
+                });
+            } catch (error) {
+                console.error("Error cargando cotizaciones:", error);
+            }
+        }
+
+        window.abrirModalCotizacion = async () => {
+            document.getElementById('modalCotizacion').classList.remove('hidden');
+            lucide.createIcons();
+            
+            const select = document.getElementById('cotCliente');
+            select.innerHTML = '<option value="">Cargando clientes...</option>';
+            
+            try {
+                const q = query(collection(db, "usuarios"), where("rol", "==", "cliente"));
+                const querySnapshot = await getDocs(q);
+                
+                select.innerHTML = '<option value="" disabled selected>Selecciona al cliente</option>';
+                querySnapshot.forEach((doc) => {
+                    const cliente = doc.data();
+                    // Guardamos el ID en el value y el Nombre como atributo data-nombre para extraerlo fácil
+                    select.innerHTML += `<option value="${doc.id}" data-nombre="${cliente.nombre}">${cliente.nombre} (${cliente.email})</option>`;
+                });
+            } catch (error) {
+                console.error("Error al cargar clientes:", error);
+                select.innerHTML = '<option value="">Error al cargar</option>';
+            }
+        };
+
+        window.cerrarModalCotizacion = () => {
+            document.getElementById('modalCotizacion').classList.add('hidden');
+        };
+
+        window.crearCotizacion = async (event) => {
+            event.preventDefault();
+            const btn = document.getElementById('btnCrearCotizacion');
+            const original = btn.innerHTML;
+            btn.innerHTML = 'Enviando...';
+            btn.disabled = true;
+
+            try {
+                const selectElement = document.getElementById('cotCliente');
+                const clienteId = selectElement.value;
+                // Extraemos el nombre del cliente de la opción seleccionada
+                const clienteNombre = selectElement.options[selectElement.selectedIndex].getAttribute('data-nombre');
+
+                await addDoc(collection(db, "cotizaciones"), {
+                    clienteId: clienteId,
+                    clienteNombre: clienteNombre,
+                    concepto: document.getElementById('cotConcepto').value,
+                    monto: Number(document.getElementById('cotMonto').value),
+                    estado: "pendiente",
+                    fecha: new Date().toISOString()
+                });
+
+                alert("¡Cotización enviada exitosamente!");
+                document.getElementById('formCotizacion').reset();
+                window.cerrarModalCotizacion();
+                
+            } catch (error) {
+                console.error("Error al crear cotización:", error);
+                alert("Hubo un error al generar la cotización.");
+            } finally {
+                btn.innerHTML = original;
+                btn.disabled = false;
             }
         };
     </script>
