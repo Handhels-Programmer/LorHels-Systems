@@ -24,6 +24,8 @@ Tu *index.html* es la máquina de ventas. Está diseñada para impresionar y cap
 
 
 
+
+
 **2. El Motor Oculto (*Backend y Seguridad*)**
 
 Toda tu plataforma está respaldada por la infraestructura de Google (*Firebase*):
@@ -42,13 +44,15 @@ Toda tu plataforma está respaldada por la infraestructura de Google (*Firebase*
 
 
 
+
+
 **3. Panel de Administrador (*Tu Centro de Mando*)**
 
 Un entorno de trabajo oscuro, elegante y estructurado como una Single Page Application (*SPA*), donde controlas todo tu negocio a través de 5 pestañas:
 
 
 
-* 📊 **Resumen:** Tarjetas con estadísticas en vivo (clientes, proyectos, tickets) y una lista de los últimos usuarios registrados.
+* 📊 **Resumen:** Tarjetas con estadísticas en vivo (*clientes, proyectos, tickets*) y una lista de los últimos usuarios registrados.
 
 
 
@@ -56,7 +60,7 @@ Un entorno de trabajo oscuro, elegante y estructurado como una Single Page Appli
 
 
 
-* 💬 **Mensajes (Leads):** Una bandeja de entrada en vivo donde caen los mensajes de tu landing page y las solicitudes de nuevos proyectos. Puedes marcarlos como leídos.
+* 💬 **Mensajes (*Leads*):** Una bandeja de entrada en vivo donde caen los mensajes de tu landing page y las solicitudes de nuevos proyectos. Puedes marcarlos como leídos.
 
 
 
@@ -68,9 +72,11 @@ Un entorno de trabajo oscuro, elegante y estructurado como una Single Page Appli
 
 
 
-**4. Portal del Cliente (Experiencia B2B Premium)**
 
-Tus clientes tienen su propia área privada (también SPA), diseñada para darles tranquilidad y transparencia:
+
+**4. Portal del Cliente (*Experiencia B2B Premium*)**
+
+Tus clientes tienen su propia área privada (*también SPA*), diseñada para darles tranquilidad y transparencia:
 
 
 
@@ -78,11 +84,11 @@ Tus clientes tienen su propia área privada (también SPA), diseñada para darle
 
 
 
-* **💸 Mis Cotizaciones:** Una tabla donde reciben tus presupuestos. Tienen un botón verde para "Aprobar" la cotización con un solo clic (lo que te notifica al instante).
+* **💸 Mis Cotizaciones:** Una tabla donde reciben tus presupuestos. Tienen un botón verde para "Aprobar" la cotización con un solo clic (*lo que te notifica al instante*).
 
 
 
-* **🎫 Soporte Técnico:** Pueden enviarte tickets de ayuda detallando la prioridad (alta, media, baja) y ver el historial de sus problemas resueltos.
+* **🎫 Soporte Técnico:** Pueden enviarte tickets de ayuda detallando la prioridad (*alta, media, baja*) y ver el historial de sus problemas resueltos.
 
 
 
