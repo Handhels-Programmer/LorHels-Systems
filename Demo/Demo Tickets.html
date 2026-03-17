@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="do">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LorHels Tickets - VERSIÓN DEMO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        select { color-scheme: dark; }
+
+        /* Switch Toggle Oscuro/Azul */
+        .toggle-switch input:checked + .slider { background-color: #2563eb; } 
+        .toggle-switch input:checked + .slider:before { transform: translateX(20px); }
+        .slider { background-color: #475569; } 
+        
+        .modal { transition: opacity 0.3s ease-in-out; }
+        .modal.hidden { opacity: 0; pointer-events: none; }
+        .history-note-text { white-space: pre-wrap; }
+        
+        /* Pestañas Modo Oscuro */
+        .tab-button { color: #94a3b8; } 
+        .tab-button:hover { color: #e2e8f0; border-color: #475569; }
+        .tab-button.active {
+            border-color: #3b82f6; 
+            color: #60a5fa; 
+            background-color: rgba(59, 130, 246, 0.1); 
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-900 text-slate-200 flex flex-col">
+
+    <div id="app" class="container mx-auto p-4 sm:p-6 lg:p-8 flex-grow">
+        
+        <header class="bg-slate-800 shadow-xl rounded-xl p-6 mb-8 border border-slate-700">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <div class="mb-4 sm:mb-0 flex items-center">
+                    <img src="https://images.vexels.com/media/users/3/137615/isolated/preview/5af2a9cbd8cd93aa90889fbc05656cb5-cubo-de-logo-abstracto-geometrico.png" alt="Logo" class="h-10 w-auto mr-3 brightness-150">
+                    <h1 class="text-3xl font-extrabold text-white flex items-center">
+                        <i data-lucide="ticket" class="h-8 w-8 text-blue-500 mr-3"></i>
+                        Gestión de Tickets <span class="ml-3 text-xs bg-blue-600 text-white px-2 py-1 rounded-full align-middle uppercase tracking-widest font-bold">Demo</span>
+                    </h1>
+                </div>
+
+                <div class="flex items-center space-x-3 bg-slate-900 border border-slate-700 p-3 rounded-lg shadow-inner">
+                    <span class="text-sm font-medium text-slate-300">Modo Administrador</span>
+                    <label class="toggle-switch relative inline-block w-10 h-6">
+                        <input type="checkbox" id="agent-mode-toggle" class="opacity-0 w-0 h-0">
+                        <span class="slider absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full transition duration-400 before:absolute before:content-[''] before:h-5 before:w-5 before:left-[2px] before:bottom-[2px] before:bg-white before:rounded-full before:transition before:duration-400"></span>
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1">
+                <div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700 sticky top-4">
+                    <h2 class="text-xl font-semibold mb-4 text-white border-b border-slate-700 pb-2 flex items-center">
+                        <i data-lucide="send" class="h-5 w-5 mr-2 text-blue-400"></i> Enviar Solicitud
+                    </h2>
+                    
+                    <form id="new-ticket-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Nombre Completo</label>
+                            <input type="text" id="applicant-name" required class="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                            <input type="email" id="applicant-email" required class="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Departamento</label>
+                            <select id="applicant-department" required class="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                                <option value="" disabled selected>Selecciona tu departamento</option>
+                                <option value="Ventas">Ventas</option>
+                                <option value="Administración">Administración</option>
+                                <option value="Trafico">Trafico</option>
+                                <option value="Contabilidad">Contabilidad</option>
+                                <option value="Flexitank">Flexitank</option>
+                                <option value="Operaciones">Operaciones</option>
+                                <option value="Facturación">Facturación</option>
+                                <option value="Cobros">Cobros</option>
+                                <option value="Recepción">Recepción</option>
+                                <option value="Aduanas DGA">Aduanas DGA</option>
+                                <option value="Almacén">Almacén</option>
+                                <option value="Tecnología">Tecnología</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Asunto</label>
+                            <select id="ticket-subject" required class="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                                <option value="" disabled selected>Selecciona el tipo de solicitud</option>
+                                <option value="Soporte técnico">Soporte técnico</option>
+                                <option value="Solicitud de equipo">Solicitud de equipo</option>
+                                <option value="Solicitud de video">Solicitud de video</option>
+                                <option value="Reporte claro">Reporte claro</option>
+                                <option value="Otras">Otras</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Descripción del Problema</label>
+                            <textarea id="ticket-description" rows="4" required class="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150"></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1">Prioridad</label>
+                                <select id="ticket-priority" required class="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                                    <option value="Baja">Baja</option>
+                                    <option value="Media" selected>Media</option>
+                                    <option value="Alta">Alta</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1">Asignar a</label>
+                                <input type="text" id="ticket-assigned-user" value="Handhels Valera" class="w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-3 px-4 rounded-lg shadow-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-blue-500 transition duration-150 flex justify-center items-center">
+                            <i data-lucide="plus-circle" class="h-5 w-5 mr-2"></i> Crear Ticket
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <h2 class="text-2xl font-bold mb-4 text-white flex items-center">
+                    <i data-lucide="bar-chart-2" class="h-6 w-6 mr-2 text-blue-400"></i> Estadísticas
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-slate-800 p-5 rounded-xl shadow-lg border border-slate-700">
+                        <p class="text-sm font-medium text-slate-400">Total</p>
+                        <p id="stat-total" class="text-3xl font-extrabold text-blue-400 mt-1">0</p>
+                    </div>
+                    <div class="bg-slate-800 p-5 rounded-xl shadow-lg border border-slate-700">
+                        <p class="text-sm font-medium text-slate-400">Abiertos</p>
+                        <p id="stat-open" class="text-3xl font-extrabold text-red-400 mt-1">0</p>
+                    </div>
+                    <div class="bg-slate-800 p-5 rounded-xl shadow-lg border border-slate-700">
+                        <p class="text-sm font-medium text-slate-400">En Progreso</p>
+                        <p id="stat-progress" class="text-3xl font-extrabold text-yellow-400 mt-1">0</p>
+                    </div>
+                    <div class="bg-slate-800 p-5 rounded-xl shadow-lg border border-slate-700">
+                        <p class="text-sm font-medium text-slate-400">Cerrados</p>
+                        <p id="stat-closed" class="text-3xl font-extrabold text-green-400 mt-1">0</p>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl font-bold mb-4 text-white flex items-center">
+                    <i data-lucide="list" class="h-6 w-6 mr-2 text-blue-400"></i> Tickets (<span id="ticket-count">0</span>)
+                </h2>
+                
+                <div class="mb-4 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="h-5 w-5 text-slate-400"></i>
+                    </div>
+                    <input type="text" id="filter-search" oninput="applyFilters()" class="w-full pl-10 p-3 bg-slate-800 border border-slate-700 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150" placeholder="Buscar por solicitante, asunto, descripción o ID...">
+                </div>
+                
+                <div class="bg-slate-800 p-4 rounded-xl shadow-inner mb-4 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 items-stretch sm:items-center border border-slate-700">
+                    <select id="filter-status" onchange="applyFilters()" class="flex-1 p-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option value="Todos">Estado: Todos</option>
+                        <option value="Abierto">Abierto</option>
+                        <option value="En Progreso">En Progreso</option>
+                        <option value="Cerrado">Cerrado</option>
+                    </select>
+
+                    <select id="filter-priority" onchange="applyFilters()" class="flex-1 p-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option value="Todas">Prioridad: Todas</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Media">Media</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+
+                    <select id="filter-department" onchange="applyFilters()" class="flex-1 p-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option value="Todos">Depto: Todos</option>
+                        <option value="Ventas">Ventas</option>
+                        <option value="Administración">Admin</option>
+                        <option value="Tecnología">Tecnología</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+
+                    <button onclick="resetFilters()" class="px-4 py-2 bg-slate-700 text-slate-200 border border-slate-600 text-sm font-medium rounded-lg hover:bg-slate-600 transition duration-150 flex items-center justify-center">
+                        <i data-lucide="rotate-ccw" class="h-4 w-4 mr-2"></i> Limpiar
+                    </button>
+                </div>
+
+                <div id="ticket-list" class="space-y-4"></div>
+
+                <div id="empty-state" class="hidden text-center p-12 bg-slate-800 rounded-xl shadow border border-slate-700 mt-4">
+                    <i data-lucide="inbox" class="mx-auto h-16 w-16 text-slate-600 mb-4"></i>
+                    <h3 class="text-lg font-medium text-white">No hay tickets</h3>
+                    <p class="mt-2 text-sm text-slate-400">Comienza creando tu primer solicitud en el formulario o cambia los filtros.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="p-6 text-center text-slate-500 text-sm border-t border-slate-800 mt-auto">
+        <a href="https://tu-pagina-web.com" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 transition-colors duration-200 font-medium">
+            LorHels Systems
+        </a> 
+        &copy; 2026 - Soluciones Digitales a Medida
+    </footer>
+
+    <div id="password-modal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900 bg-opacity-80 backdrop-blur-sm" role="dialog">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-lg p-6">
+            <div class="sm:flex sm:items-start">
+                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-900/50 sm:mx-0 sm:h-10 sm:w-10">
+                    <i data-lucide="shield-alert" class="h-6 w-6 text-blue-400"></i>
+                </div>
+                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                    <h3 class="text-lg font-medium text-white">Acceso de Administrador (Demo)</h3>
+                    <div class="mt-2">
+                        <p class="text-sm text-slate-400">Usa <strong>admin</strong> como correo y <strong>admin</strong> como contraseña.</p>
+                        <input type="text" id="admin-email-input" class="mt-4 w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Correo electrónico">
+                        <input type="password" id="admin-password-input" class="mt-3 w-full p-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Contraseña">
+                        <p id="password-error" class="text-red-400 text-xs mt-2 hidden">Credenciales incorrectas.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-5 sm:flex sm:flex-row-reverse">
+                <button type="button" id="confirm-password-btn" class="w-full inline-flex justify-center rounded-lg px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 sm:ml-3 sm:w-auto text-sm transition font-medium">Confirmar</button>
+                <button type="button" id="cancel-password-btn" class="mt-3 w-full inline-flex justify-center rounded-lg px-4 py-2 bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600 sm:mt-0 sm:w-auto text-sm transition font-medium">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="ticket-detail-modal" data-ticket-id="" class="modal hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-slate-900 bg-opacity-80 backdrop-blur-sm" role="dialog">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl sm:my-8 sm:w-full sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-6 overflow-y-auto">
+                <div class="flex justify-between items-start border-b border-slate-700 pb-4 mb-4">
+                    <h2 id="detail-subject" class="text-2xl font-bold text-white flex-1 break-words mr-4"></h2>
+                    <span id="detail-status-badge" class="px-3 py-1 text-sm font-semibold rounded-full min-w-[100px] text-center"></span>
+                    <button onclick="hideTicketDetailModal()" class="text-slate-400 hover:text-white ml-4 transition">
+                        <i data-lucide="x" class="h-6 w-6"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1 border-r border-slate-700 pr-6">
+                        <h3 class="text-lg font-bold mb-3 text-blue-400 flex items-center"><i data-lucide="info" class="h-5 w-5 mr-2"></i> Info</h3>
+                        <div class="space-y-2 text-sm text-slate-300">
+                            <p><strong class="text-slate-400">ID:</strong> <span id="detail-id" class="font-mono text-xs"></span></p>
+                            <p><strong class="text-slate-400">Fecha:</strong> <span id="detail-date"></span></p>
+                            <p><strong class="text-slate-400">Prioridad:</strong> <span id="detail-priority"></span></p>
+                            <p><strong class="text-slate-400">Depto:</strong> <span id="detail-applicant-department"></span></p>
+                            <p><strong class="text-slate-400">Solicitante:</strong> <span id="detail-applicant-name"></span></p>
+                            <p><strong class="text-slate-400">Email:</strong> <span id="detail-applicant-email"></span></p>
+                            <p><strong class="text-slate-400">Asignado a:</strong> <span id="detail-assigned-user"></span></p>
+                        </div>
+                        
+                        <h3 class="text-lg font-bold mt-6 mb-3 text-blue-400 flex items-center"><i data-lucide="align-left" class="h-5 w-5 mr-2"></i> Descripción</h3>
+                        <p id="detail-description" class="text-sm text-slate-200 history-note-text bg-slate-900/50 p-4 rounded-lg border border-slate-700"></p>
+                        
+                        <div id="delete-ticket-section" class="mt-6 hidden">
+                            <button onclick="showDeleteConfirmation(document.getElementById('ticket-detail-modal').getAttribute('data-ticket-id'))" class="w-full py-2 px-4 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition flex items-center justify-center">
+                                <i data-lucide="trash-2" class="h-4 w-4 mr-2"></i> Eliminar Ticket
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="lg:col-span-2">
+                        <div class="border-b border-slate-700 mb-4 flex">
+                            <button id="tab-history-btn" onclick="switchDetailTab('history')" class="tab-button active px-4 py-2 text-sm font-medium border-b-2 border-transparent transition flex items-center">
+                                <i data-lucide="clock" class="h-4 w-4 mr-2"></i> Historial
+                            </button>
+                            <button id="tab-notes-btn" onclick="switchDetailTab('notes')" class="tab-button px-4 py-2 text-sm font-medium border-b-2 border-transparent transition flex items-center">
+                                <i data-lucide="message-square" class="h-4 w-4 mr-2"></i> Notas
+                            </button>
+                        </div>
+
+                        <div id="tab-content-history" class="tab-content space-y-4"></div>
+
+                        <div id="tab-content-notes" class="tab-content hidden">
+                            <div id="notes-list" class="space-y-4 mb-6"></div>
+                            
+                            <div id="add-note-section" class="border-t border-slate-700 pt-4 mt-4 hidden">
+                                <form id="add-note-form" class="space-y-3">
+                                    <textarea id="note-content-input" rows="3" required placeholder="Escribe una nota interna..." class="w-full p-3 bg-slate-900 border border-slate-600 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
+                                    <button type="submit" class="w-full py-2 px-4 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition flex items-center justify-center">
+                                        <i data-lucide="save" class="h-4 w-4 mr-2"></i> Guardar Nota
+                                    </button>
+                                </form>
+                            </div>
+                            <p id="notes-admin-required" class="text-sm text-yellow-500/80 italic mt-4 text-center hidden"><i data-lucide="lock" class="inline h-4 w-4 mr-1"></i>Solo Administradores pueden añadir notas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_NAME = 'Handhels Valera';
+        window.ADMIN_NAME = ADMIN_NAME;
+        window.isAgentMode = false; 
+        window.currentDetailTicketId = null; 
+
+        // DATOS DE PRUEBA INICIALES
+        window.allTickets = [
+            {
+                id: 'demo_tkt_1',
+                applicantName: 'Ana García',
+                applicantEmail: 'ana@ejemplo.com',
+                applicantDepartment: 'Ventas',
+                subject: 'Soporte técnico',
+                description: 'Mi pantalla secundaria dejó de funcionar de repente tras la última actualización.',
+                priority: 'Alta',
+                assignedUser: 'Handhels Valera',
+                status: 'Abierto',
+                date: new Date().toLocaleDateString('es-ES'),
+                history: [{ timestamp: new Date(), status: 'Abierto', changedBy: 'Usuario Final' }],
+                notes: []
+            },
+            {
+                id: 'demo_tkt_2',
+                applicantName: 'Carlos López',
+                applicantEmail: 'carlos@ejemplo.com',
+                applicantDepartment: 'Contabilidad',
+                subject: 'Solicitud de equipo',
+                description: 'Necesito un teclado nuevo, algunas teclas están atascadas.',
+                priority: 'Baja',
+                assignedUser: 'Handhels Valera',
+                status: 'En Progreso',
+                date: new Date(Date.now() - 86400000).toLocaleDateString('es-ES'), // Ayer
+                history: [
+                    { timestamp: new Date(Date.now() - 86400000), status: 'Abierto', changedBy: 'Usuario Final' },
+                    { timestamp: new Date(Date.now() - 40000000), status: 'En Progreso', changedBy: ADMIN_NAME }
+                ],
+                notes: [{ timestamp: new Date(Date.now() - 40000000), content: 'Ya pedí el teclado a almacén, llega mañana.', addedBy: ADMIN_NAME }]
+            },
+            {
+                id: 'demo_tkt_3',
+                applicantName: 'María Fernández',
+                applicantEmail: 'maria@ejemplo.com',
+                applicantDepartment: 'Tecnología',
+                subject: 'Reporte claro',
+                description: 'La conexión VPN se cae cada 5 minutos al conectarme desde casa.',
+                priority: 'Media',
+                assignedUser: 'Handhels Valera',
+                status: 'Cerrado',
+                date: new Date(Date.now() - 172800000).toLocaleDateString('es-ES'), // Hace 2 días
+                history: [
+                    { timestamp: new Date(Date.now() - 172800000), status: 'Abierto', changedBy: 'Usuario Final' },
+                    { timestamp: new Date(Date.now() - 150000000), status: 'Cerrado', changedBy: ADMIN_NAME }
+                ],
+                notes: []
+            }
+        ];
+        
+        window.tickets = window.allTickets.slice(); 
+
+        let ticketListContainer, ticketCountSpan, emptyStateDiv, agentModeToggle;
+        let passwordModal, passwordInput, passwordError, detailModal, notesAdminRequired, deleteTicketSection;
+        let statTotalSpan, statOpenSpan, statProgressSpan, statClosedSpan;
+        let filterStatusSelect, filterPrioritySelect, filterDepartmentSelect, filterSearchInput;
+        
+        const Toast = Swal.mixin({
+            toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
+            background: '#1e293b', color: '#f8fafc' 
+        });
+
+        // UTILIDADES UI
+        function getStatusClasses(status) {
+            switch (status) {
+                case 'Abierto': return { bg: 'bg-red-500/20', text: 'text-red-400', badge: 'bg-red-500/20 text-red-400 border border-red-500/30', base: 'text-red-400' };
+                case 'En Progreso': return { bg: 'bg-yellow-500/20', text: 'text-yellow-400', badge: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30', base: 'text-yellow-400' };
+                case 'Cerrado': return { bg: 'bg-green-500/20', text: 'text-green-400', badge: 'bg-green-500/20 text-green-400 border border-green-500/30', base: 'text-green-400' };
+                default: return { bg: 'bg-slate-700', text: 'text-slate-300', badge: 'bg-slate-700 text-slate-300', base: 'text-slate-400' };
+            }
+        }
+
+        function getPriorityClasses(priority) {
+            switch (priority) {
+                case 'Alta': return 'text-red-400 font-bold';
+                case 'Media': return 'text-yellow-400 font-semibold';
+                case 'Baja': return 'text-green-400';
+                default: return 'text-slate-400';
+            }
+        }
+
+        // DISPARADOR DE ACTUALIZACIONES (Reemplazo de onSnapshot)
+        function triggerDataUpdate() {
+            updateStatistics(window.allTickets);
+            window.applyFilters();
+            if (window.currentDetailTicketId && !document.getElementById('ticket-detail-modal').classList.contains('hidden')) {
+                window.showTicketDetail(window.currentDetailTicketId);
+            }
+        }
+
+        function updateStatistics(tickets) {
+            if (!statTotalSpan) return;
+            statTotalSpan.textContent = tickets.length;
+            statOpenSpan.textContent = tickets.filter(t => t.status === 'Abierto').length;
+            statProgressSpan.textContent = tickets.filter(t => t.status === 'En Progreso').length;
+            statClosedSpan.textContent = tickets.filter(t => t.status === 'Cerrado').length;
+        }
+
+        window.applyFilters = function() {
+            const status = filterStatusSelect.value;
+            const priority = filterPrioritySelect.value;
+            const dept = filterDepartmentSelect.value;
+            const search = filterSearchInput.value.toLowerCase();
+
+            let filtered = window.allTickets.slice();
+            if (search) filtered = filtered.filter(t => t.applicantName.toLowerCase().includes(search) || t.subject.toLowerCase().includes(search) || t.description.toLowerCase().includes(search) || t.id.toLowerCase().includes(search));
+            if (status !== 'Todos') filtered = filtered.filter(t => t.status === status);
+            if (priority !== 'Todas') filtered = filtered.filter(t => t.priority === priority);
+            if (dept !== 'Todos') filtered = filtered.filter(t => t.applicantDepartment === dept);
+            
+            window.tickets = filtered;
+            window.renderTicketList();
+        }
+
+        window.resetFilters = function() {
+            filterStatusSelect.value = 'Todos'; filterPrioritySelect.value = 'Todas'; filterDepartmentSelect.value = 'Todos'; filterSearchInput.value = '';
+            window.applyFilters();
+        }
+
+        // SIMULACIÓN CRUD
+        window.addNewTicket = (newTicketData) => {
+            newTicketData.id = 'demo_' + Math.random().toString(36).substring(2, 9);
+            newTicketData.history = [{ timestamp: new Date(), status: 'Abierto', changedBy: 'Usuario Final' }];
+            newTicketData.notes = []; 
+            newTicketData.date = new Date().toLocaleDateString('es-ES');
+            
+            window.allTickets.push(newTicketData);
+            triggerDataUpdate();
+
+            Swal.fire({
+                title: '¡Ticket Enviado!',
+                text: 'Tu solicitud ha sido registrada correctamente.',
+                icon: 'success', background: '#1e293b', color: '#f8fafc', confirmButtonColor: '#2563eb' 
+            });
+        };
+
+        window.updateTicketStatus = function(id) {
+            if (!window.isAgentMode) return;
+            const t = window.allTickets.find(x => x.id === id);
+            if (t && t.status !== 'Cerrado') {
+                const newStatus = t.status === 'Abierto' ? 'En Progreso' : 'Cerrado';
+                t.status = newStatus;
+                t.history.push({ timestamp: new Date(), status: newStatus, changedBy: window.ADMIN_NAME });
+                
+                triggerDataUpdate();
+                Toast.fire({ icon: 'success', title: `Estado cambiado a ${newStatus}` });
+            }
+        };
+
+        window.addInternalNote = (ticketId, noteContent) => {
+            const t = window.allTickets.find(x => x.id === ticketId);
+            if (t) {
+                t.notes.push({ timestamp: new Date(), content: noteContent, addedBy: window.ADMIN_NAME });
+                triggerDataUpdate();
+                Toast.fire({ icon: 'success', title: 'Nota agregada' });
+            }
+        };
+
+        window.deleteTicketInDb = (ticketId) => {
+            window.allTickets = window.allTickets.filter(t => t.id !== ticketId);
+            triggerDataUpdate();
+            Toast.fire({ icon: 'info', title: 'Ticket eliminado' });
+        };
+
+
+        // RENDERIZADO
+        function renderTicket(ticket) {
+            const { bg, text } = getStatusClasses(ticket.status);
+            const priorityClass = getPriorityClasses(ticket.priority);
+            const currentNextStatus = { 'Abierto': 'En Progreso', 'En Progreso': 'Cerrado', 'Cerrado': 'Abierto' }[ticket.status];
+            
+            const updateButtonHTML = window.isAgentMode ? 
+                (ticket.status === 'Cerrado' ? 
+                    `<div class="mt-4"><p class="text-xs text-slate-400 italic text-center py-2 border-t border-slate-700 pt-2"><i data-lucide="lock" class="inline h-3 w-3 mr-1"></i>Ticket cerrado</p></div>` :
+                    `<div class="mt-4"><button onclick="event.stopPropagation(); window.updateTicketStatus('${ticket.id}')" class="w-full py-2 px-4 rounded-lg text-sm font-medium text-white bg-slate-700 hover:bg-blue-600 border border-slate-600 hover:border-blue-500 transition flex items-center justify-center"><i data-lucide="refresh-cw" class="h-4 w-4 mr-2"></i>A ${currentNextStatus}</button></div>`
+                ) : `<div class="mt-4"><p class="text-xs text-slate-500 italic text-center py-2 border-t border-slate-700 pt-2">Solo Admin puede cambiar estado</p></div>`;
+
+            return `
+                <div onclick="window.showTicketDetail('${ticket.id}')" class="bg-slate-800 p-5 rounded-xl shadow border border-slate-700 hover:border-blue-500/50 transition duration-300 cursor-pointer relative overflow-hidden group">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-lg font-bold text-white group-hover:text-blue-400 transition">${ticket.subject}</h3>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${bg} ${text}">${ticket.status}</span>
+                    </div>
+                    <p class="text-sm text-slate-300 mb-4 line-clamp-2">${ticket.description}</p>
+                    <div class="flex justify-between items-center text-xs text-slate-400 border-t border-slate-700 pt-3">
+                        <div>
+                            <p class="mb-1"><strong class="text-slate-300">Depto:</strong> ${ticket.applicantDepartment || 'N/A'}</p>
+                            <p class="mb-1"><strong class="text-slate-300">Solicitante:</strong> ${ticket.applicantName}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="mb-1">Prioridad: <span class="${priorityClass}">${ticket.priority}</span></p>
+                            <p class="mb-1">${ticket.date}</p>
+                        </div>
+                    </div>
+                    ${updateButtonHTML}
+                </div>
+            `;
+        }
+
+        window.renderTicketList = function() {
+            if (!ticketListContainer) return;
+            const sorted = window.tickets.slice().sort((a, b) => {
+                const sOrder = { 'Abierto': 1, 'En Progreso': 2, 'Cerrado': 3 };
+                const pOrder = { 'Alta': 1, 'Media': 2, 'Baja': 3 };
+                if (sOrder[a.status] !== sOrder[b.status]) return sOrder[a.status] - sOrder[b.status];
+                return pOrder[a.priority] - pOrder[b.priority];
+            });
+
+            ticketListContainer.innerHTML = sorted.map(renderTicket).join('');
+            ticketCountSpan.textContent = sorted.length;
+            sorted.length === 0 ? emptyStateDiv.classList.remove('hidden') : emptyStateDiv.classList.add('hidden');
+            lucide.createIcons(); 
+        };
+
+        function renderHistory(ticket) {
+            const container = document.getElementById('tab-content-history');
+            const history = Array.isArray(ticket.history) ? ticket.history : [];
+            
+            if (history.length === 0) {
+                container.innerHTML = '<p class="text-sm text-slate-500 italic p-4 text-center">No hay historial de cambios.</p>';
+            } else {
+                const sorted = history.slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                container.innerHTML = sorted.map(item => {
+                    const time = new Date(item.timestamp).toLocaleString('es-ES');
+                    const { base } = getStatusClasses(item.status);
+                    return `
+                        <div class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                            <i data-lucide="check-circle" class="h-5 w-5 ${base}"></i>
+                            <div class="text-sm">
+                                <p class="text-slate-300">Cambio a <strong class="${base}">${item.status}</strong></p>
+                                <p class="text-xs text-slate-500 mt-0.5">Por <strong>${item.changedBy || 'Desconocido'}</strong> - ${time}</p>
+                            </div>
+                        </div>`;
+                }).join('');
+            }
+            lucide.createIcons();
+        }
+
+        function renderNotes(ticket) {
+            const container = document.getElementById('notes-list');
+            const notes = Array.isArray(ticket.notes) ? ticket.notes : [];
+            
+            window.isAgentMode ? document.getElementById('add-note-section').classList.remove('hidden') : document.getElementById('add-note-section').classList.add('hidden');
+            window.isAgentMode ? notesAdminRequired.classList.add('hidden') : notesAdminRequired.classList.remove('hidden');
+
+            if (notes.length === 0) {
+                container.innerHTML = '<p class="text-sm text-slate-500 italic text-center p-4">Aún no hay notas internas.</p>';
+            } else {
+                const sorted = notes.slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                container.innerHTML = sorted.map(note => `
+                    <div class="p-4 bg-slate-900/80 rounded-lg border border-slate-700 relative">
+                        <i data-lucide="quote" class="absolute top-4 right-4 h-6 w-6 text-slate-700"></i>
+                        <p class="text-sm text-slate-200 history-note-text relative z-10 pr-8">${note.content}</p>
+                        <p class="text-xs text-slate-500 mt-3 border-t border-slate-700 pt-2 flex items-center">
+                            <i data-lucide="user" class="h-3 w-3 mr-1"></i> ${note.addedBy || 'Desconocido'} &bull; ${new Date(note.timestamp).toLocaleString('es-ES')}
+                        </p>
+                    </div>`).join('');
+            }
+            lucide.createIcons();
+        }
+
+        window.showTicketDetail = function(ticketId) {
+            const ticket = window.allTickets.find(t => t.id === ticketId);
+            if (!ticket) return;
+            
+            window.currentDetailTicketId = ticketId;
+            const { badge } = getStatusClasses(ticket.status);
+            const priorityClass = getPriorityClasses(ticket.priority);
+
+            document.getElementById('detail-subject').textContent = ticket.subject;
+            document.getElementById('detail-status-badge').className = `px-3 py-1 text-sm font-semibold rounded-full min-w-[100px] text-center ${badge}`;
+            document.getElementById('detail-status-badge').textContent = ticket.status;
+            document.getElementById('detail-id').textContent = ticket.id.substring(0, 8) + '...';
+            document.getElementById('detail-date').textContent = ticket.date;
+            document.getElementById('detail-priority').textContent = ticket.priority;
+            document.getElementById('detail-priority').className = priorityClass;
+            document.getElementById('detail-applicant-name').textContent = ticket.applicantName;
+            document.getElementById('detail-applicant-email').textContent = ticket.applicantEmail;
+            document.getElementById('detail-applicant-department').textContent = ticket.applicantDepartment || 'N/A';
+            document.getElementById('detail-assigned-user').textContent = ticket.assignedUser;
+            document.getElementById('detail-description').textContent = ticket.description;
+            
+            detailModal.setAttribute('data-ticket-id', ticketId);
+            window.isAgentMode ? deleteTicketSection.classList.remove('hidden') : deleteTicketSection.classList.add('hidden');
+
+            switchDetailTab('history');
+            renderHistory(ticket);
+            renderNotes(ticket); 
+            detailModal.classList.remove('hidden');
+        };
+
+        window.showDeleteConfirmation = function(ticketId) {
+            const ticket = window.allTickets.find(t => t.id === ticketId);
+            if (ticket) {
+                window.hideTicketDetailModal();
+                Swal.fire({
+                    title: '¿Confirmar eliminación?',
+                    text: `Borrarás permanentemente el ticket "${ticket.subject}".`,
+                    icon: 'warning', showCancelButton: true,
+                    background: '#1e293b', color: '#f8fafc',
+                    confirmButtonColor: '#dc2626', cancelButtonColor: '#475569',
+                    confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar'
+                }).then((r) => { if (r.isConfirmed) window.deleteTicketInDb(ticketId); });
+            }
+        }
+
+        window.hideTicketDetailModal = function() {
+            detailModal.classList.add('hidden');
+            window.currentDetailTicketId = null;
+        };
+
+        window.switchDetailTab = function(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}-btn`).classList.add('active');
+        };
+
+        // EVENTOS
+        document.getElementById('new-ticket-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                applicantName: document.getElementById('applicant-name').value.trim(),
+                applicantEmail: document.getElementById('applicant-email').value.trim(),
+                applicantDepartment: document.getElementById('applicant-department').value,
+                subject: document.getElementById('ticket-subject').value,
+                description: document.getElementById('ticket-description').value.trim(),
+                priority: document.getElementById('ticket-priority').value,
+                assignedUser: document.getElementById('ticket-assigned-user').value.trim() || 'No Asignado',
+                status: 'Abierto'
+            };
+            window.addNewTicket(data);
+            this.reset();
+            document.getElementById('ticket-priority').value = "Media";
+            document.getElementById('ticket-assigned-user').value = "Handhels Valera";
+        });
+
+        document.getElementById('add-note-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const ticketId = detailModal.getAttribute('data-ticket-id');
+            const note = document.getElementById('note-content-input').value.trim();
+            if (note && ticketId && window.isAgentMode) {
+                window.addInternalNote(ticketId, note);
+                document.getElementById('note-content-input').value = '';
+            }
+        });
+
+        window.onload = function() {
+            ticketListContainer = document.getElementById('ticket-list');
+            ticketCountSpan = document.getElementById('ticket-count');
+            emptyStateDiv = document.getElementById('empty-state');
+            agentModeToggle = document.getElementById('agent-mode-toggle');
+            filterStatusSelect = document.getElementById('filter-status');
+            filterPrioritySelect = document.getElementById('filter-priority');
+            filterDepartmentSelect = document.getElementById('filter-department');
+            filterSearchInput = document.getElementById('filter-search');
+            passwordModal = document.getElementById('password-modal');
+            passwordInput = document.getElementById('admin-password-input');
+            passwordError = document.getElementById('password-error');
+            detailModal = document.getElementById('ticket-detail-modal');
+            notesAdminRequired = document.getElementById('notes-admin-required');
+            deleteTicketSection = document.getElementById('delete-ticket-section'); 
+            statTotalSpan = document.getElementById('stat-total');
+            statOpenSpan = document.getElementById('stat-open');
+            statProgressSpan = document.getElementById('stat-progress');
+            statClosedSpan = document.getElementById('stat-closed');
+
+            lucide.createIcons(); 
+            triggerDataUpdate(); // Carga inicial
+
+            agentModeToggle.addEventListener('change', () => {
+                if (agentModeToggle.checked) {
+                    passwordModal.classList.remove('hidden');
+                    passwordInput.value = ''; passwordError.classList.add('hidden'); document.getElementById('admin-email-input').value = '';
+                } else {
+                    window.isAgentMode = false;
+                    triggerDataUpdate();
+                }
+            });
+
+            document.getElementById('confirm-password-btn').addEventListener('click', () => {
+                const email = document.getElementById('admin-email-input').value.trim();
+                const pass = passwordInput.value;
+                
+                // SIMULACIÓN DE AUTH
+                if(email === 'admin' && pass === 'admin') {
+                    window.isAgentMode = true; 
+                    agentModeToggle.checked = true; 
+                    passwordModal.classList.add('hidden');
+                    triggerDataUpdate();
+                } else {
+                    passwordError.classList.remove('hidden'); 
+                    passwordInput.value = ''; 
+                    passwordInput.focus();
+                    window.isAgentMode = false; 
+                    agentModeToggle.checked = false; 
+                }
+            });
+
+            document.getElementById('cancel-password-btn').addEventListener('click', () => {
+                window.isAgentMode = false; agentModeToggle.checked = false; passwordModal.classList.add('hidden');
+            });
+
+            passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('confirm-password-btn').click(); });
+        };
+    </script>
+  <footer class="p-6 text-center text-slate-500 text-sm border-t border-slate-800 mt-auto">
+    <a href="https://handhels-programmer.github.io/LorHels-Systems" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 transition-colors duration-200 font-medium">
+        LorHels Systems
+    </a> 
+    &copy; 2026 - Soluciones Digitales a Medida
+</footer>
+</body>
+</html>
