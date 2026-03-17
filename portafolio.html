@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Soluciones | LorHels Systems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #020617; color: #f8fafc; overflow-x: hidden; }
+        .glass-card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative">
+
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-600/10 blur-[120px] rounded-full"></div>
+    </div>
+
+    <nav class="glass-card sticky top-0 z-50 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center transform rotate-12">
+                    <i data-lucide="code-2" class="text-white transform -rotate-12"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight text-white">LorHels <span class="text-blue-500 text-sm uppercase tracking-widest">Systems</span></span>
+            </div>
+            <a href="index.html" class="flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver al Inicio
+            </a>
+        </div>
+    </nav>
+
+    <header class="pt-16 pb-12 px-6 max-w-7xl mx-auto w-full">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-6">Catálogo de Soluciones</h1>
+            <p class="text-lg text-slate-400">Explora nuestro repositorio de aplicaciones, filtra por tecnología o industria, y prueba las demostraciones en vivo.</p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between glass-card p-4 rounded-2xl mb-12">
+            
+            <div class="relative w-full md:w-96">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"></i>
+                <input type="text" id="searchInput" placeholder="Buscar por nombre o tecnología..." class="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors">
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-2 w-full md:w-auto" id="filterButtons">
+                <button onclick="filtrarApps('todas')" class="filtro-btn px-4 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white transition-all">Todas</button>
+                <button onclick="filtrarApps('gestion')" class="filtro-btn px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:text-white transition-all">Gestión / ERP</button>
+                <button onclick="filtrarApps('ventas')" class="filtro-btn px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:text-white transition-all">Ventas / E-Commerce</button>
+                <button onclick="filtrarApps('servicios')" class="filtro-btn px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:text-white transition-all">Servicios</button>
+            </div>
+        </div>
+
+        <div id="appsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+        
+        <div id="noResults" class="hidden text-center py-12">
+            <i data-lucide="ghost" class="w-16 h-16 text-slate-600 mx-auto mb-4"></i>
+            <h3 class="text-xl font-bold text-white">No encontramos coincidencias</h3>
+            <p class="text-slate-400 mt-2">Intenta buscar con otras palabras clave o tecnologías.</p>
+        </div>
+    </header>
+
+    <div id="demoModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 md:p-8">
+        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onclick="closeDemo()"></div>
+        <div class="relative w-full max-w-6xl h-[80vh] glass-card rounded-2xl overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
+            <div class="bg-slate-800 border-b border-white/10 p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex gap-2">
+                        <button onclick="closeDemo()" class="w-3.5 h-3.5 rounded-full bg-red-500 hover:bg-red-400 transition-colors"></button>
+                        <div class="w-3.5 h-3.5 rounded-full bg-yellow-500"></div>
+                        <div class="w-3.5 h-3.5 rounded-full bg-green-500"></div>
+                    </div>
+                    <span id="demoTitle" class="ml-4 text-sm font-medium text-slate-300">Cargando Demo...</span>
+                </div>
+                <a id="demoExternalLink" href="#" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                    Abrir en pestaña completa <i data-lucide="external-link" class="w-3 h-3"></i>
+                </a>
+            </div>
+            <div class="flex-grow w-full h-full bg-slate-900 relative">
+                <div id="demoLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 z-10">
+                    <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p class="text-slate-400 text-sm">Conectando...</p>
+                </div>
+                <iframe id="demoIframe" src="" class="w-full h-full border-0 relative z-20" onload="document.getElementById('demoLoading').style.display='none'"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. BASE DE DATOS LOCAL DE TUS APLICACIONES
+        // ¡Para añadir una nueva app, solo escribe un nuevo bloque aquí!
+        const baseDeDatosApps = [
+            {
+                id: 'LorHels ERP',
+                nombre: 'LorHels ERP',
+                descripcion: 'Es un potente ERP SaaS en la nube. Gestiona ventas, compras, inventario y finanzas en tiempo real. Destaca por facturación con PDFs modernos, cobros por WhatsApp, control de deudas (CXC/CXP), comisiones automáticas y un panel administrador para gestionar suscripciones de empresas.',
+                categoria: 'gestion',
+                tecnologias: ['HTML5', 'JavaScript', 'Tailwind CSS', 'Lucide Icons', 'Firebase', 'Firebase Authentication', 'Cloud Firestore', 'Chart.js', 'html2pdf.js'],
+                icono: 'bar-chart-3',
+                color: 'blue',
+                linkDemo: 'https://handhels-programmer.github.io/LorHels-Systems/Demo/Demo%20ERP.html'
+            },
+            {
+                id: 'LorHels CV',
+                nombre: 'LorHels CV',
+                descripcion: 'Es un moderno SaaS de reclutamiento. Candidatos crean su CV con QR y empresas lo escanean. Destaca por su exportación a PDF, modelo Freemium validado por WhatsApp y un panel Admin para controlar perfiles y pagos. ¡Tu app está lista para brillar.',
+                categoria: 'ventas',
+                tecnologias: ['HTML5', 'Tailwind CSS', 'JavaScript', 'Firebase SDK', 'Firebase Authentication', 'Firebase Firestore', 'QRCode.js', 'html2pdf.js', 'FontAwesome'],
+                icono: 'file-badge',
+                color: 'emerald',
+                linkDemo: 'https://handhels-programmer.github.io/LorHels-Systems/Demo/Demo%20CV.html'
+            },
+            {
+                id: 'LorHels Music',
+                nombre: 'LorHels Music',
+                descripcion: 'Es un clon de Spotify profesional. Tiene roles (Admin/Premium/Básico), pagos vía WhatsApp y reproductor fluido. Destaca su radio 24/7 sincronizada, modo offline para descargar MP3, playlists compartibles y panel admin total.',
+                categoria: 'servicios',
+                tecnologias: ['HTML5', 'CSS3', 'JavaScript', 'Tailwind CSS', 'Lucide Icons', 'Firebase Authentication', 'Firebase Firestore', 'HTML5 Audio API', 'Cache API'],
+                icono: 'music-4',
+                color: 'purple',
+                linkDemo: 'https://handhels-programmer.github.io/LorHels-Systems/Demo/Demo%20Music.html'
+            },
+            {
+                id: 'LorHels Barber',
+                nombre: 'LorHels Barber',
+                descripcion: 'App web completa. Clientes tienen reservas inteligentes, disponibilidad en vivo y catálogo dinámico. Admin controla Punto de Venta (POS), inventario, caja diaria y staff. Hoy corre como Demo Offline local.',
+                categoria: 'ventas',
+                tecnologias: ['HTML5', 'Tailwind CSS', 'JavaScript', 'Web Storage API', 'Lucide Icons', 'Google Fonts', 'Firebase'],
+                icono: 'scissors',
+                color: 'orange',
+                linkDemo: 'https://handhels-programmer.github.io/LorHels-Systems/Demo/Demo%20Barber.html'
+            },
+            {
+                id: 'LorHels Domino',
+                nombre: 'LorHels Domino',
+                descripcion: 'App de dominó en tiempo real. El Admin gestiona mesas, edita nombres y registra deudas/pagos. El Invitado solo observa deudas y un contador de pérdidas por jugador. Incluye historial de caja, cierre de partidas seguro y sincronización instantánea con Firebase.',
+                categoria: 'gestion',
+                tecnologias: ['Firebase Firestore', 'Firebase Auth', 'Tailwind CSS', 'Glassmorphism', 'JavaScript', 'Lucide Icons'],
+                icono: 'dice-6',
+                color: 'rose',
+                linkDemo: 'https://handhels-programmer.github.io/LorHels-Systems/Demo/Demo%20Domino.html'
+            },
+            {
+                id: 'LorHels Viewer',
+                nombre: 'LorHels Viewer',
+                descripcion: 'Es una app web B2B para estudios de diseño. Centraliza modelos 3D interactivos, galerías comparativas y gestión de clientes. Destaca por su sistema de tickets en tiempo real para organizar el feedback bajo un panel seguro.',
+                categoria: 'servicios',
+                tecnologias: ['HTML5', 'JavaScript', 'Tailwind CSS', 'Phosphor Icons', 'Three.js', 'Iframes', 'Firebase Authentication', 'Cloud Firestore', 'Cloudinary'],
+                icono: 'box',
+                color: 'amber',
+                linkDemo: 'https://handhels-programmer.github.io/LorHels-Systems/Demo/Demo%20Viewer.html'
+            },
+        ];
+
+        let categoriaActual = 'todas';
+
+        // 2. FUNCIÓN PARA PINTAR LAS TARJETAS EN PANTALLA
+        function renderizarApps(terminoBusqueda = '') {
+            const contenedor = document.getElementById('appsGrid');
+            const mensajeVacio = document.getElementById('noResults');
+            contenedor.innerHTML = '';
+            
+            let appsFiltradas = baseDeDatosApps;
+
+            // Filtro por categoría (botones)
+            if (categoriaActual !== 'todas') {
+                appsFiltradas = appsFiltradas.filter(app => app.categoria === categoriaActual);
+            }
+
+            // Filtro por texto (buscador)
+            if (terminoBusqueda !== '') {
+                const texto = terminoBusqueda.toLowerCase();
+                appsFiltradas = appsFiltradas.filter(app => 
+                    app.nombre.toLowerCase().includes(texto) || 
+                    app.tecnologias.some(tech => tech.toLowerCase().includes(texto))
+                );
+            }
+
+            // Mostrar u ocultar mensaje de "No hay resultados"
+            if (appsFiltradas.length === 0) {
+                mensajeVacio.classList.remove('hidden');
+            } else {
+                mensajeVacio.classList.add('hidden');
+                
+                // Dibujar cada tarjeta
+                appsFiltradas.forEach(app => {
+                    // Generar las pildoritas de tecnología
+                    const tagsHTML = app.tecnologias.map(tech => 
+                        `<span class="px-2 py-1 bg-${app.color}-500/10 rounded">${tech}</span>`
+                    ).join('');
+
+                    const tarjeta = document.createElement('div');
+                    tarjeta.className = `glass-card rounded-2xl p-1 transition-all hover:border-${app.color}-500/50 group animate-in zoom-in-95 duration-300`;
+                    tarjeta.innerHTML = `
+                        <div class="bg-slate-900/50 rounded-2xl p-6 h-full flex flex-col">
+                            <div class="bg-${app.color}-500/10 w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <i data-lucide="${app.icono}" class="text-${app.color}-500 w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2">${app.nombre}</h3>
+                            <p class="text-slate-400 text-sm mb-6 flex-grow">${app.descripcion}</p>
+                            <div class="flex flex-wrap gap-2 mb-6 text-[10px] font-bold uppercase tracking-wider text-${app.color}-400">
+                                ${tagsHTML}
+                            </div>
+                            <button onclick="abrirVisorDemo('${app.nombre}', '${app.linkDemo}')" class="w-full bg-slate-800 hover:bg-${app.color}-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+                                <i data-lucide="play" class="w-4 h-4"></i> Iniciar Demo
+                            </button>
+                        </div>
+                    `;
+                    contenedor.appendChild(tarjeta);
+                });
+            }
+            // Recargar iconos de Lucide para las nuevas tarjetas
+            lucide.createIcons();
+        }
+
+        // 3. CONECTAR EL BUSCADOR Y LOS BOTONES
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderizarApps(e.target.value);
+        });
+
+        function filtrarApps(categoria) {
+            categoriaActual = categoria;
+            
+            // Actualizar el diseño de los botones para marcar el activo
+            const botones = document.querySelectorAll('.filtro-btn');
+            botones.forEach(btn => {
+                btn.className = "filtro-btn px-4 py-2 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:text-white transition-all";
+            });
+            event.target.className = "filtro-btn px-4 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white transition-all";
+
+            // Volver a dibujar
+            const textoBuscador = document.getElementById('searchInput').value;
+            renderizarApps(textoBuscador);
+        }
+
+        // 4. LÓGICA DEL MODAL DE DEMOS
+        const modal = document.getElementById('demoModal');
+        const demoTitle = document.getElementById('demoTitle');
+        const demoIframe = document.getElementById('demoIframe');
+        const demoLoading = document.getElementById('demoLoading');
+        const demoExternalLink = document.getElementById('demoExternalLink');
+
+        function abrirVisorDemo(nombre, link) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; 
+            demoLoading.style.display = 'flex'; 
+            
+            demoTitle.innerText = nombre;
+            demoIframe.src = link;
+            demoExternalLink.href = link;
+        }
+
+        function closeDemo() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            demoIframe.src = ""; 
+        }
+
+        // Inicializar la página dibujando todas las apps
+        renderizarApps();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
