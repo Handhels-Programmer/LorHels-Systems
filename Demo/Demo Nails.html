@@ -1,1 +1,154 @@
+<!DOCTYPE html>
+<html lang="do">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LorHels Nails - MODO DEMO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #050810; color: white; }
+        .neon-border { border: 1px solid #00D4FF; box-shadow: 0 0 10px rgba(0, 212, 255, 0.3); }
+        .neon-text { text-shadow: 0 0 8px rgba(0, 212, 255, 0.6); }
+    </style>
+</head>
+<body>
 
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <nav class="p-5 border-b border-white/10 flex justify-between items-center bg-[#050810]/80 backdrop-blur-md sticky top-0 z-50">
+        <h1 class="text-xl font-bold tracking-tighter neon-text">LORHELS <span class="text-[#00D4FF]">NAILS</span></h1>
+        <div class="flex gap-4">
+            <button onclick="showSection('catalog')" class="hover:text-[#00D4FF] transition">Catálogo</button>
+            <button onclick="showSection('admin-login')" class="hover:text-[#00D4FF] transition"><i data-lucide="user-cog"></i></button>
+        </div>
+    </nav>
+
+    <section id="section-catalog" class="p-6 max-w-6xl mx-auto">
+        <h2 class="text-3xl font-bold mb-8 text-center">Nuestros <span class="text-[#00D4FF]">Servicios</span></h2>
+        <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            </div>
+    </section>
+
+    <section id="section-admin-login" class="hidden p-10 flex justify-center">
+        <div class="bg-[#0B1121] p-8 rounded-2xl neon-border w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-center">Acceso Administrativo</h2>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <input type="text" id="user" placeholder="Usuario" class="w-full p-3 rounded-lg bg-white/5 border border-white/10 focus:border-[#00D4FF] outline-none" required>
+                <input type="password" id="pass" placeholder="Contraseña" class="w-full p-3 rounded-lg bg-white/5 border border-white/10 focus:border-[#00D4FF] outline-none" required>
+                <button type="submit" class="w-full bg-[#00D4FF] text-black font-bold py-3 rounded-lg hover:bg-[#00D4FF]/80 transition">Entrar</button>
+            </form>
+            <p class="text-xs text-center mt-4 text-gray-500 underline">Tip: admin / admin</p>
+        </div>
+    </section>
+
+    <section id="section-admin-panel" class="hidden p-6 max-w-4xl mx-auto text-center">
+        <div class="bg-green-500/10 border border-green-500 text-green-400 p-4 rounded-xl mb-6">
+            ✨ Estás en <b>Modo Demo</b>. Los cambios no se guardarán permanentemente.
+        </div>
+        <h2 class="text-3xl font-bold mb-4 text-[#00D4FF]">Panel de Control</h2>
+        <button onclick="logout()" class="text-red-400 hover:underline mb-8">Cerrar Sesión</button>
+        
+        <div class="bg-[#0B1121] p-6 rounded-2xl text-left border border-white/10">
+            <h3 class="text-xl mb-4">Añadir Nuevo Producto</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="new-name" placeholder="Nombre del servicio" class="p-3 bg-white/5 rounded-lg border border-white/10">
+                <input type="number" id="new-price" placeholder="Precio (RD$)" class="p-3 bg-white/5 rounded-lg border border-white/10">
+                <button onclick="addMockProduct()" class="md:col-span-2 bg-white text-black font-bold py-3 rounded-lg">Guardar en Catálogo</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // 1. DATOS INICIALES (MOCK DATA)
+        let products = [
+            { id: 1, name: 'Set Acrílico Pro', price: 1500, desc: 'Uñas esculpidas con acabado premium.' },
+            { id: 2, name: 'Manicura Rusa', price: 900, desc: 'Limpieza profunda de cutícula.' },
+            { id: 3, name: 'Retoque Gel', price: 600, desc: 'Mantenimiento de brillo y color.' }
+        ];
+
+        // 2. NAVEGACIÓN ENTRE SECCIONES
+        function showSection(sectionId) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`section-${sectionId}`).classList.remove('hidden');
+        }
+
+        // 3. RENDERIZAR CATÁLOGO
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            grid.innerHTML = '';
+            products.forEach(p => {
+                grid.innerHTML += `
+                    <div class="bg-[#0B1121] p-5 rounded-2xl border border-white/5 hover:neon-border transition group">
+                        <div class="h-40 bg-gradient-to-br from-[#00D4FF]/20 to-transparent rounded-xl mb-4 flex items-center justify-center">
+                            <i data-lucide="sparkles" class="text-[#00D4FF] opacity-50"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-1">${p.name}</h3>
+                        <p class="text-gray-400 text-sm mb-4">${p.desc}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#00D4FF] font-bold">RD$ ${p.price}</span>
+                            <button onclick="addToCart('${p.name}')" class="bg-white/10 p-2 rounded-lg hover:bg-[#00D4FF] hover:text-black transition">
+                                <i data-lucide="shopping-cart" size="18"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // 4. LÓGICA DE LOGIN
+        window.handleLogin = (e) => {
+            e.preventDefault();
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if(u === 'admin' && p === 'admin') {
+                showToast("¡Acceso concedido! 🔑");
+                showSection('admin-panel');
+            } else {
+                showToast("Credenciales incorrectas ❌");
+            }
+        };
+
+        function logout() {
+            showSection('catalog');
+            showToast("Sesión cerrada");
+        }
+
+        // 5. SISTEMA DE TOASTS (NOTIFICACIONES)
+        window.showToast = (msg) => {
+            const container = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = "bg-[#0B1121] border border-[#00D4FF] text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 transform transition-all duration-300 translate-y-10 opacity-0";
+            t.innerHTML = `<i data-lucide="bell" size="16"></i> ${msg}`;
+            container.appendChild(t);
+            lucide.createIcons();
+            setTimeout(() => t.classList.remove('translate-y-10', 'opacity-0'), 10);
+            setTimeout(() => {
+                t.classList.add('opacity-0', 'translate-x-10');
+                setTimeout(() => t.remove(), 300);
+            }, 2500);
+        };
+
+        window.addToCart = (name) => {
+            showToast(`¡${name} al carrito! 💅`);
+        };
+
+        // 6. AÑADIR PRODUCTO (SOLO EN MEMORIA)
+        window.addMockProduct = () => {
+            const name = document.getElementById('new-name').value;
+            const price = document.getElementById('new-price').value;
+            if(!name || !price) return showToast("Llena los campos ⚠️");
+            
+            products.push({ id: Date.now(), name, price, desc: 'Nuevo servicio añadido.' });
+            renderCatalog();
+            showToast("Producto añadido al catálogo ✨");
+            showSection('catalog');
+        };
+
+        // INICIO
+        renderCatalog();
+    </script>
+</body>
+</html>
