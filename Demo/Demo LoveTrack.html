@@ -1,1 +1,717 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LorHels LoveTrack - MODO DEMO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        /* Efecto Cristal (Glassmorphism) adaptado a tus tonos */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4); /* Slate oscuro semitransparente */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Gradiente de fondo íntimo */
+        .app-gradient {
+            background: radial-gradient(circle at top right, #2e1065 0%, #020617 50%);
+        }
 
+        /* Ocultar elementos */
+        .oculto { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 app-gradient min-h-screen pb-24">
+
+    <nav class="sticky top-0 w-full z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-3xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-rose-500/20 rounded-xl flex items-center justify-center">
+                    <i data-lucide="heart" class="text-rose-500 fill-rose-500"></i>
+                </div>
+                <div>
+                    <span class="block text-xl font-extrabold tracking-tight text-white leading-none">LorHels LoveTrack</span>
+                    <span id="estado-usuario" class="text-purple-400 text-xs uppercase tracking-widest">Sin iniciar sesión (DEMO)</span>
+                </div>
+            </div>
+            
+            <div class="flex bg-slate-900 rounded-lg p-1 border border-white/5 hidden" id="menu-vistas">
+                <button onclick="cambiarVista('timeline')" class="btn-vista px-3 py-1.5 rounded-md bg-slate-800 text-white text-sm font-semibold transition-all shadow" data-target="vista-timeline"><i data-lucide="list" class="w-4 h-4"></i></button>
+                <button onclick="cambiarVista('calendar')" class="btn-vista px-3 py-1.5 rounded-md text-slate-400 hover:text-white text-sm font-semibold transition-all" data-target="vista-calendar"><i data-lucide="calendar" class="w-4 h-4"></i></button>
+                <button onclick="cambiarVista('stats')" class="btn-vista px-3 py-1.5 rounded-md text-slate-400 hover:text-white text-sm font-semibold transition-all" data-target="vista-stats"><i data-lucide="bar-chart-2" class="w-4 h-4"></i></button>
+                <button onclick="cambiarVista('perfil')" class="btn-vista px-3 py-1.5 rounded-md text-slate-400 hover:text-white text-sm font-semibold transition-all" data-target="vista-perfil"><i data-lucide="user" class="w-4 h-4"></i></button>
+            </div>
+            
+            <button id="btn-login-nav" onclick="document.getElementById('modal-auth').classList.remove('oculto')" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white text-sm font-bold transition-all">
+                Entrar
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-6 mt-8">
+        
+        <section id="vista-timeline" class="animate-in fade-in duration-500">
+        
+            <div class="glass-card p-4 rounded-3xl mb-8 flex flex-col sm:flex-row gap-3 border-white/5 shadow-lg">
+                <div class="flex-grow relative">
+                    <i data-lucide="search" class="absolute left-4 top-3.5 w-4 h-4 text-slate-500"></i>
+                    <input type="text" id="filtro-texto" onkeyup="aplicarFiltros()" placeholder="Buscar por lugar, nota..." class="w-full bg-slate-900/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors">
+                </div>
+                
+                <input type="date" id="filtro-fecha" onchange="aplicarFiltros()" class="bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors sm:w-44 cursor-pointer text-sm">
+                
+                <select id="filtro-tipo" onchange="aplicarFiltros()" class="bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors appearance-none sm:w-44 cursor-pointer text-sm">
+                    <option value="">Cualquier tipo</option>
+                    <option value="Vaginal">Vaginal</option>
+                    <option value="Oral">Oral</option>
+                    <option value="Anal">Anal</option>
+                    <option value="Besos y Caricias">Besos y Caricias</option>
+                    <option value="Masturbación">Masturbación</option>
+                    <option value="Video Llamada">Video Llamada</option>
+                    <option value="Sado">Sado</option>
+                </select>
+            </div>
+
+            <div id="timeline-container" class="border-l-2 border-purple-500/30 ml-4 space-y-8 pb-8">
+                <div class="ml-8 p-6 glass-card rounded-2xl text-center text-slate-400">
+                    <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-purple-500"></i>
+                    Cargando la línea de tiempo...
+                </div>
+            </div>
+        </section>
+
+        <section id="vista-calendar" class="oculto animate-in fade-in duration-500 mt-8 max-w-3xl mx-auto px-6">
+            <div class="glass-card rounded-3xl p-6 border-purple-500/20 shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="mes-anio-texto" class="text-xl font-bold text-white capitalize">Cargando...</h2>
+                    <div class="flex gap-2">
+                        <button onclick="cambiarMes(-1)" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <button onclick="cambiarMes(1)" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-500 mb-2">
+                    <div>DOM</div><div>LUN</div><div>MAR</div><div>MIE</div><div>JUE</div><div>VIE</div><div>SAB</div>
+                </div>
+
+                <div id="dias-calendario" class="grid grid-cols-7 gap-2 text-center text-sm">
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <section id="vista-stats" class="oculto animate-in fade-in duration-500 mt-8 max-w-3xl mx-auto px-6">
+        
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                    <i data-lucide="pie-chart" class="text-purple-400 w-5 h-5"></i>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-bold text-white">Análisis 📊</h2>
+            </div>
+            
+            <select id="filtro-anio-stats" onchange="calcularEstadisticasAvanzadas()" class="bg-slate-800 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-purple-500 transition-colors cursor-pointer font-bold text-sm shadow-lg">
+            </select>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+            <div class="glass-card p-4 rounded-3xl text-center border-t-2 border-t-rose-500 hover:-translate-y-1 transition-transform">
+                <p class="text-slate-400 text-[10px] uppercase tracking-widest mb-1 font-bold">Total</p>
+                <p id="stat-total" class="text-3xl font-extrabold text-white">0</p>
+            </div>
+            <div class="glass-card p-4 rounded-3xl text-center border-t-2 border-t-cyan-500 hover:-translate-y-1 transition-transform">
+                <p class="text-slate-400 text-[10px] uppercase tracking-widest mb-1 font-bold">Tiempo (Min)</p>
+                <p id="stat-tiempo" class="text-2xl font-extrabold text-cyan-400 mt-1">0m</p>
+            </div>
+            <div class="glass-card p-4 rounded-3xl text-center border-t-2 border-t-orange-500 hover:-translate-y-1 transition-transform">
+                <p class="text-slate-400 text-[10px] uppercase tracking-widest mb-1 font-bold">Intensidad</p>
+                <p id="stat-intensidad" class="text-2xl font-extrabold text-orange-400 mt-1">0.0</p>
+            </div>
+            <div class="glass-card p-4 rounded-3xl text-center border-t-2 border-t-yellow-400 hover:-translate-y-1 transition-transform">
+                <p class="text-slate-400 text-[10px] uppercase tracking-widest mb-1 font-bold">Valoración</p>
+                <p id="stat-valoracion" class="text-2xl font-extrabold text-yellow-400 mt-1">0.0⭐</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="glass-card p-4 rounded-3xl text-center border-white/5 hover:bg-slate-800/50 transition-colors">
+                <p class="text-slate-400 text-[10px] uppercase tracking-widest mb-1 font-bold">Frecuencia Promedio</p>
+                <p id="stat-frecuencia" class="text-lg sm:text-xl font-bold text-purple-300 mt-1">Calculando...</p>
+            </div>
+            <div class="glass-card p-4 rounded-3xl text-center border-white/5 hover:bg-slate-800/50 transition-colors">
+                <p class="text-slate-400 text-[10px] uppercase tracking-widest mb-1 font-bold">Parejas este año</p>
+                <p id="stat-parejas-anio" class="text-xl font-bold text-rose-300 mt-1">0</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="glass-card p-6 rounded-3xl border-white/5 flex items-center gap-4 hover:bg-slate-800/50 transition-colors">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                    <i data-lucide="flame" class="text-white w-7 h-7"></i>
+                </div>
+                <div>
+                    <p class="text-slate-400 text-xs uppercase tracking-wider font-bold">Práctica Favorita</p>
+                    <p id="stat-fav" class="text-xl font-bold text-white mt-1">N/A</p>
+                </div>
+            </div>
+            <div class="glass-card p-6 rounded-3xl border-white/5 flex items-center gap-4 hover:bg-slate-800/50 transition-colors">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <i data-lucide="map-pin" class="text-white w-7 h-7"></i>
+                </div>
+                <div>
+                    <p class="text-slate-400 text-xs uppercase tracking-wider font-bold">Lugar Más Frecuente</p>
+                    <p id="stat-lugar" class="text-xl font-bold text-white mt-1 capitalize">N/A</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-6 rounded-3xl border-white/5 mt-4 relative mb-10">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="titulo-grafica" class="text-sm font-bold text-white uppercase tracking-wider">Momentos por Mes (Este Año)</h3>
+                <button id="btn-volver-grafica" onclick="dibujarGraficaMeses()" class="hidden text-xs bg-purple-600 hover:bg-purple-500 text-white px-4 py-1.5 rounded-full font-bold transition-all shadow-lg shadow-purple-500/30">
+                    <span class="flex items-center gap-1"><i data-lucide="arrow-left" class="w-3 h-3"></i> Volver a Meses</span>
+                </button>
+            </div>
+            <div class="w-full h-64">
+                <canvas id="grafica-momentos"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section id="vista-perfil" class="oculto animate-in fade-in duration-500 mt-8 max-w-3xl mx-auto px-6">
+        <div class="glass-card p-6 rounded-3xl border-white/10">
+            <h2 class="text-xl font-bold text-white mb-6">Mi Perfil (Modo Demo) 👤</h2>
+            
+            <div class="space-y-4 mb-8">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">Cuenta (Email)</label>
+                    <input type="email" id="perfil-email" disabled class="w-full bg-slate-900/30 border border-white/5 rounded-xl px-4 py-3 text-slate-500 cursor-not-allowed">
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Nombre o Apodo</label>
+                        <input type="text" id="perfil-nombre" placeholder="¿Cómo te llamamos?" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Teléfono</label>
+                        <input type="tel" id="perfil-telefono" placeholder="Tu número" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Género</label>
+                        <select id="perfil-genero" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors appearance-none">
+                            <option value="">Selecciona...</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="No Binario">No Binario</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Sexo Biológico</label>
+                        <select id="perfil-sexo" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors appearance-none">
+                            <option value="">Selecciona...</option>
+                            <option value="Hembra">Hembra</option>
+                            <option value="Macho">Macho</option>
+                            <option value="Intersexual">Intersexual</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="guardarDatosPersonales()" id="btn-guardar-perfil" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-all border border-white/5 shadow-lg">
+                    Guardar Cambios
+                </button>
+            </div>
+
+            <hr class="border-white/10 mb-8">
+
+            <h2 class="text-lg font-bold text-white mb-4">Mis Conexiones 🔗</h2>
+            
+            <div class="glass-card p-4 rounded-xl border border-white/5 mb-4 bg-slate-800/30">
+                <h3 class="text-sm font-bold text-purple-400 mb-2 flex items-center gap-2"><i data-lucide="lock" class="w-4 h-4"></i> Añadir perfil manual (Solo para ti)</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="nombre-manual" placeholder="Nombre de la persona" class="flex-grow bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
+                    <button onclick="crearParejaLocal()" class="bg-purple-600 hover:bg-purple-500 px-6 rounded-xl font-bold text-white transition-all">Añadir</button>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-white/5 mb-6">
+                <h3 class="text-sm font-bold text-slate-300 mb-2">Vincular con alguien que usa la app</h3>
+                <div class="flex gap-2 mb-3">
+                    <input type="text" id="codigo-vincular" placeholder="Ingresa su código" class="flex-grow bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none uppercase">
+                    <button onclick="vincularPareja()" class="bg-rose-600 hover:bg-rose-500 px-6 rounded-xl font-bold text-white transition-all">Vincular</button>
+                </div>
+                <div class="bg-slate-900 p-3 rounded-lg text-center border border-dashed border-slate-600">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Tu Código para compartir</p>
+                    <p id="mi-codigo" class="text-lg font-mono font-bold text-rose-400 tracking-widest">Cargando...</p>
+                </div>
+            </div>
+            
+            <div id="lista-parejas" class="space-y-2 mb-8 max-h-48 overflow-y-auto pr-2">
+            </div>
+            
+            <button onclick="cerrarSesion()" class="w-full py-3 text-rose-500 hover:bg-rose-500/10 rounded-xl font-bold transition-all border border-rose-500/20">Cerrar Sesión</button>
+        </div>
+    </section>
+
+    <div id="modal-auth" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onclick="document.getElementById('modal-auth').classList.add('oculto')"></div>
+        <div class="relative w-full max-w-md glass-card rounded-3xl p-8 shadow-2xl animate-in zoom-in-95">
+            <h3 class="text-2xl font-bold text-white mb-6 text-center" id="auth-title">Iniciar Sesión (Demo)</h3>
+            <p class="text-xs text-rose-400 text-center mb-4">Usa <b>admin</b> y PIN <b>admin</b> para entrar.</p>
+            <form id="form-auth" class="space-y-4">
+                
+                <div id="auth-registro-extra" class="hidden space-y-4 animate-in fade-in duration-300">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Nombre o Apodo *</label>
+                        <input type="text" id="auth-nombre" placeholder="¿Cómo te llamamos?" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Teléfono</label>
+                        <input type="tel" id="auth-telefono" placeholder="Tu número (opcional)" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors">
+                    </div>
+                    <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
+                        <label class="block text-sm font-medium text-purple-300 mb-1"><i data-lucide="link" class="w-3 h-3 inline"></i> Código de pareja (Opcional)</label>
+                        <input type="text" id="auth-codigo-pareja" placeholder="Si te invitaron, pégalo aquí" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors uppercase font-mono text-center tracking-widest">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">Email *</label>
+                    <input type="text" id="auth-email" required value="admin" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">PIN de Seguridad *</label>
+                    <input type="password" id="auth-pass" required value="admin" placeholder="Ej: admin" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors text-center tracking-[0.5em] font-mono text-lg">
+                </div>
+                
+                <button type="submit" id="btn-auth-submit" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-500/30">
+                    Entrar
+                </button>
+            </form>
+            <p class="text-center text-slate-400 mt-4 text-sm">
+                ¿No tienes cuenta? <button onclick="toggleAuthMode()" class="text-purple-400 font-bold">Regístrate</button>
+            </p>
+        </div>
+    </div>
+
+    <button onclick="abrirModal()" class="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-purple-600 to-rose-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-500/30 hover:scale-110 transition-transform z-40">
+        <i data-lucide="plus" class="w-6 h-6"></i>
+    </button>
+
+    <div id="modal-registro" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 oculto">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onclick="cerrarModal()"></div>
+        
+        <div class="relative w-full max-w-md glass-card border-white/10 rounded-3xl p-8 shadow-2xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
+            <button onclick="cerrarModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                    Nuevo Momento <i data-lucide="flame" class="text-rose-500 w-6 h-6"></i>
+                </h3>
+            </div>
+            
+            <form id="form-encuentro" class="space-y-4 max-h-[70vh] overflow-y-auto pb-4 pr-2">
+    
+    <div>
+        <label class="block text-sm font-medium text-slate-400 mb-1">¿Con quién fue?</label>
+        <select id="input-pareja" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors appearance-none" required>
+            </select>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-slate-400 mb-1">¿Qué sucedió?</label>
+            <select id="input-tipo" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors appearance-none" required>
+                <option value="Vaginal">Vaginal</option>
+                <option value="Oral">Oral</option>
+                <option value="Anal">Anal</option>
+                <option value="Besos y Caricias">Besos y Caricias</option>
+                <option value="Masturbación">Masturbación</option>
+                <option value="Video Llamada">Video Llamada</option>
+                <option value="Sado">Sado</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-400 mb-1">Lugar</label>
+            <input type="text" id="input-lugar" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-colors" placeholder="Ej. El sofá, Hotel..." required>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-slate-400 mb-1">Fecha</label>
+            <input type="date" id="input-fecha" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors" required>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-400 mb-1">Hora</label>
+            <input type="time" id="input-hora" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors" required>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-slate-400 mb-1">Duración (min)</label>
+            <input type="number" id="input-duracion" min="1" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-colors" placeholder="Ej. 30" required>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-400 mb-1">Valoración</label>
+            <select id="input-valoracion" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors appearance-none" required>
+                <option value="5">⭐⭐⭐⭐⭐ Increíble</option>
+                <option value="4">⭐⭐⭐⭐ Muy bueno</option>
+                <option value="3">⭐⭐⭐ Normal</option>
+                <option value="2">⭐⭐ Regular</option>
+                <option value="1">⭐ Malo</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-slate-400 mb-1">Protección</label>
+            <select id="input-proteccion" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors appearance-none">
+                <option value="Sí">Sí</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-400 mb-1">Eyaculación</label>
+            <select id="input-eyaculacion" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors appearance-none">
+                <option value="Dentro">Dentro</option>
+                <option value="Fuera">Fuera</option>
+                <option value="No hubo">No hubo</option>
+            </select>
+        </div>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-slate-400 mb-1">Posiciones</label>
+        <input type="text" id="input-posiciones" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-colors" placeholder="Ej. Misionero, Perrito (separadas por coma)">
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-slate-400 mb-1 flex justify-between">
+            <span>Intensidad</span> <span id="valor-intensidad" class="text-rose-400 font-bold">5 / 10</span>
+        </label>
+        <input type="range" id="intensidad" min="1" max="10" value="5" class="w-full accent-rose-500 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer mt-2">
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-slate-400 mb-1">Memoria Privada</label>
+        <textarea id="input-nota" rows="2" class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-colors resize-none" placeholder="Un detalle para no olvidar..."></textarea>
+    </div>
+
+    <div class="pt-2">
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2">
+            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+            <span>Guardar en el historial</span>
+        </button>
+    </div>
+</form>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const slider = document.getElementById('intensidad');
+        const valor = document.getElementById('valor-intensidad');
+        slider.addEventListener('input', (e) => {
+            valor.innerText = `${e.target.value} / 10`;
+        });
+
+        const modal = document.getElementById('modal-registro');
+        function abrirModal() {
+            modal.classList.remove('oculto');
+            document.body.style.overflow = 'hidden'; 
+        }
+        function cerrarModal() {
+            modal.classList.add('oculto');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+
+    <script>
+    // --- VARIABLES GLOBALES (MODO DEMO) ---
+    window.usuarioLogueado = true;
+    window.miCodigoPropio = "ADMIN_DEMO"; 
+    window.miNombre = "Administrador"; 
+    window.listaParejas = ["DEMO_USER"]; 
+    window.codigoParejaActivo = "TODAS"; 
+    window.nombresParejas = { "DEMO_USER": "Pareja de Prueba ❤️" }; 
+    window.fechaCalendario = new Date();
+    window.miGrafico = null;
+
+    // Generamos algunas fechas de este año para la demo
+    const anio = new Date().getFullYear();
+    const mesActual = new Date().getMonth();
+    
+    // --- BASE DE DATOS LOCAL (SIMULADA) ---
+    let baseDeDatosDemo = JSON.parse(localStorage.getItem('lovetrack_demo')) || [
+        { id: "1", creadoPor: "Administrador", participantes: ["ADMIN_DEMO", "DEMO_USER"], tipo: "Besos y Caricias", lugar: "Cama", fechaRegistro: `${anio}-02-14`, duracionMinutos: 45, valoracion: 5, intensidad: 8, nota: "Feliz San Valentín 🌹", timestamp: new Date(anio, 1, 14, 20, 0) },
+        { id: "2", creadoPor: "Pareja de Prueba ❤️", participantes: ["ADMIN_DEMO", "DEMO_USER"], tipo: "Vaginal", lugar: "Sofá", fechaRegistro: `${anio}-03-05`, duracionMinutos: 30, valoracion: 4, intensidad: 9, nota: "Tarde de películas", timestamp: new Date(anio, 2, 5, 18, 30) },
+        { id: "3", creadoPor: "Administrador", participantes: ["ADMIN_DEMO", "DEMO_USER"], tipo: "Video Llamada", lugar: "Distancia", fechaRegistro: `${anio}-${String(mesActual+1).padStart(2,'0')}-01`, duracionMinutos: 60, valoracion: 5, intensidad: 6, nota: "Te extrañé mucho", timestamp: new Date(anio, mesActual, 1, 22, 0) },
+        { id: "4", creadoPor: "Administrador", participantes: ["ADMIN_DEMO", "DEMO_USER"], tipo: "Oral", lugar: "Ducha", fechaRegistro: `${anio}-${String(mesActual+1).padStart(2,'0')}-10`, duracionMinutos: 20, valoracion: 5, intensidad: 10, nota: "¡Increíble!", timestamp: new Date(anio, mesActual, 10, 8, 0) }
+    ];
+    window.encuentrosGlobales = baseDeDatosDemo;
+
+    // --- LÓGICA DE AUTENTICACIÓN (ADMIN / ADMIN) ---
+    let isLogin = true;
+    window.toggleAuthMode = () => {
+        isLogin = !isLogin;
+        document.getElementById('auth-title').innerText = isLogin ? "Iniciar Sesión" : "Crear Cuenta (Demo)";
+        document.getElementById('btn-auth-submit').innerText = isLogin ? "Entrar" : "Registrarse";
+        document.getElementById('auth-registro-extra').classList.toggle('hidden');
+    };
+
+    document.getElementById('form-auth').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('auth-email').value;
+        const pass = document.getElementById('auth-pass').value;
+
+        if (email === "admin" && pass === "admin") {
+            document.getElementById('modal-auth').classList.add('oculto');
+            document.getElementById('btn-login-nav').classList.add('hidden');
+            document.getElementById('menu-vistas').classList.remove('hidden');
+            
+            // Llenamos el perfil con datos de prueba
+            document.getElementById('mi-codigo').innerText = window.miCodigoPropio;
+            document.getElementById('perfil-email').value = "admin@lovetrack.demo";
+            document.getElementById('perfil-nombre').value = window.miNombre;
+            document.getElementById('estado-usuario').innerText = "Viendo: Todos mis momentos";
+            
+            cargarEncuentrosDemo();
+            window.cambiarVista('calendar');
+        } else {
+            alert("⚠️ MODO DEMO: Por favor usa el usuario 'admin' y contraseña 'admin'");
+        }
+    });
+
+    window.cerrarSesion = () => {
+        document.getElementById('btn-login-nav').classList.remove('hidden');
+        document.getElementById('menu-vistas').classList.add('hidden');
+        document.getElementById('estado-usuario').innerText = "Sin iniciar sesión (DEMO)";
+        ['vista-timeline', 'vista-calendar', 'vista-stats', 'vista-perfil'].forEach(id => document.getElementById(id)?.classList.add('oculto'));
+        document.getElementById('modal-auth').classList.remove('oculto');
+        document.getElementById('form-auth').reset();
+    };
+
+    // --- LÓGICA DE ENCUENTROS ---
+    window.seleccionarPareja = (codigo) => {
+        window.codigoParejaActivo = codigo;
+        document.getElementById('estado-usuario').innerText = codigo === "TODAS" ? "Viendo: Todos mis momentos" : "Viendo a: " + (window.nombresParejas[codigo] || codigo);
+        cargarEncuentrosDemo();
+    };
+
+    window.abrirModal = () => {
+        window.idEncuentroEditando = null; 
+        document.getElementById('form-encuentro').reset(); 
+        document.getElementById('valor-intensidad').innerText = "5 / 10";
+        document.querySelector('#modal-registro h3').innerHTML = 'Nuevo Momento (Demo) <i data-lucide="flame" class="text-rose-500 w-6 h-6"></i>';
+        
+        const selectPareja = document.getElementById('input-pareja');
+        selectPareja.innerHTML = '<option value="DEMO_USER">Pareja de Prueba ❤️</option>';
+        document.getElementById('modal-registro').classList.remove('oculto');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.prepararEdicion = (id) => {
+        const encuentro = baseDeDatosDemo.find(e => e.id === id);
+        if(!encuentro) return;
+        window.idEncuentroEditando = id; 
+        
+        document.getElementById('input-tipo').value = encuentro.tipo || '';
+        document.getElementById('input-lugar').value = encuentro.lugar || '';
+        document.getElementById('input-fecha').value = encuentro.fechaRegistro || '';
+        document.getElementById('input-duracion').value = encuentro.duracionMinutos || '';
+        document.getElementById('input-valoracion').value = encuentro.valoracion || '5';
+        document.getElementById('intensidad').value = encuentro.intensidad || 5;
+        document.getElementById('valor-intensidad').innerText = `${encuentro.intensidad || 5} / 10`;
+        document.getElementById('input-nota').value = encuentro.nota || '';
+
+        document.querySelector('#modal-registro h3').innerHTML = 'Editar (Demo) <i data-lucide="edit-2" class="text-purple-500 w-6 h-6"></i>';
+        document.getElementById('modal-registro').classList.remove('oculto');
+        document.body.style.overflow = 'hidden';
+    };
+
+    document.getElementById('form-encuentro').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const nuevoEncuentro = {
+            participantes: ["ADMIN_DEMO", "DEMO_USER"],
+            tipo: document.getElementById('input-tipo').value, 
+            lugar: document.getElementById('input-lugar').value, 
+            fechaRegistro: document.getElementById('input-fecha').value, 
+            duracionMinutos: Number(document.getElementById('input-duracion').value), 
+            valoracion: Number(document.getElementById('input-valoracion').value),
+            intensidad: Number(document.getElementById('intensidad').value), 
+            nota: document.getElementById('input-nota').value, 
+            timestamp: new Date(document.getElementById('input-fecha').value + 'T00:00:00')
+        };
+
+        if (window.idEncuentroEditando) {
+            nuevoEncuentro.id = window.idEncuentroEditando;
+            nuevoEncuentro.creadoPor = baseDeDatosDemo.find(e => e.id === window.idEncuentroEditando).creadoPor;
+            baseDeDatosDemo = baseDeDatosDemo.map(e => e.id === window.idEncuentroEditando ? nuevoEncuentro : e);
+            alert("¡Actualizado en la Demo! ✨");
+        } else {
+            nuevoEncuentro.id = Date.now().toString();
+            nuevoEncuentro.creadoPor = "Administrador";
+            baseDeDatosDemo.unshift(nuevoEncuentro);
+            alert("¡Guardado en la Demo! 🔥");
+        }
+
+        localStorage.setItem('lovetrack_demo', JSON.stringify(baseDeDatosDemo));
+        window.encuentrosGlobales = baseDeDatosDemo;
+        
+        document.getElementById('modal-registro').classList.add('oculto'); 
+        document.body.style.overflow = 'auto'; 
+        cargarEncuentrosDemo();
+    });
+
+    function cargarEncuentrosDemo() {
+        window.aplicarFiltros();
+        window.calcularEstadisticasAvanzadas();
+        renderizarCalendario();
+    }
+
+    window.aplicarFiltros = () => {
+        const contenedor = document.getElementById('timeline-container');
+        if(!contenedor) return;
+        
+        const filtroTipo = document.getElementById('filtro-tipo') ? document.getElementById('filtro-tipo').value : "";
+        let html = '';
+        
+        const estilos = {
+            "Vaginal": { emoji: "🔥", color: "#a855f7" }, "Oral": { emoji: "👅", color: "#ec4899" },
+            "Anal": { emoji: "🍑", color: "#f97316" }, "Besos y Caricias": { emoji: "❤️", color: "#f43f5e" },
+            "Video Llamada": { emoji: "📱", color: "#06b6d4" }, "Otro": { emoji: "✨", color: "#64748b" }, "Masturbación": { emoji: "🖐️", color: "#3b82f6" }, "Sado": { emoji: "⛓️", color: "#dc2626" }
+        };
+
+        baseDeDatosDemo.forEach(data => {
+            if(filtroTipo !== "" && data.tipo !== filtroTipo) return;
+            
+            const diseño = estilos[data.tipo] || estilos["Otro"];
+            html += `
+                <div class="relative pl-8 animate-in fade-in duration-500 mb-6">
+                    <div class="absolute -left-[17px] top-4 w-8 h-8 bg-slate-950 border-2 rounded-full flex items-center justify-center z-10" style="border-color: ${diseño.color}">
+                        <span class="text-sm">${diseño.emoji}</span>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5 relative" style="border-left: 4px solid ${diseño.color}">
+                        <button onclick="prepararEdicion('${data.id}')" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                        <h3 class="text-lg font-bold text-white mb-1">${data.tipo} <span class="text-xs text-slate-400 font-normal border border-slate-600 px-2 py-0.5 rounded-full">con Pareja de Prueba</span></h3>
+                        <p class="text-xs text-slate-400 mb-2">${data.fechaRegistro}</p>
+                        ${data.nota ? `<p class="text-slate-300 text-sm mb-2 italic">"${data.nota}"</p>` : ''}
+                        <div class="flex gap-2 text-xs text-slate-400">
+                            ${data.lugar ? `<span class="bg-slate-900 px-2 py-1 rounded border border-white/5">${data.lugar}</span>` : ''}
+                            ${data.duracionMinutos ? `<span class="bg-slate-900 px-2 py-1 rounded border border-white/5">${data.duracionMinutos} min</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        contenedor.innerHTML = html || `<div class="ml-8 p-6 glass-card text-center text-slate-400">No hay momentos en la demo.</div>`;
+        lucide.createIcons();
+    };
+
+    window.cambiarVista = (vista) => {
+        ['vista-timeline', 'vista-calendar', 'vista-stats', 'vista-perfil'].forEach(id => document.getElementById(id)?.classList.add('oculto'));
+        document.getElementById(`vista-${vista}`).classList.remove('oculto');
+        document.querySelectorAll('.btn-vista').forEach(btn => btn.className = "btn-vista px-3 py-1.5 rounded-md text-slate-400 hover:text-white text-sm font-semibold transition-all");
+        document.querySelector(`[data-target="vista-${vista}"]`).className = "btn-vista px-3 py-1.5 rounded-md bg-slate-800 text-white text-sm font-semibold transition-all shadow";
+        
+        if(vista === 'stats') window.calcularEstadisticasAvanzadas();
+    };
+
+    window.cambiarMes = (delta) => { window.fechaCalendario.setMonth(window.fechaCalendario.getMonth() + delta); renderizarCalendario(); };
+
+    function renderizarCalendario() {
+        const contenedor = document.getElementById('dias-calendario'); const titulo = document.getElementById('mes-anio-texto');
+        if(!contenedor) return;
+        const anioCal = window.fechaCalendario.getFullYear(); const mes = window.fechaCalendario.getMonth(); 
+        titulo.innerText = `${["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"][mes]} ${anioCal}`;
+
+        const primerDia = new Date(anioCal, mes, 1).getDay(); const diasEnMes = new Date(anioCal, mes + 1, 0).getDate();
+        let html = ''; for (let i = 0; i < primerDia; i++) html += `<div class="p-2"></div>`;
+        
+        const estilosPorTipo = {
+            "Vaginal": { emoji: "🔥" }, "Oral": { emoji: "👅" }, "Anal": { emoji: "🍑" },
+            "Besos y Caricias": { emoji: "❤️" }, "Masturbación": { emoji: "🖐️" },
+            "Video Llamada": { emoji: "📱" }, "Sado": { emoji: "⛓️" }, "Otro": { emoji: "✨" }
+        };
+
+        for (let dia = 1; dia <= diasEnMes; dia++) {
+            const fechaStr = `${anioCal}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+            const encuentrosDelDia = baseDeDatosDemo.filter(e => e.fechaRegistro === fechaStr);
+            
+            if (encuentrosDelDia.length > 0) {
+                let iconosHtml = ''; 
+                const maxIconos = Math.min(encuentrosDelDia.length, 4); 
+                for(let p=0; p<maxIconos; p++) {
+                    const tipo = encuentrosDelDia[p].tipo || "Otro";
+                    const emoji = (estilosPorTipo[tipo] || estilosPorTipo["Otro"]).emoji;
+                    iconosHtml += `<span class="text-sm drop-shadow-md" title="${tipo}">${emoji}</span>`;
+                }
+
+                html += `<div class="p-1 border border-purple-500/20 bg-slate-800/40 rounded-xl min-h-[70px] flex flex-col items-center">
+                            <div class="w-6 h-6 mb-1 mt-1 rounded-full bg-slate-900 border border-white/10 text-white flex items-center justify-center font-bold text-xs">${dia}</div>
+                            <div class="flex flex-wrap justify-center gap-0.5 leading-none">${iconosHtml}</div>
+                        </div>`;
+            } else { 
+                html += `<div class="p-1 text-slate-500 flex flex-col items-center min-h-[70px]"><div class="w-6 h-6 mt-1 text-sm">${dia}</div></div>`; 
+            }
+        }
+        contenedor.innerHTML = html;
+    }
+
+    // Funciones "Dummy" (vacías) para que los botones del perfil no den error en la demo
+    window.guardarDatosPersonales = () => alert("En la Demo no se guardan datos de perfil permanentemente.");
+    window.crearParejaLocal = () => alert("Función deshabilitada en Demo. La app real te permite crear perfiles privados infinitos.");
+    window.vincularPareja = () => alert("Función deshabilitada en Demo. La app real te permite vincular con cuentas en la nube.");
+    window.sincronizarPerfilPrivado = () => alert("Función deshabilitada en Demo.");
+
+    // Estadísticas para la Demo
+    window.calcularEstadisticasAvanzadas = () => {
+        document.getElementById('stat-total').innerText = baseDeDatosDemo.length; 
+        document.getElementById('stat-tiempo').innerText = baseDeDatosDemo.reduce((acc, curr) => acc + (curr.duracionMinutos||0), 0) + 'm'; 
+        document.getElementById('stat-intensidad').innerText = (baseDeDatosDemo.reduce((acc, curr) => acc + (curr.intensidad||0), 0) / (baseDeDatosDemo.length||1)).toFixed(1); 
+        document.getElementById('stat-valoracion').innerText = "4.8⭐"; 
+        document.getElementById('stat-fav').innerText = "Vaginal"; 
+        document.getElementById('stat-frecuencia').innerText = "1 cada 4 días";
+        document.getElementById('stat-parejas-anio').innerText = "1";
+        document.getElementById('stat-lugar').innerText = "Cama";
+        
+        // Gráfica Demo
+        const ctx = document.getElementById('grafica-momentos');
+        if(!ctx) return;
+        if(window.miGrafico) window.miGrafico.destroy();
+        
+        const datosPorMes = new Array(12).fill(0);
+        baseDeDatosDemo.forEach(e => {
+            if(e.timestamp && e.timestamp.getMonth) datosPorMes[e.timestamp.getMonth()]++;
+        });
+
+        window.miGrafico = new Chart(ctx.getContext('2d'), {
+            type: 'bar',
+            data: { labels: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'], datasets: [{ label: 'Encuentros', data: datosPorMes, backgroundColor: '#a855f7', borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    };
+
+    lucide.createIcons();
+    </script>
+</body>
+</html>
