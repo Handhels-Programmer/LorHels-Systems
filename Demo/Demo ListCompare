@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LorHels ListCompare - DEMO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .completed { opacity: 0.5; }
+        .completed-text { text-decoration: line-through; }
+        .loader { border-top-color: #6366f1; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .pro-glow { box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen text-slate-200">
+
+    <div id="authScreen" class="min-h-screen flex flex-col items-center justify-center p-6">
+        <div class="max-w-md w-full bg-slate-800 p-8 rounded-3xl shadow-xl border border-slate-700">
+            <div class="text-center mb-8">
+                <div class="bg-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-lg mb-4">
+                    <i class="fa-solid fa-user text-white text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-black text-white">Modo Demo</h2>
+                <p class="text-slate-400 text-sm">Prueba todas las funciones sin registrarte</p>
+            </div>
+            <div class="space-y-4">
+                <input id="emailInput" type="email" value="demo@lorhels.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-500 focus:ring-2 focus:ring-indigo-500 outline-none" readonly>
+                <input id="passwordInput" type="password" value="123456" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-500 focus:ring-2 focus:ring-indigo-500 outline-none" readonly>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="loginDemo()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-900/50">Entrar a la Demo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="homeScreen" class="hidden min-h-screen flex flex-col items-center py-10 p-6">
+        <div class="max-w-md w-full space-y-6">
+            <div class="bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-700 flex justify-between items-center relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="flex items-center gap-2 mb-1">
+                        <p class="text-[10px] uppercase font-bold text-slate-500">Sesión iniciada</p>
+                        <span id="planBadge" class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-500 text-slate-900">PRO</span>
+                    </div>
+                    <p id="userEmailDisplay" class="font-bold text-white truncate w-40">demo@lorhels.com</p>
+                </div>
+                <div class="flex gap-2 relative z-10 items-center">
+                    <button onclick="logoutDemo()" class="text-slate-400 hover:text-red-500 transition p-2 w-8 h-8 flex items-center justify-center rounded-full bg-slate-700"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-8 rounded-3xl shadow-xl border border-slate-700 text-center space-y-6">
+                <div class="flex flex-col items-center">
+                    <i data-lucide="shopping-cart" class="text-indigo-500 w-16 h-16 mb-4 pro-glow"></i>
+                    <h1 class="text-3xl font-black text-white tracking-tight">LorHels</h1>
+                    <p class="text-indigo-400 font-bold uppercase tracking-widest text-xs">ListCompare Demo</p>
+                </div>
+                <div class="space-y-4">
+                    <button onclick="createNewList()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-indigo-700 transition active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Crear Nueva Lista
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-white"><i class="fa-solid fa-clock-rotate-left mr-2 text-indigo-500"></i>Mis Listas</h3>
+                    <span id="listCountLabel" class="text-xs font-bold text-amber-400">Infinitas</span>
+                </div>
+                <div id="myListsContainer" class="space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="listScreen" class="hidden flex flex-col min-h-screen pb-32">
+        <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-10 p-4 shadow-sm">
+            <div class="max-w-2xl mx-auto flex justify-between items-center">
+                <button onclick="exitList()" class="p-2 hover:bg-slate-700 rounded-full text-slate-300 transition"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="text-center flex-1 mx-2 flex flex-col items-center">
+                    <h2 id="listTitleDisplay" class="font-extrabold text-white truncate w-full">Cargando...</h2>
+                    <div class="flex items-center gap-2 justify-center mt-0.5">
+                        <span id="displayListId" class="text-[10px] font-mono font-bold bg-indigo-900/50 px-2 py-0.5 rounded text-indigo-400 tracking-tighter">------</span>
+                        <button onclick="copyId()" class="text-slate-500 hover:text-indigo-400"><i class="fa-regular fa-copy text-xs"></i></button>
+                        <span class="bg-amber-500/20 text-amber-400 text-[9px] font-bold px-2 py-0.5 rounded border border-amber-500/30">Modo Demo</span>
+                    </div>
+                </div>
+                <div class="flex gap-1 items-center">
+                    <button onclick="openStatsModal()" class="p-2 hover:bg-indigo-900/30 rounded-full text-indigo-400 transition w-9 h-9 flex items-center justify-center"><i class="fa-solid fa-chart-pie"></i></button>
+                    <button onclick="openListSettings()" class="p-2 hover:bg-slate-700 rounded-full text-slate-400 transition w-9 h-9 flex items-center justify-center"><i class="fa-solid fa-gear"></i></button>
+                    <button onclick="shareViaWhatsApp()" class="p-2 hover:bg-green-900/30 rounded-full text-green-500 transition w-9 h-9 flex items-center justify-center"><i class="fa-brands fa-whatsapp text-lg"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-2xl mx-auto w-full p-4 space-y-5">
+            <div id="statsWidget" class="bg-gradient-to-br from-slate-900 to-black rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10 flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">El más barato</p>
+                        <h3 id="winnerName" class="text-2xl font-black">Calculando...</h3>
+                    </div>
+                </div>
+                <div id="totalsContainer" class="mt-6 flex flex-wrap gap-4 text-sm relative z-10"></div>
+                <i class="fa-solid fa-chart-line absolute -bottom-4 -right-2 text-white/5 text-8xl"></i>
+            </div>
+
+            <div class="bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-white text-sm"><i class="fa-solid fa-clipboard-check mr-2 text-indigo-500"></i>Resumen</h3>
+                    <select id="supermarketSelector" onchange="updateSummary()" class="bg-slate-900 border border-slate-700 text-slate-300 text-xs font-bold rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none px-3 py-2 cursor-pointer"></select>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-slate-900/50 border border-slate-700 rounded-2xl p-3">
+                        <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-1">Faltan</p>
+                        <p id="summaryPendingCount" class="font-black text-white text-lg leading-none">0</p>
+                        <p id="summaryPendingTotal" class="text-xs font-bold text-slate-400 mt-1">$0.00</p>
+                    </div>
+                    <div class="bg-emerald-900/20 border border-emerald-800/50 rounded-2xl p-3">
+                        <p class="text-[9px] uppercase font-bold text-emerald-400 tracking-wider mb-1">Marcados</p>
+                        <p id="summaryCompletedCount" class="font-black text-emerald-500 text-lg leading-none">0</p>
+                        <p id="summaryCompletedTotal" class="text-xs font-bold text-emerald-400 mt-1">$0.00</p>
+                    </div>
+                    <div class="bg-indigo-900/20 border border-indigo-800/50 rounded-2xl p-3">
+                        <p class="text-[9px] uppercase font-bold text-indigo-400 tracking-wider mb-1">Total</p>
+                        <p id="summaryTotalCount" class="font-black text-indigo-500 text-lg leading-none">0</p>
+                        <p id="summaryTotalTotal" class="text-xs font-bold text-indigo-400 mt-1">$0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="openProductModal()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-900/50 hover:bg-indigo-700 active:scale-95 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-cart-plus"></i> Agregar Nuevo Producto
+            </button>
+
+            <div id="categoryTabsContainer" class="flex gap-2 overflow-x-auto pb-2 mt-4 hide-scrollbar"></div>
+            <div id="itemsContainer" class="space-y-4"></div>
+        </main>
+
+        <div id="footerContainer" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-slate-800/90 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-4 flex justify-between items-center z-20 gap-2 overflow-x-auto"></div>
+    </div>
+
+    <div id="productModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+        <div class="bg-slate-800 w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-slate-900">
+                <h3 id="modalTitle" class="font-black text-lg text-white">Añadir Producto</h3>
+                <button onclick="closeProductModal()" class="text-slate-500 hover:text-red-500 w-8 h-8 rounded-full bg-slate-800 shadow-sm border border-slate-700 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4">
+                <input type="hidden" id="editItemId" value="">
+                <div><label class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Título *</label><input type="text" id="pTitle" placeholder="Ej: Leche" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none font-bold"></div>
+                <div class="flex gap-4">
+                    <div class="flex-1"><label class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Cantidad *</label><input type="number" id="pQty" value="1" min="0.1" step="0.1" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-center"></div>
+                    <div class="flex-1"><label class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Unidad</label><select id="pUnit" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"><option value="uds">Unidades</option><option value="kg">Kilogramos</option><option value="gr">Gramos</option><option value="L">Litros</option><option value="paq">Paquete</option></select></div>
+                </div>
+                <div><label class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Categoría</label><input type="text" id="pCategory" placeholder="Ej: Lácteos" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></div>
+                <div><label class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Nota</label><textarea id="pNote" rows="2" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-none"></textarea></div>
+                <div id="imageInputContainer">
+                    <label class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">URL de Imagen</label>
+                    <input type="url" id="pImage" placeholder="https://..." class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-700 bg-slate-800">
+                <button onclick="saveProduct()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-indigo-700 transition active:scale-95">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="statsModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-slate-800 w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-700 flex justify-between items-center bg-indigo-600 text-white">
+                <h3 class="font-black text-lg"><i class="fa-solid fa-chart-pie mr-2"></i>Estadísticas PRO</h3>
+                <button onclick="closeStatsModal()" class="text-white hover:text-indigo-200 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-6 bg-slate-900">
+                <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700"><div class="flex justify-between items-end mb-2"><p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Progreso</p><p id="statsProgressText" class="font-black text-indigo-400 text-lg">0%</p></div><div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden"><div id="statsProgressBar" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div></div></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 text-center"><i class="fa-solid fa-piggy-bank text-emerald-500 text-2xl mb-2"></i><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Ahorro Máximo</p><p id="statsSavings" class="font-black text-white text-xl">$0.00</p></div>
+                    <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 text-center"><i class="fa-solid fa-gem text-amber-500 text-2xl mb-2"></i><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Lo más caro</p><p id="statsMostExpensiveName" class="font-bold text-slate-300 text-sm truncate">Ninguno</p><p id="statsMostExpensivePrice" class="font-black text-white text-md">$0.00</p></div>
+                </div>
+                <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700"><h4 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-4 border-b border-slate-700 pb-2">Gastos por Categoría</h4><div id="statsCategoriesContainer" class="space-y-3"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-6 py-3 rounded-full text-sm font-bold shadow-xl transition-opacity opacity-0 pointer-events-none z-50">Mensaje</div>
+
+    <script>
+        // Inicializar Iconos
+        lucide.createIcons();
+
+        // VARIABLES GLOBALES (En Memoria)
+        let currentListId = null;
+        let currentListName = "";
+        let currentMarkets = [];
+        window.currentItemsList = []; 
+        window.currentBestMarket = "Ninguno"; 
+        window.currentSelectedCategory = "Todas";
+
+        // BASE DE DATOS FICTICIA (MOCK DATA)
+        const demoUser = { email: "demo@lorhels.com" };
+        let mockSavedLists = [
+            { id: "DEMO01", name: "Compra Semanal" }
+        ];
+        
+        let mockDatabase = {
+            "DEMO01": {
+                name: "Compra Semanal",
+                markets: ["Super A", "Super B"],
+                items: [
+                    { id: "item1", name: "Leche Entera", quantity: 2, unit: "L", category: "Lácteos", note: "Deslactosada", image: "", completed: false, prices: {"Super A": 1.20, "Super B": 1.45}, ts: Date.now() },
+                    { id: "item2", name: "Pechuga de Pollo", quantity: 1.5, unit: "kg", category: "Carnes", note: "Sin hueso", image: "", completed: false, prices: {"Super A": 6.50, "Super B": 6.10}, ts: Date.now() - 1000 },
+                    { id: "item3", name: "Detergente Ropa", quantity: 1, unit: "uds", category: "Limpieza", note: "", image: "", completed: true, prices: {"Super A": 4.50, "Super B": 4.50}, ts: Date.now() - 2000 }
+                ]
+            }
+        };
+
+        // --- SISTEMA DE INICIO (SIMULADO) ---
+        window.loginDemo = () => {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('homeScreen').classList.remove('hidden');
+            loadMyLists();
+            showToast("¡Sesión Demo iniciada!");
+        };
+
+        window.logoutDemo = () => {
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('listScreen').classList.add('hidden');
+            document.getElementById('authScreen').classList.remove('hidden');
+        };
+
+        // --- GESTIÓN DE LISTAS (SIMULADA) ---
+        function loadMyLists() {
+            const container = document.getElementById('myListsContainer');
+            container.innerHTML = '';
+            mockSavedLists.forEach(list => {
+                container.innerHTML += `<button onclick="startListSession('${list.id}')" class="w-full text-left bg-slate-900 hover:bg-slate-700 border border-slate-700 p-3 rounded-xl transition flex justify-between items-center group mb-2"><div><p class="font-bold text-slate-200">${list.name}</p><p class="text-[10px] font-mono text-slate-500">ID: ${list.id}</p></div><i class="fa-solid fa-arrow-right text-slate-600 group-hover:text-indigo-400"></i></button>`;
+            });
+        }
+
+        window.createNewList = () => {
+            const listName = prompt("📝 ¿Qué nombre le pondrás a esta lista?", "Nueva Lista Demo");
+            if (!listName) return;
+            const id = "NEW" + Math.random().toString(36).substring(2, 6).toUpperCase();
+            
+            mockSavedLists.push({ id: id, name: listName });
+            mockDatabase[id] = { name: listName, markets: ["Super A", "Super B"], items: [] };
+            
+            loadMyLists();
+            startListSession(id);
+        };
+
+        window.exitList = () => {
+            document.getElementById('listScreen').classList.add('hidden');
+            document.getElementById('homeScreen').classList.remove('hidden');
+        };
+
+        window.startListSession = (id) => {
+            currentListId = id; 
+            window.currentSelectedCategory = "Todas"; 
+            document.getElementById('displayListId').innerText = id;
+            document.getElementById('homeScreen').classList.add('hidden'); 
+            document.getElementById('listScreen').classList.remove('hidden');
+            
+            currentListName = mockDatabase[id].name; 
+            currentMarkets = mockDatabase[id].markets;
+            document.getElementById('listTitleDisplay').innerText = currentListName;
+            
+            const selector = document.getElementById('supermarketSelector'); 
+            selector.innerHTML = ''; 
+            currentMarkets.forEach(m => { selector.innerHTML += `<option value="${m}">${m}</option>`; });
+            
+            refreshApp(); 
+        }
+
+        window.openListSettings = () => {
+            const newName = prompt("✏️ Cambiar nombre de la lista:", currentListName); if (newName === null) return;
+            const marketsString = prompt("🏪 Escribe los supermercados separados por coma:", currentMarkets.join(", ")); if (marketsString === null) return;
+            const newMarkets = marketsString.split(',').map(m => m.trim()).filter(m => m !== "");
+            if (newMarkets.length === 0) return showToast("Debes poner al menos 1 supermercado");
+            
+            mockDatabase[currentListId].name = newName;
+            mockDatabase[currentListId].markets = newMarkets;
+            currentListName = newName;
+            currentMarkets = newMarkets;
+            document.getElementById('listTitleDisplay').innerText = currentListName;
+            
+            // Re-evaluar precios perdidos (simulación)
+            mockDatabase[currentListId].items.forEach(item => {
+                newMarkets.forEach(m => { if(item.prices[m] === undefined) item.prices[m] = 0; });
+            });
+
+            startListSession(currentListId); // Recargar
+        };
+
+        // --- CEREBRO PRINCIPAL (MOCK REALTIME) ---
+        function refreshApp() {
+            window.currentItemsList = mockDatabase[currentListId].items;
+            renderItems(window.currentItemsList); 
+            calculateStats(window.currentItemsList);
+        }
+
+        // --- CRUD PRODUCTOS (LOCAL) ---
+        window.openProductModal = (itemId = null) => {
+            const modal = document.getElementById('productModal'); document.getElementById('editItemId').value = itemId || '';
+            if (itemId) {
+                document.getElementById('modalTitle').innerText = "Editar Producto"; const item = window.currentItemsList.find(i => i.id === itemId);
+                if(item) {
+                    document.getElementById('pTitle').value = item.name || ''; document.getElementById('pQty').value = item.quantity || 1;
+                    document.getElementById('pUnit').value = item.unit || 'uds'; document.getElementById('pCategory').value = item.category || '';
+                    document.getElementById('pNote').value = item.note || ''; document.getElementById('pImage').value = item.image || '';
+                }
+            } else {
+                document.getElementById('modalTitle').innerText = "Añadir Producto"; document.getElementById('pTitle').value = '';
+                document.getElementById('pQty').value = '1'; document.getElementById('pUnit').value = 'uds';
+                document.getElementById('pCategory').value = window.currentSelectedCategory !== "Todas" ? window.currentSelectedCategory : '';
+                document.getElementById('pNote').value = ''; document.getElementById('pImage').value = '';
+            }
+            modal.classList.remove('hidden');
+        };
+
+        window.closeProductModal = () => document.getElementById('productModal').classList.add('hidden');
+
+        window.saveProduct = () => {
+            const id = document.getElementById('editItemId').value; const title = document.getElementById('pTitle').value.trim();
+            const qty = parseFloat(document.getElementById('pQty').value) || 1; const unit = document.getElementById('pUnit').value;
+            let category = document.getElementById('pCategory').value.trim(); if (category) category = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+            const note = document.getElementById('pNote').value.trim(); const image = document.getElementById('pImage').value.trim();
+            if (!title) return showToast("El título es obligatorio");
+            
+            if (id) {
+                let item = window.currentItemsList.find(i => i.id === id);
+                item.name = title; item.quantity = qty; item.unit = unit; item.category = category; item.note = note; item.image = image;
+            } else {
+                let initialPrices = {}; currentMarkets.forEach(m => initialPrices[m] = 0);
+                window.currentItemsList.push({ id: "item_" + Date.now(), name: title, quantity: qty, unit: unit, category: category, note: note, image: image, completed: false, prices: initialPrices, ts: Date.now() });
+            }
+            closeProductModal();
+            refreshApp();
+        };
+
+        window.updatePrice = (itemId, marketName, value) => { 
+            let item = window.currentItemsList.find(i => i.id === itemId);
+            item.prices[marketName] = parseFloat(value) || 0;
+            refreshApp();
+        };
+        
+        window.toggleComplete = (id, currentStatus) => { 
+            let item = window.currentItemsList.find(i => i.id === id);
+            item.completed = !currentStatus;
+            refreshApp();
+        };
+        
+        window.deleteItem = (id) => { 
+            if(confirm("¿Seguro que deseas borrar este producto?")) {
+                mockDatabase[currentListId].items = window.currentItemsList.filter(i => i.id !== id);
+                refreshApp();
+            }
+        };
+
+        window.selectCategoryTab = (categoryName) => { window.currentSelectedCategory = categoryName; renderItems(window.currentItemsList); };
+
+        function renderItems(items) {
+            const container = document.getElementById('itemsContainer'); const tabsContainer = document.getElementById('categoryTabsContainer');
+            container.innerHTML = ''; tabsContainer.innerHTML = '';
+            if (items.length === 0) { container.innerHTML = `<div class="text-center py-16 opacity-20"><i class="fa-solid fa-cart-shopping text-6xl mb-4 text-slate-400"></i><p class="font-bold text-slate-400">Lista vacía</p></div>`; return; }
+            let uniqueCategories = new Set(); items.forEach(item => uniqueCategories.add(item.category ? item.category : 'Otros'));
+            const categoriesList = ['Todas', ...Array.from(uniqueCategories).sort((a, b) => { if (a === 'Otros') return 1; if (b === 'Otros') return -1; return a.localeCompare(b); })];
+            if (!categoriesList.includes(window.currentSelectedCategory)) window.currentSelectedCategory = 'Todas';
+            categoriesList.forEach(cat => {
+                const isActive = window.currentSelectedCategory === cat; const tab = document.createElement('button'); tab.onclick = () => window.selectCategoryTab(cat);
+                tab.className = `whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm border ${ isActive ? 'bg-indigo-600 text-white border-indigo-600 shadow-indigo-900' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700' }`;
+                tab.innerText = cat; tabsContainer.appendChild(tab);
+            });
+            let itemsToRender = window.currentSelectedCategory !== 'Todas' ? items.filter(item => (item.category ? item.category : 'Otros') === window.currentSelectedCategory) : items;
+            const groupedItems = {}; itemsToRender.forEach(item => { const cat = item.category ? item.category : 'Otros'; if (!groupedItems[cat]) groupedItems[cat] = []; groupedItems[cat].push(item); });
+            Object.keys(groupedItems).sort((a, b) => { if (a === 'Otros') return 1; if (b === 'Otros') return -1; return a.localeCompare(b); }).forEach(cat => {
+                if (window.currentSelectedCategory === 'Todas') { const catHeader = document.createElement('div'); catHeader.innerHTML = `<h4 class="font-bold text-slate-400 text-sm uppercase tracking-wider mt-6 mb-3 border-b border-slate-700 pb-2 flex items-center"><i class="fa-solid fa-tag mr-2 text-indigo-400"></i>${cat}</h4>`; container.appendChild(catHeader); }
+                groupedItems[cat].sort((a,b) => { if (a.completed === b.completed) return b.ts - a.ts; return a.completed ? 1 : -1; }).forEach(item => {
+                    const card = document.createElement('div'); card.className = `bg-slate-800 rounded-3xl border overflow-hidden transition-all mb-3 ${item.completed ? 'border-slate-800 completed' : 'border-slate-700 shadow-sm'}`;
+                    const qty = item.quantity || 1; const unit = item.unit || 'uds';
+                    let badgesHtml = item.note ? `<div class="text-xs text-slate-400 mt-1"><i class="fa-regular fa-comment-dots mr-1"></i>${item.note}</div>` : '';
+                    let imgHtml = item.image ? `<img src="${item.image}" class="w-14 h-14 object-cover rounded-xl border border-slate-700" onerror="this.style.display='none'">` : '';
+                    let pricesHtml = '';
+                    if (!item.completed) {
+                        currentMarkets.forEach(market => {
+                            let unitPrice = item.prices ? (item.prices[market] || 0) : 0; let totalForMarket = (unitPrice * qty).toFixed(2);
+                            pricesHtml += `<div class="flex-1 bg-slate-900 rounded-2xl p-3 border border-slate-700"><p class="text-[9px] font-black uppercase text-slate-500 mb-1 truncate">${market}</p><div class="relative mb-2"><span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-600">$</span><input type="number" step="0.01" value="${unitPrice || ''}" onchange="updatePrice('${item.id}', '${market}', this.value)" placeholder="0.00" class="w-full bg-slate-800 border border-slate-600 rounded-lg pl-6 pr-2 py-1.5 text-xs focus:ring-2 focus:ring-indigo-400 outline-none font-bold text-white"></div><div class="flex justify-between items-center text-[10px]"><span class="text-slate-500 font-bold">Total:</span><span class="font-black text-indigo-400">$${totalForMarket}</span></div></div>`;
+                        });
+                    }
+                    card.innerHTML = `<div class="p-4"><div class="flex items-start gap-4"><button onclick="toggleComplete('${item.id}', ${item.completed})" class="mt-1 text-2xl shrink-0 transition hover:scale-110">${item.completed ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : '<i class="fa-regular fa-circle text-slate-600 hover:text-indigo-500"></i>'}</button>${imgHtml}<div class="flex-1 min-w-0"><div class="flex justify-between items-start"><div><h4 class="font-black text-white text-lg leading-tight ${item.completed ? 'completed-text' : ''}">${item.name}</h4><p class="text-sm font-bold text-slate-500 mt-0.5">${qty} ${unit}</p></div><div class="flex gap-1"><button onclick="openProductModal('${item.id}')" class="text-slate-500 hover:text-indigo-400 p-2 rounded-full hover:bg-slate-700 transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteItem('${item.id}')" class="text-slate-500 hover:text-red-400 p-2 rounded-full hover:bg-slate-700 transition"><i class="fa-solid fa-trash-can"></i></button></div></div><div class="mt-1 flex flex-wrap gap-2">${badgesHtml}</div></div></div></div>${!item.completed ? `<div class="px-4 pb-4 flex flex-col sm:flex-row gap-3 border-t border-slate-700/50 pt-3">${pricesHtml}</div>` : ''}`;
+                    container.appendChild(card);
+                });
+            });
+        }
+
+        function calculateStats(items) {
+            let totals = {}; currentMarkets.forEach(m => totals[m] = 0);
+            items.forEach(item => { const qty = item.quantity || 1; currentMarkets.forEach(market => { if(item.prices && item.prices[market]) totals[market] += (item.prices[market] * qty); }); });
+            let winner = "Ninguno"; let minTotal = Infinity;
+            for (const [market, total] of Object.entries(totals)) { if (total > 0 && total < minTotal) { minTotal = total; winner = market; } }
+            if (minTotal === Infinity) minTotal = 0; window.currentBestMarket = minTotal > 0 ? winner : currentMarkets[0];
+            document.getElementById('winnerName').innerText = minTotal > 0 ? winner : "Sin datos";
+            const totalsDiv = document.getElementById('totalsContainer'); totalsDiv.innerHTML = '';
+            const footerDiv = document.getElementById('footerContainer'); footerDiv.innerHTML = '';
+            currentMarkets.forEach((market, index) => {
+                const t = totals[market].toFixed(2);
+                totalsDiv.innerHTML += `<div class="flex flex-col flex-1 min-w-[80px]"><span class="text-slate-400 text-[9px] font-bold uppercase truncate">${market}</span><span class="font-extrabold text-lg tracking-tight">$${t}</span></div>`;
+                footerDiv.innerHTML += `<div class="flex-1 text-center min-w-[60px]"><p class="text-[9px] text-slate-500 font-bold uppercase truncate">${market}</p><p class="font-black text-white">$${t}</p></div>`;
+                if (index < currentMarkets.length - 1) footerDiv.innerHTML += `<div class="h-6 w-px bg-slate-700"></div>`;
+            });
+            updateSummary();
+        }
+
+        window.updateSummary = () => {
+            const selector = document.getElementById('supermarketSelector'); if (!selector || selector.options.length === 0) return;
+            const selectedMarket = selector.value; let pendingCount = 0, pendingTotal = 0, completedCount = 0, completedTotal = 0;
+            window.currentItemsList.forEach(item => {
+                const qty = item.quantity || 1; const price = (item.prices && item.prices[selectedMarket]) ? item.prices[selectedMarket] : 0; const cost = price * qty;
+                if (item.completed) { completedCount++; completedTotal += cost; } else { pendingCount++; pendingTotal += cost; }
+            });
+            document.getElementById('summaryPendingCount').innerText = pendingCount; document.getElementById('summaryPendingTotal').innerText = `$${pendingTotal.toFixed(2)}`;
+            document.getElementById('summaryCompletedCount').innerText = completedCount; document.getElementById('summaryCompletedTotal').innerText = `$${completedTotal.toFixed(2)}`;
+            document.getElementById('summaryTotalCount').innerText = pendingCount + completedCount; document.getElementById('summaryTotalTotal').innerText = `$${(pendingTotal + completedTotal).toFixed(2)}`;
+        };
+
+        window.openStatsModal = () => {
+            if(window.currentItemsList.length === 0) return showToast("Añade productos para ver estadísticas");
+            let completedItems = 0; let categoryTotals = {}; let maxPrice = 0; let maxItemName = "Ninguno"; let marketTotals = {};
+            currentMarkets.forEach(m => marketTotals[m] = 0);
+            window.currentItemsList.forEach(item => {
+                if (item.completed) completedItems++;
+                const qty = item.quantity || 1; const bestPrice = (item.prices && item.prices[window.currentBestMarket]) ? item.prices[window.currentBestMarket] : 0; const bestCost = bestPrice * qty;
+                if (bestCost > maxPrice) { maxPrice = bestCost; maxItemName = item.name; }
+                const cat = item.category ? item.category.trim().toUpperCase() : 'OTROS'; if (!categoryTotals[cat]) categoryTotals[cat] = 0; categoryTotals[cat] += bestCost;
+                currentMarkets.forEach(m => { const price = (item.prices && item.prices[m]) ? item.prices[m] : 0; marketTotals[m] += (price * qty); });
+            });
+            document.getElementById('statsProgressBar').style.width = `${(completedItems / window.currentItemsList.length) * 100}%`;
+            document.getElementById('statsProgressText').innerText = `${((completedItems / window.currentItemsList.length) * 100).toFixed(0)}%`;
+            let minTotal = Infinity; let maxTotal = 0;
+            for (const m in marketTotals) { if (marketTotals[m] < minTotal) minTotal = marketTotals[m]; if (marketTotals[m] > maxTotal) maxTotal = marketTotals[m]; }
+            document.getElementById('statsSavings').innerText = `$${((maxTotal > 0 && minTotal < Infinity) ? (maxTotal - minTotal) : 0).toFixed(2)}`;
+            document.getElementById('statsMostExpensiveName').innerText = maxItemName; document.getElementById('statsMostExpensivePrice').innerText = `$${maxPrice.toFixed(2)}`;
+            const catContainer = document.getElementById('statsCategoriesContainer'); catContainer.innerHTML = '';
+            Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).forEach(([catName, amount]) => {
+                if(amount > 0) catContainer.innerHTML += `<div class="flex justify-between items-center border-b border-slate-700 pb-2 last:border-0"><span class="font-bold text-slate-300 text-sm">${catName}</span><span class="font-black text-white">$${amount.toFixed(2)}</span></div>`;
+            });
+            if (catContainer.innerHTML === '') catContainer.innerHTML = '<p class="text-center text-slate-500 text-sm">Aún no hay precios registrados</p>';
+            document.getElementById('statsModal').classList.remove('hidden');
+        };
+
+        window.closeStatsModal = () => document.getElementById('statsModal').classList.add('hidden');
+
+        window.shareViaWhatsApp = () => {
+            if (window.currentItemsList.length === 0) return showToast("La lista está vacía");
+            const pendingItems = window.currentItemsList.filter(item => !item.completed);
+            if (pendingItems.length === 0) return showToast("¡Ya completaste todo!");
+            let message = `🛒 *Falta por comprar en ${currentListName}:*\n\n`;
+            const grouped = {}; pendingItems.forEach(item => { const cat = item.category ? item.category : 'Otros'; if (!grouped[cat]) grouped[cat] = []; grouped[cat].push(item); });
+            for (const cat in grouped) { message += `*${cat}*\n`; grouped[cat].forEach(item => { message += `• ${item.name} - ${item.quantity || 1} ${item.unit || 'uds'}${item.note ? ` (${item.note})` : ''}\n`; }); message += `\n`; }
+            message += `🔗 *Código LorHels:* ${currentListId}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        };
+
+        window.copyId = () => {
+            navigator.clipboard.writeText(currentListId);
+            showToast("Código DEMO copiado");
+        }; 
+        
+        function showToast(msg) { 
+            const t = document.getElementById('toast'); 
+            t.innerText = msg; t.classList.remove('opacity-0', 'pointer-events-none'); 
+            setTimeout(() => t.classList.add('opacity-0', 'pointer-events-none'), 2000); 
+        }
+    </script>
+</body>
+</html>
