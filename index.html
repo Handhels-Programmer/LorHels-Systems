@@ -29,35 +29,51 @@
 <body class="bg-slate-950 text-slate-200">
 
     <!-- Navegación -->
-    <nav class="fixed w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center transform rotate-12">
-                    <i data-lucide="code-2" class="text-white transform -rotate-12"></i>
+    <header class="fixed w-full top-0 z-50 glass-card bg-slate-950/80 border-b border-white/10 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-blue-500/20">L</div>
+                    <span class="text-xl font-extrabold tracking-tight text-white">LorHels <span class="text-blue-500 font-medium">Systems</span></span>
                 </div>
-                <span class="text-xl font-extrabold tracking-tight text-white">LorHels <span class="text-blue-500 text-sm uppercase tracking-widest">Systems</span></span>
-            </div>
-            <div class="hidden md:flex items-center gap-8 text-sm font-medium">
-                <a href="#inicio" class="hover:text-blue-400 transition-colors">Inicio</a>
-                <a href="#apps" class="hover:text-blue-400 transition-colors">Aplicaciones</a>
-                <a href="#tecnologias" class="hover:text-blue-400 transition-colors">Tecnologías</a>
-                <a href="#contacto" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-full text-white transition-all">Contáctame</a>
-                <button id="btnAcceder" onclick="window.openAuthModal()" class="px-5 py-2.5 bg-slate-800 border border-white/10 hover:bg-slate-700 rounded-full text-white transition-all flex items-center gap-2">
-                    <i data-lucide="user" class="w-4 h-4"></i> Acceder
-                </button>
 
-                <div id="menuUsuario" class="hidden items-center gap-4">
-                    <span id="nombreUsuarioUI" class="text-sm text-slate-300 font-semibold hidden md:block"></span>
-                    <button onclick="window.irAlPanel()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-full text-white transition-all text-sm font-bold shadow-lg shadow-emerald-500/20">
-                        Mi Panel
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#tecnologias" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Tecnologías</a>
+                    <a href="#apps" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Portafolio</a>
+                    <a href="#contacto" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Contacto</a>
+                    <button id="btnAccederDesktop" onclick="window.abrirModalAuth()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-white text-sm font-bold transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2">
+                        <i data-lucide="user" class="w-4 h-4"></i> Iniciar Sesión
                     </button>
-                    <button onclick="window.cerrarSesion()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-800 hover:bg-red-500/20 hover:text-red-500 text-slate-400 transition-colors" title="Cerrar Sesión">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <button id="btnPanelDesktop" onclick="window.irAlPanel()" class="hidden px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white text-sm font-bold transition-all shadow-lg shadow-emerald-500/20 items-center gap-2">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Ir al Panel
+                    </button>
+                </nav>
+
+                <div class="md:hidden flex items-center">
+                    <button onclick="window.toggleMenuMovil()" class="text-slate-300 hover:text-white p-2 focus:outline-none">
+                        <i data-lucide="menu" id="icono-menu-movil" class="w-7 h-7"></i>
                     </button>
                 </div>
             </div>
         </div>
-    </nav>
+
+        <div id="menu-movil" class="hidden md:hidden bg-slate-900 border-b border-white/10 absolute w-full shadow-2xl">
+            <div class="px-4 pt-2 pb-6 space-y-2 flex flex-col">
+                <a href="#tecnologias" onclick="window.toggleMenuMovil()" class="block px-3 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg">Tecnologías</a>
+                <a href="#apps" onclick="window.toggleMenuMovil()" class="block px-3 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg">Portafolio</a>
+                <a href="#contacto" onclick="window.toggleMenuMovil()" class="block px-3 py-3 text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg">Contacto</a>
+                <div class="pt-4 mt-2 border-t border-white/10 space-y-2">
+                    <button id="btnAccederMovil" onclick="window.toggleMenuMovil(); window.abrirModalAuth()" class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-white text-base font-bold transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+                        <i data-lucide="user" class="w-5 h-5"></i> Iniciar Sesión
+                    </button>
+                    <button id="btnPanelMovil" onclick="window.toggleMenuMovil(); window.irAlPanel()" class="hidden w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white text-base font-bold transition-all shadow-lg shadow-emerald-500/20 items-center justify-center gap-2">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Ir al Panel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <!-- Sección Hero (1) -->
     <section id="inicio" class="hero-gradient min-h-screen pt-32 pb-20 px-6 flex flex-col items-center justify-center text-center">
@@ -517,10 +533,12 @@
 
     <!-- Footer -->
     <footer class="p-6 text-center text-slate-500 text-sm border-t border-slate-800 mt-auto">
-        <a href="https://lorhels.web.app" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 transition-colors duration-200 font-medium">
+ 
+        <p>&copy; 2026
+            <a href="https://lorhels.web.app" target="\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 transition-colors duration-200 font-medium">
             LorHels Systems
-        </a> 
-        &copy; 2026 - Soluciones Digitales a Medida
+        </a> Todos los derechos reservados.</p>
+        <p style="margin-top: 10px; color: #4b5563;">Desarrollado con pasión para brindar las mejores soluciones.</p>
     </footer>
 
     <script>
@@ -612,7 +630,7 @@
             projectId: "lorhels",
             storageBucket: "lorhels.firebasestorage.app",
             messagingSenderId: "38426381906",
-            appId: "1:38426381906:web:bf6293dc35396a0100598b"
+            appId: "1:38426381906:web:b577fde70b2a410700598b"
         };
   
         const app = initializeApp(firebaseConfig);
@@ -655,7 +673,7 @@
         // --- LÓGICA DE LA INTERFAZ (MODAL) ---
         let isLoginMode = true;
 
-        window.openAuthModal = () => {
+        window.abrirModalAuth = () => {
             document.getElementById('authModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             lucide.createIcons();
@@ -743,9 +761,10 @@
 
         // --- OBSERVADOR DE ESTADO DE SESIÓN ---
         onAuthStateChanged(auth, async (user) => {
-            const btnAcceder = document.getElementById('btnAcceder');
-            const menuUsuario = document.getElementById('menuUsuario'); 
-            const nombreUsuarioUI = document.getElementById('nombreUsuarioUI');
+            const btnAccederDesktop = document.getElementById('btnAccederDesktop');
+            const btnPanelDesktop = document.getElementById('btnPanelDesktop');
+            const btnAccederMovil = document.getElementById('btnAccederMovil');
+            const btnPanelMovil = document.getElementById('btnPanelMovil');
 
             if (user) {
                 window.usuarioActual = user;
@@ -755,13 +774,19 @@
                 if (userDoc.exists()) {
                     const datos = userDoc.data();
                     window.rolActual = datos.rol;
-         
-                    const primerNombre = datos.nombre.split(' ')[0];
-                    nombreUsuarioUI.innerText = `Hola, ${primerNombre}`;
               
-                    btnAcceder.classList.add('hidden');
-                    menuUsuario.classList.remove('hidden');
-                    menuUsuario.classList.add('flex');
+                    // Ocultar botones de login, mostrar botones de panel
+                    if(btnAccederDesktop) btnAccederDesktop.classList.add('hidden');
+                    if(btnAccederMovil) btnAccederMovil.classList.add('hidden');
+                    
+                    if(btnPanelDesktop) { 
+                        btnPanelDesktop.classList.remove('hidden'); 
+                        btnPanelDesktop.classList.add('flex'); 
+                    }
+                    if(btnPanelMovil) { 
+                        btnPanelMovil.classList.remove('hidden'); 
+                        btnPanelMovil.classList.add('flex'); 
+                    }
               
                     lucide.createIcons(); 
                 }
@@ -769,9 +794,18 @@
                 window.usuarioActual = null;
                 window.rolActual = null;
           
-                btnAcceder.classList.remove('hidden');
-                menuUsuario.classList.add('hidden');
-                menuUsuario.classList.remove('flex');
+                // Mostrar botones de login, ocultar botones de panel
+                if(btnAccederDesktop) btnAccederDesktop.classList.remove('hidden');
+                if(btnAccederMovil) btnAccederMovil.classList.remove('hidden');
+                
+                if(btnPanelDesktop) { 
+                    btnPanelDesktop.classList.add('hidden'); 
+                    btnPanelDesktop.classList.remove('flex'); 
+                }
+                if(btnPanelMovil) { 
+                    btnPanelMovil.classList.add('hidden'); 
+                    btnPanelMovil.classList.remove('flex'); 
+                }
             }
         });
 
@@ -796,5 +830,26 @@
             }
         };
     </script>
+
+    <script>
+    // Función para abrir y cerrar el menú en celulares
+    window.toggleMenuMovil = () => {
+        const menu = document.getElementById('menu-movil');
+        const icono = document.getElementById('icono-menu-movil');
+        
+        if (menu.classList.contains('hidden')) {
+            // Abrir menú
+            menu.classList.remove('hidden');
+            menu.classList.add('animate-in', 'slide-in-from-top-4', 'duration-300');
+            icono.setAttribute('data-lucide', 'x'); // Cambia a una X
+        } else {
+            // Cerrar menú
+            menu.classList.add('hidden');
+            menu.classList.remove('animate-in', 'slide-in-from-top-4', 'duration-300');
+            icono.setAttribute('data-lucide', 'menu'); // Vuelve a las 3 rayitas
+        }
+        lucide.createIcons(); // Refrescar los íconos
+    };
+</script>
 </body>
 </html>
