@@ -25,7 +25,7 @@
 
     <aside class="w-64 bg-slate-900 border-r border-white/5 flex flex-col hidden md:flex">
         <div class="h-20 flex items-center px-6 border-b border-white/5">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white mr-3">L</div>
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white mr-3">LH</div>
             <span class="text-lg font-extrabold tracking-tight text-white">LorHels <span class="text-blue-500 text-xs uppercase tracking-widest">Admin</span></span>
         </div>
 
@@ -338,13 +338,35 @@
         </div>
 
         <!-- Footer -->
-    <footer class="p-6 text-center text-slate-500 text-sm border-t border-slate-800 mt-auto">
- 
-        <p>&copy; 2026
-            <a href="https://lorhels.web.app" target="\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 transition-colors duration-200 font-medium">
-            LorHels Systems
-        </a> Todos los derechos reservados.</p>
-        <p style="margin-top: 10px; color: #4b5563;">Desarrollado con pasión para brindar las mejores soluciones.</p>
+    <footer class="mt-auto border-t border-white/5 bg-slate-900/50 backdrop-blur-md py-6 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <div class="text-center md:text-left">
+                <p class="text-sm text-slate-400">
+                    &copy; 2026 
+                    <a href="https://lorhels.web.app" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 font-bold transition-colors">
+                        LorHels Systems
+                    </a>. 
+                    <span class="hidden sm:inline">Todos los derechos reservados.</span>
+                </p>
+                <p class="text-xs text-slate-500 mt-1.5 flex items-center justify-center md:justify-start gap-1.5">
+                    Desarrollado con <i data-lucide="heart" class="w-3 h-3 text-rose-500 fill-rose-500 animate-pulse"></i> para brindar las mejores soluciones.
+                </p>
+            </div>
+            
+            <div class="flex items-center gap-5 text-slate-500">
+                <a href="#" class="hover:text-blue-400 transition-colors hover:scale-110 transform" title="Instagram">
+                    <i data-lucide="instagram" class="w-5 h-5"></i>
+                </a>
+                <a href="#" class="hover:text-blue-400 transition-colors hover:scale-110 transform" title="LinkedIn">
+                    <i data-lucide="linkedin" class="w-5 h-5"></i>
+                </a>
+                <a href="mailto:lorhels-systems@handhelsinc.net" class="hover:text-blue-400 transition-colors hover:scale-110 transform" title="Correo">
+                    <i data-lucide="mail" class="w-5 h-5"></i>
+                </a>
+            </div>
+
+        </div>
     </footer>
     
     </main>
@@ -403,22 +425,12 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, query, limit, orderBy, updateDoc, addDoc, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        // 1. IMPORTAMOS LA CONEXIÓN DESDE TU NUEVO ARCHIVO
+        import { auth, db } from "./firebaseConfig.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyD00LUObgc_N4CewkoYGyP4jIZAutXsf3Q",
-            authDomain: "lorhels.firebaseapp.com",
-            projectId: "lorhels",
-            storageBucket: "lorhels.firebasestorage.app",
-            messagingSenderId: "38426381906",
-            appId: "1:38426381906:web:b577fde70b2a410700598b"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // 2. IMPORTAMOS SOLO LAS FUNCIONES DE FIREBASE QUE USA ESTE PANEL
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { doc, getDoc, collection, getDocs, query, limit, orderBy, updateDoc, addDoc, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Referencias a la UI
         const loadingScreen = document.getElementById('loadingScreen');
